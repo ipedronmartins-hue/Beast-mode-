@@ -40,7 +40,7 @@
     box-shadow:0 0 0 1px rgba(255,67,21,0.4),0 8px 24px -8px rgba(255,67,21,0.35);}
   .btn:hover{background:var(--ember-hover);}
   .btn:disabled{opacity:.4;pointer-events:none;}
-  .hidden{display:none;}
+  .hidden{display:none !important;}
   .muted{color:var(--text-secondary);font-size:14px;}
   .tiny{color:var(--text-tertiary);font-size:12px;}
   .err{color:var(--danger);font-size:14px;margin-top:10px;}
@@ -80,12 +80,25 @@
   <!-- Área PT -->
   <section id="areaPT" class="hidden">
     <h1 style="font-size:26px;">Olá, <span id="ptNome"></span></h1>
-    <p class="muted" style="margin-top:6px;">Os teus clientes</p>
-    <div class="card" style="margin-top:18px;">
+
+    <div class="card" style="margin-top:18px;max-width:440px;">
+      <form id="fConvidar">
+        <label for="emailCliente">Convidar cliente (email)</label>
+        <input type="text" id="emailCliente" placeholder="cliente@exemplo.com" required />
+        <label for="nomeCliente" style="margin-top:12px;">Nome (opcional)</label>
+        <input type="text" id="nomeCliente" placeholder="Nome do cliente" />
+        <button class="btn" type="submit" id="btnConvidar">Convidar</button>
+        <p class="err hidden" id="errConvidar"></p>
+        <p class="tiny" id="okConvidar" style="margin-top:10px;color:var(--success);display:none;">Cliente associado. Já pode entrar com o email dele.</p>
+      </form>
+    </div>
+
+    <p class="muted" style="margin-top:28px;">Os teus clientes</p>
+    <div class="card" style="margin-top:12px;">
       <div id="listaClientes"></div>
       <div class="empty hidden" id="semClientes">
         <p style="margin:0;font-weight:500;">Ainda sem clientes</p>
-        <p class="muted" style="margin:8px 0 0;">O convite de clientes chega na próxima atualização — a RPC está a ser construída.</p>
+        <p class="muted" style="margin:8px 0 0;">Convida o primeiro cliente pelo email acima.</p>
       </div>
     </div>
   </section>
@@ -126,20 +139,46 @@
     if (perfilPT){
       $('ptNome').textContent = pessoa.nome.split(' ')[0];
       show('areaPT');
-      const { data: rel } = await sb.from('relacoes_pt_cliente')
-        .select('id, estado, inicio, cliente:cliente_id ( nome )')
-        .eq('estado','ativa');
-      const lista = $('listaClientes');
-      if (!rel || rel.length === 0){ show('semClientes'); }
-      else {
-        lista.innerHTML = rel.map(r =>
-          `<div class="row"><span>${r.cliente?.nome ?? '—'}</span>
-           <span class="badge">desde ${new Date(r.inicio).toLocaleDateString('pt-PT')}</span></div>`).join('');
-      }
+      await carregarClientes();
     } else {
       $('clNome').textContent = pessoa.nome.split(' ')[0];
       show('areaCliente');
     }
+  }
+
+  $('fConvidar')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    $('btnConvidar').disabled = true;
+    hide('errConvidar');
+    $('okConvidar').style.display = 'none';
+    const { error } = await sb.rpc('bm_convidar_cliente', {
+      p_email: $('emailCliente').value.trim(),
+      p_nome: $('nomeCliente').value.trim() || null
+    });
+    $('btnConvidar').disabled = false;
+    if (error) {
+      $('errConvidar').textContent = error.message.includes('já está associado')
+        ? 'Este cliente já está associado a ti.'
+        : (error.message.includes('Email inválido') ? 'Email inválido.' : 'Não foi possível convidar: ' + error.message);
+      show('errConvidar');
+      return;
+    }
+    $('fConvidar').reset();
+    $('okConvidar').style.display = 'block';
+    await carregarClientes();
+  });
+
+  async function carregarClientes(){
+    const { data: rel } = await sb.from('relacoes_pt_cliente')
+      .select('id, estado, inicio, cliente:cliente_id ( nome, email )')
+      .eq('estado','ativa')
+      .order('inicio', { ascending: false });
+    const lista = $('listaClientes');
+    if (!rel || rel.length === 0){ show('semClientes'); lista.innerHTML = ''; return; }
+    hide('semClientes');
+    lista.innerHTML = rel.map(r =>
+      `<div class="row"><span>${r.cliente?.nome ?? r.cliente?.email ?? '—'}</span>
+       <span class="badge">desde ${new Date(r.inicio).toLocaleDateString('pt-PT')}</span></div>`).join('');
   }
 
   $('fOnboard')?.addEventListener('submit', async (e) => {
