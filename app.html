@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>App — Beast Mode</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0B0D; --bg-surface:#16161A; --bg-raised:#1E1E23;
+    --border:#26262D; --ember:#FF4315; --ember-hover:#E63A0F;
+    --steel:#6E8CFF;
+    --text-primary:#F5F5F2; --text-secondary:#9A9AA3; --text-tertiary:#5C5C66;
+    --success:#3DDC84; --danger:#EF4444;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text-primary);
+    font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:'Space Grotesk',sans-serif;letter-spacing:-0.01em;margin:0;}
+  .mono{font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;}
+  header{display:flex;align-items:center;justify-content:space-between;
+    max-width:960px;margin:0 auto;padding:20px 24px;}
+  .logo{font-family:'Space Grotesk',sans-serif;font-weight:600;font-size:17px;}
+  .ghost{background:none;border:1px solid var(--border);color:var(--text-secondary);
+    border-radius:8px;padding:8px 14px;font-size:13px;cursor:pointer;font-family:inherit;}
+  main{max-width:960px;margin:0 auto;padding:12px 24px 80px;}
+  .card{border-radius:10px;border:1px solid var(--border);background:var(--bg-surface);padding:24px;
+    box-shadow:0 1px 0 0 rgba(255,255,255,0.03) inset,0 8px 24px -12px rgba(0,0,0,0.6);}
+  label{font-size:14px;font-weight:500;color:var(--text-secondary);display:block;margin-bottom:6px;}
+  input[type=text]{width:100%;border-radius:10px;border:1px solid var(--border);background:var(--bg-raised);
+    color:var(--text-primary);padding:12px 16px;font-size:15px;outline:none;}
+  input[type=text]:focus{border-color:rgba(255,67,21,0.6);}
+  .check{display:flex;align-items:center;gap:10px;margin-top:16px;font-size:14px;color:var(--text-secondary);cursor:pointer;}
+  .check input{width:18px;height:18px;accent-color:var(--ember);}
+  .btn{margin-top:18px;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    border-radius:10px;border:none;background:var(--ember);color:#fff;
+    font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:15px;padding:13px 26px;cursor:pointer;
+    box-shadow:0 0 0 1px rgba(255,67,21,0.4),0 8px 24px -8px rgba(255,67,21,0.35);}
+  .btn:hover{background:var(--ember-hover);}
+  .btn:disabled{opacity:.4;pointer-events:none;}
+  .hidden{display:none;}
+  .muted{color:var(--text-secondary);font-size:14px;}
+  .tiny{color:var(--text-tertiary);font-size:12px;}
+  .err{color:var(--danger);font-size:14px;margin-top:10px;}
+  .empty{border:1px dashed var(--border);border-radius:10px;padding:36px 24px;text-align:center;margin-top:16px;}
+  .row{display:flex;align-items:center;justify-content:space-between;gap:12px;
+    border-bottom:1px solid var(--border);padding:14px 4px;}
+  .row:last-child{border-bottom:none;}
+  .badge{font-size:11px;border:1px solid var(--border);border-radius:999px;padding:3px 10px;color:var(--text-secondary);}
+  #loading{display:flex;min-height:60dvh;align-items:center;justify-content:center;color:var(--text-tertiary);}
+</style>
+</head>
+<body>
+<header>
+  <span class="logo">Beast Mode</span>
+  <button class="ghost hidden" id="btnSair">Sair</button>
+</header>
+
+<main>
+  <div id="loading">A carregar…</div>
+
+  <!-- Onboarding: primeira entrada, sem registo de pessoa ainda -->
+  <section id="onboarding" class="hidden">
+    <h1 style="font-size:26px;">Bem-vindo 👊</h1>
+    <p class="muted" style="margin-top:8px;">Só precisamos do teu nome para começar.</p>
+    <div class="card" style="margin-top:20px;max-width:440px;">
+      <form id="fOnboard">
+        <label for="nome">O teu nome</label>
+        <input type="text" id="nome" placeholder="Nome e apelido" required minlength="2" />
+        <label class="check"><input type="checkbox" id="souPT" checked /> Sou Personal Trainer</label>
+        <p class="tiny" style="margin-top:10px;">Se entraste por convite de um PT, desmarca a opção.</p>
+        <button class="btn" type="submit" id="btnOnboard">Criar conta</button>
+        <p class="err hidden" id="errOnboard"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- Área PT -->
+  <section id="areaPT" class="hidden">
+    <h1 style="font-size:26px;">Olá, <span id="ptNome"></span></h1>
+    <p class="muted" style="margin-top:6px;">Os teus clientes</p>
+    <div class="card" style="margin-top:18px;">
+      <div id="listaClientes"></div>
+      <div class="empty hidden" id="semClientes">
+        <p style="margin:0;font-weight:500;">Ainda sem clientes</p>
+        <p class="muted" style="margin:8px 0 0;">O convite de clientes chega na próxima atualização — a RPC está a ser construída.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Área Cliente -->
+  <section id="areaCliente" class="hidden">
+    <h1 style="font-size:26px;">Olá, <span id="clNome"></span></h1>
+    <div class="empty" style="margin-top:20px;">
+      <p style="margin:0;font-weight:500;">Sem treino atribuído</p>
+      <p class="muted" style="margin:8px 0 0;">Quando o teu PT publicar um plano, o treino do dia aparece aqui.</p>
+    </div>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+  const sb = window.supabase.createClient(BM_CONFIG.SUPABASE_URL, BM_CONFIG.SUPABASE_ANON_KEY);
+  const $ = id => document.getElementById(id);
+  const show = id => $(id).classList.remove('hidden');
+  const hide = id => $(id).classList.add('hidden');
+
+  async function init(){
+    const { data:{ session } } = await sb.auth.getSession();
+    if (!session){ location.href = 'login.html'; return; }
+    show('btnSair');
+
+    // A minha pessoa (RLS: só a própria linha é visível)
+    const { data: pessoa, error } = await sb.from('pessoas').select('id, nome').maybeSingle();
+    hide('loading');
+
+    if (error){ alert('Erro a carregar o perfil.'); return; }
+    if (!pessoa){ show('onboarding'); return; }
+
+    // Sou PT? (RLS de perfis_pt permite ver o próprio)
+    const { data: perfilPT } = await sb.from('perfis_pt').select('pessoa_id').eq('pessoa_id', pessoa.id).maybeSingle();
+
+    if (perfilPT){
+      $('ptNome').textContent = pessoa.nome.split(' ')[0];
+      show('areaPT');
+      const { data: rel } = await sb.from('relacoes_pt_cliente')
+        .select('id, estado, inicio, cliente:cliente_id ( nome )')
+        .eq('estado','ativa');
+      const lista = $('listaClientes');
+      if (!rel || rel.length === 0){ show('semClientes'); }
+      else {
+        lista.innerHTML = rel.map(r =>
+          `<div class="row"><span>${r.cliente?.nome ?? '—'}</span>
+           <span class="badge">desde ${new Date(r.inicio).toLocaleDateString('pt-PT')}</span></div>`).join('');
+      }
+    } else {
+      $('clNome').textContent = pessoa.nome.split(' ')[0];
+      show('areaCliente');
+    }
+  }
+
+  $('fOnboard')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    $('btnOnboard').disabled = true;
+    hide('errOnboard');
+    const { error } = await sb.rpc('bm_criar_pessoa', {
+      p_nome: $('nome').value.trim(),
+      p_como_pt: $('souPT').checked
+    });
+    if (error){
+      $('errOnboard').textContent = 'Não foi possível criar a conta: ' + error.message;
+      show('errOnboard');
+      $('btnOnboard').disabled = false;
+      return;
+    }
+    hide('onboarding');
+    show('loading');
+    init();
+  });
+
+  $('btnSair').addEventListener('click', async () => {
+    await sb.auth.signOut();
+    location.href = 'login.html';
+  });
+
+  init();
+</script>
+</body>
+</html>

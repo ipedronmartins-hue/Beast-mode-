@@ -1,1 +1,0 @@
-export const DEFAULT_HYDRATION_TARGET = 3

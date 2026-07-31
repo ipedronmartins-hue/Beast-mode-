@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Entrar — Beast Mode</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0B0B0D; --bg-surface:#16161A; --bg-raised:#1E1E23;
+    --border:#26262D; --ember:#FF4315; --ember-hover:#E63A0F;
+    --text-primary:#F5F5F2; --text-secondary:#9A9AA3; --text-tertiary:#5C5C66;
+    --success:#3DDC84; --danger:#EF4444;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text-primary);
+    font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
+  h1{font-family:'Space Grotesk',sans-serif;letter-spacing:-0.01em;margin:0;}
+  main{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:48px 24px;}
+  .wrap{width:100%;max-width:384px;}
+  .hero{display:flex;flex-direction:column;align-items:center;gap:20px;text-align:center;}
+  .plates{display:flex;flex-direction:column;align-items:center;gap:6px;}
+  .plate{height:6px;border-radius:999px;background:var(--ember);}
+  .card{margin-top:40px;border-radius:10px;border:1px solid var(--border);background:var(--bg-surface);padding:24px;
+    box-shadow:0 1px 0 0 rgba(255,255,255,0.03) inset,0 8px 24px -12px rgba(0,0,0,0.6);}
+  label{font-size:14px;font-weight:500;color:var(--text-secondary);display:block;margin-bottom:6px;}
+  input{width:100%;border-radius:10px;border:1px solid var(--border);background:var(--bg-raised);
+    color:var(--text-primary);padding:12px 16px;font-size:15px;outline:none;transition:border-color .15s;}
+  input::placeholder{color:var(--text-tertiary);}
+  input:focus{border-color:rgba(255,67,21,0.6);box-shadow:0 0 0 2px rgba(255,67,21,0.15);}
+  button{margin-top:16px;width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    border-radius:10px;border:none;background:var(--ember);color:#fff;
+    font-family:'Space Grotesk',sans-serif;font-weight:500;font-size:15px;padding:14px 24px;cursor:pointer;
+    box-shadow:0 0 0 1px rgba(255,67,21,0.4),0 8px 24px -8px rgba(255,67,21,0.35);transition:background-color .15s;}
+  button:hover{background:var(--ember-hover);}
+  button:disabled{opacity:.4;pointer-events:none;}
+  .msg{margin-top:14px;font-size:14px;display:none;}
+  .msg.ok{color:var(--success);display:block;}
+  .msg.err{color:var(--danger);display:block;}
+  .footnote{margin-top:24px;text-align:center;font-size:12px;color:var(--text-tertiary);}
+  .back{margin-top:18px;text-align:center;}
+  .back a{color:var(--text-tertiary);font-size:12px;}
+</style>
+</head>
+<body>
+<main>
+  <div class="wrap">
+    <div class="hero">
+      <div class="plates" aria-hidden="true">
+        <div class="plate" style="width:44px;opacity:1"></div>
+        <div class="plate" style="width:32px;opacity:.78"></div>
+        <div class="plate" style="width:22px;opacity:.56"></div>
+      </div>
+      <div>
+        <h1 style="font-size:24px;font-weight:600;">Beast Mode</h1>
+        <p style="margin:6px 0 0;font-size:14px;color:var(--text-secondary);">Entra com o teu email. Sem password.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <form id="f">
+        <label for="email">Email</label>
+        <input id="email" type="email" placeholder="o-teu-email@exemplo.com" autocomplete="email" required />
+        <button type="submit" id="btn">Enviar link mágico</button>
+        <p class="msg" id="msg"></p>
+      </form>
+    </div>
+
+    <p class="footnote">Recebes um link por email. Ao clicares, entras diretamente.</p>
+    <div class="back"><a href="index.html">← Voltar</a></div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+  const sb = window.supabase.createClient(BM_CONFIG.SUPABASE_URL, BM_CONFIG.SUPABASE_ANON_KEY);
+  const f = document.getElementById('f'), btn = document.getElementById('btn'), msg = document.getElementById('msg');
+
+  // Se já autenticado, segue para a app.
+  sb.auth.getSession().then(({data:{session}}) => { if (session) location.href = 'app.html'; });
+
+  f.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    btn.disabled = true; btn.textContent = 'A enviar…';
+    msg.className = 'msg';
+    const email = document.getElementById('email').value.trim();
+    const { error } = await sb.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: location.origin + location.pathname.replace('login.html','app.html') }
+    });
+    if (error) {
+      msg.textContent = 'Não foi possível enviar o link. Tenta novamente.';
+      msg.className = 'msg err';
+      btn.disabled = false; btn.textContent = 'Enviar link mágico';
+    } else {
+      msg.textContent = 'Link enviado. Verifica o teu email.';
+      msg.className = 'msg ok';
+      btn.textContent = 'Enviado ✓';
+    }
+  });
+</script>
+</body>
+</html>
