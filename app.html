@@ -49,6 +49,12 @@
     border-bottom:1px solid var(--border);padding:14px 4px;}
   .row:last-child{border-bottom:none;}
   .badge{font-size:11px;border:1px solid var(--border);border-radius:999px;padding:3px 10px;color:var(--text-secondary);}
+  .pill{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--border);
+    border-radius:999px;padding:6px 12px;font-size:13px;color:var(--text-secondary);cursor:pointer;user-select:none;}
+  .pill input{width:14px;height:14px;accent-color:var(--ember);margin:0;}
+  select{width:100%;border-radius:10px;border:1px solid var(--border);background:var(--bg-raised);
+    color:var(--text-primary);padding:12px 16px;font-size:15px;outline:none;}
+  select:focus{border-color:rgba(255,67,21,0.6);}
   #loading{display:flex;min-height:60dvh;align-items:center;justify-content:center;color:var(--text-tertiary);}
 </style>
 </head>
@@ -101,12 +107,77 @@
         <p class="muted" style="margin:8px 0 0;">Convida o primeiro cliente pelo email acima.</p>
       </div>
     </div>
+
+    <div class="card hidden" id="cardAvaliacao" style="margin-top:20px;max-width:520px;">
+      <h3 style="font-size:16px;font-weight:600;">Avaliação inicial — <span id="avNomeCliente"></span></h3>
+      <form id="fAvaliacao" style="margin-top:14px;">
+        <label for="avObjetivo">Objetivo</label>
+        <select id="avObjetivo" required>
+          <option value="hipertrofia">Hipertrofia</option>
+          <option value="forca">Força</option>
+          <option value="perda_peso">Perda de peso</option>
+          <option value="definicao">Definição</option>
+          <option value="saude_geral">Saúde geral</option>
+          <option value="manutencao">Manutenção</option>
+          <option value="reabilitacao">Reabilitação</option>
+          <option value="performance">Performance</option>
+        </select>
+
+        <label for="avNivel" style="margin-top:12px;">Nível</label>
+        <select id="avNivel" required>
+          <option value="iniciante">Iniciante</option>
+          <option value="intermedio">Intermédio</option>
+          <option value="avancado">Avançado</option>
+        </select>
+
+        <label for="avDias" style="margin-top:12px;">Dias disponíveis / semana</label>
+        <select id="avDias" required>
+          <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option>
+          <option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option>
+        </select>
+
+        <label for="avMinutos" style="margin-top:12px;">Minutos por sessão</label>
+        <select id="avMinutos" required>
+          <option value="30">30</option><option value="45">45</option>
+          <option value="60" selected>60</option><option value="90">90</option><option value="120">120</option>
+        </select>
+
+        <label style="margin-top:12px;">Equipamento disponível</label>
+        <div id="avEquipamento" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;"></div>
+
+        <label style="margin-top:12px;">Lesões / limitações</label>
+        <div id="avLimitacoes" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;"></div>
+
+        <label for="avNotas" style="margin-top:12px;">Notas (só visíveis para ti)</label>
+        <input type="text" id="avNotas" placeholder="Opcional" />
+
+        <button class="btn" type="submit" id="btnAvaliacao">Guardar avaliação</button>
+        <p class="err hidden" id="errAvaliacao"></p>
+        <p class="tiny" id="okAvaliacao" style="margin-top:10px;color:var(--success);display:none;">Avaliação guardada.</p>
+      </form>
+      <button class="ghost" id="btnFecharAvaliacao" style="margin-top:12px;width:100%;">Fechar</button>
+    </div>
   </section>
 
   <!-- Área Cliente -->
   <section id="areaCliente" class="hidden">
     <h1 style="font-size:26px;">Olá, <span id="clNome"></span></h1>
-    <div class="empty" style="margin-top:20px;">
+
+    <div class="card hidden" id="cardConsentimento" style="margin-top:20px;">
+      <h3 style="font-size:16px;font-weight:600;">Antes de continuar</h3>
+      <p class="muted" style="margin-top:8px;">
+        O teu treinador só pode avaliar-te (objetivo, nível, lesões/limitações) depois de dares consentimento
+        para tratar esses dados. Podes revogar quando quiseres — o teu histórico continua a ser teu, sempre.
+      </p>
+      <button class="btn" id="btnConsentir" style="margin-top:14px;">Dou consentimento</button>
+    </div>
+
+    <div class="card hidden" id="cardObjetivo" style="margin-top:20px;">
+      <p class="tiny">Objetivo atual</p>
+      <h3 id="objetivoAtual" style="font-size:20px;font-weight:600;margin-top:4px;"></h3>
+    </div>
+
+    <div class="empty" id="clienteEmpty" style="margin-top:20px;">
       <p style="margin:0;font-weight:500;">Sem treino atribuído</p>
       <p class="muted" style="margin:8px 0 0;">Quando o teu PT publicar um plano, o treino do dia aparece aqui.</p>
     </div>
@@ -143,6 +214,7 @@
     } else {
       $('clNome').textContent = pessoa.nome.split(' ')[0];
       show('areaCliente');
+      await carregarAreaCliente(pessoa.id);
     }
   }
 
@@ -168,18 +240,110 @@
     await carregarClientes();
   });
 
+  const EQUIPAMENTO = ['Sem equipamento','Halteres','Barra e discos','Máquinas','Elásticos','Kettlebell'];
+  const LIMITACOES = ['Nenhuma','Lombar','Joelho','Ombro','Cervical','Anca','Outra'];
+
+  function montarPills(containerId, opcoes){
+    $(containerId).innerHTML = opcoes.map((o,i) =>
+      `<label class="pill"><input type="checkbox" value="${o}" data-group="${containerId}"/> ${o}</label>`).join('');
+  }
+  montarPills('avEquipamento', EQUIPAMENTO);
+  montarPills('avLimitacoes', LIMITACOES);
+
+  function lerPills(containerId){
+    return Array.from($(containerId).querySelectorAll('input:checked')).map(i => i.value);
+  }
+
+  let clienteEmAvaliacao = null;
+
   async function carregarClientes(){
     const { data: rel } = await sb.from('relacoes_pt_cliente')
-      .select('id, estado, inicio, cliente:cliente_id ( nome, email )')
+      .select('id, estado, inicio, cliente:cliente_id ( id, nome, email )')
       .eq('estado','ativa')
       .order('inicio', { ascending: false });
     const lista = $('listaClientes');
     if (!rel || rel.length === 0){ show('semClientes'); lista.innerHTML = ''; return; }
     hide('semClientes');
-    lista.innerHTML = rel.map(r =>
-      `<div class="row"><span>${r.cliente?.nome ?? r.cliente?.email ?? '—'}</span>
-       <span class="badge">desde ${new Date(r.inicio).toLocaleDateString('pt-PT')}</span></div>`).join('');
+    lista.innerHTML = rel.map(r => `
+      <div class="row">
+        <span>${r.cliente?.nome ?? r.cliente?.email ?? '—'}</span>
+        <span style="display:flex;align-items:center;gap:8px;">
+          <span class="badge">desde ${new Date(r.inicio).toLocaleDateString('pt-PT')}</span>
+          <button class="ghost" data-avaliar="${r.cliente?.id}" data-nome="${r.cliente?.nome ?? r.cliente?.email}">Avaliar</button>
+        </span>
+      </div>`).join('');
+    lista.querySelectorAll('[data-avaliar]').forEach(btn => {
+      btn.addEventListener('click', () => abrirAvaliacao(btn.dataset.avaliar, btn.dataset.nome));
+    });
   }
+
+  function abrirAvaliacao(clienteId, nome){
+    clienteEmAvaliacao = clienteId;
+    $('avNomeCliente').textContent = nome;
+    hide('errAvaliacao');
+    $('okAvaliacao').style.display = 'none';
+    show('cardAvaliacao');
+    $('cardAvaliacao').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  $('btnFecharAvaliacao')?.addEventListener('click', () => hide('cardAvaliacao'));
+
+  $('fAvaliacao')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!clienteEmAvaliacao) return;
+    $('btnAvaliacao').disabled = true;
+    hide('errAvaliacao');
+    const { error } = await sb.rpc('bm_criar_avaliacao', {
+      p_cliente_id: clienteEmAvaliacao,
+      p_objetivo: $('avObjetivo').value,
+      p_nivel: $('avNivel').value,
+      p_dias_disponiveis: parseInt($('avDias').value, 10),
+      p_minutos_por_sessao: parseInt($('avMinutos').value, 10),
+      p_equipamento: lerPills('avEquipamento'),
+      p_limitacoes: lerPills('avLimitacoes'),
+      p_notas_pt: $('avNotas').value.trim() || null
+    });
+    $('btnAvaliacao').disabled = false;
+    if (error){
+      $('errAvaliacao').textContent = error.message.includes('consentimento')
+        ? 'Este cliente ainda não deu consentimento para dados de saúde — pede-lhe para aceitar na área dele.'
+        : 'Não foi possível guardar: ' + error.message;
+      show('errAvaliacao');
+      return;
+    }
+    $('okAvaliacao').style.display = 'block';
+    $('fAvaliacao').reset();
+    montarPills('avEquipamento', EQUIPAMENTO);
+    montarPills('avLimitacoes', LIMITACOES);
+  });
+
+  // --- Área Cliente: consentimento + objetivo atual ---
+  async function carregarAreaCliente(pessoaId){
+    const { data: consentido } = await sb.rpc('tem_consentimento', { p_pessoa: pessoaId, p_tipo: 'dados_saude' });
+    if (!consentido){
+      show('cardConsentimento');
+    } else {
+      const { data: obj } = await sb.from('objetivos_cliente')
+        .select('objetivo').eq('cliente_id', pessoaId).is('ativo_ate', null)
+        .order('ativo_desde', { ascending:false }).limit(1).maybeSingle();
+      if (obj){
+        $('objetivoAtual').textContent = OBJETIVO_LABEL[obj.objetivo] ?? obj.objetivo;
+        show('cardObjetivo');
+      }
+    }
+  }
+
+  const OBJETIVO_LABEL = {
+    hipertrofia:'Hipertrofia', forca:'Força', perda_peso:'Perda de peso', definicao:'Definição',
+    saude_geral:'Saúde geral', manutencao:'Manutenção', reabilitacao:'Reabilitação', performance:'Performance'
+  };
+
+  $('btnConsentir')?.addEventListener('click', async () => {
+    $('btnConsentir').disabled = true;
+    const { error } = await sb.rpc('bm_registar_consentimento', { p_tipo: 'dados_saude', p_concedido: true });
+    if (error){ alert('Não foi possível registar o consentimento: ' + error.message); $('btnConsentir').disabled = false; return; }
+    hide('cardConsentimento');
+  });
 
   $('fOnboard')?.addEventListener('submit', async (e) => {
     e.preventDefault();
