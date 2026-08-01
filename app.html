@@ -716,6 +716,7 @@
         <h4>${dia.nome} <span class="badge">${dia.formato}</span></h4>
         <div class="ex-row"><b>Duração</b><span>${dia.duracao_min} min</span></div>
         <div class="ex-row"><b>Local</b><span>${dia.local}</span></div>
+        ${dia.descricao ? `<p class="tiny" style="margin-top:8px;">${dia.descricao}</p>` : ''}
       </div>`;
     }
     if (dia.tipo === 'estimulo'){
@@ -873,6 +874,7 @@
         <div class="ex-card">
           <p class="ex-card-title">${ex.nome}</p>
           <p class="ex-card-meta">${ex.series}x${ex.reps_min}-${ex.reps_max} reps · descanso ${ex.descanso_seg}s</p>
+          ${ex.descricao ? `<p class="tiny" style="margin:-4px 0 10px;">${ex.descricao}</p>` : ''}
           <div class="set-labels"><span></span><span>kg</span><span>reps</span><span>RPE</span></div>
           <div style="display:flex;flex-direction:column;gap:6px;">
             ${Array.from({length: ex.series}, (_, si) => `
