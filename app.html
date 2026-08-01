@@ -223,17 +223,31 @@
     $('btnConvidar').disabled = true;
     hide('errConvidar');
     $('okConvidar').style.display = 'none';
+    const email = $('emailCliente').value.trim();
     const { error } = await sb.rpc('bm_convidar_cliente', {
-      p_email: $('emailCliente').value.trim(),
+      p_email: email,
       p_nome: $('nomeCliente').value.trim() || null
     });
-    $('btnConvidar').disabled = false;
     if (error) {
+      $('btnConvidar').disabled = false;
       $('errConvidar').textContent = error.message.includes('já está associado')
         ? 'Este cliente já está associado a ti.'
         : (error.message.includes('Email inválido') ? 'Email inválido.' : 'Não foi possível convidar: ' + error.message);
       show('errConvidar');
       return;
+    }
+    // Convite criado na BD — agora envia mesmo o email com o link de acesso.
+    const { error: otpError } = await sb.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: window.location.origin + '/app.html' }
+    });
+    $('btnConvidar').disabled = false;
+    if (otpError) {
+      $('okConvidar').textContent = 'Cliente associado, mas o email de convite falhou a enviar: ' + otpError.message;
+      $('okConvidar').style.color = 'var(--danger)';
+    } else {
+      $('okConvidar').textContent = 'Convite enviado — o cliente recebe um email com o link de acesso.';
+      $('okConvidar').style.color = 'var(--success)';
     }
     $('fConvidar').reset();
     $('okConvidar').style.display = 'block';
