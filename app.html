@@ -146,6 +146,9 @@
           <option value="60" selected>60</option><option value="90">90</option><option value="120">120</option>
         </select>
 
+        <label for="avPesoObjetivo" style="margin-top:12px;">Peso objetivo (kg) — opcional</label>
+        <input type="text" inputmode="decimal" id="avPesoObjetivo" placeholder="ex: 68" />
+
         <label style="margin-top:12px;">Equipamento disponível</label>
         <div id="avEquipamento" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;"></div>
 
@@ -171,6 +174,26 @@
       <p class="tiny" id="okPlano" style="margin-top:10px;color:var(--success);display:none;">Plano publicado — o cliente já o vê.</p>
       <button class="ghost" id="btnFecharPlano" style="margin-top:12px;width:100%;">Fechar</button>
     </div>
+
+    <div class="card hidden" id="cardMedicoes" style="margin-top:20px;max-width:440px;">
+      <h3 style="font-size:16px;font-weight:600;">Medições — <span id="medNomeCliente"></span></h3>
+      <form id="fMedicoes" style="margin-top:14px;">
+        <label for="medPeso">Peso (kg)</label>
+        <input type="text" inputmode="decimal" id="medPeso" placeholder="ex: 74.5" />
+        <label for="medAltura" style="margin-top:12px;">Altura (cm)</label>
+        <input type="text" inputmode="decimal" id="medAltura" placeholder="ex: 172" />
+        <label for="medCintura" style="margin-top:12px;">Cintura (cm)</label>
+        <input type="text" inputmode="decimal" id="medCintura" placeholder="ex: 88" />
+        <label for="medCoxa" style="margin-top:12px;">Coxa (cm)</label>
+        <input type="text" inputmode="decimal" id="medCoxa" placeholder="ex: 56" />
+        <label for="medBraco" style="margin-top:12px;">Braço (cm)</label>
+        <input type="text" inputmode="decimal" id="medBraco" placeholder="ex: 33" />
+        <button class="btn" type="submit" id="btnMedicoes">Guardar medições</button>
+        <p class="err hidden" id="errMedicoes"></p>
+        <p class="tiny" id="okMedicoes" style="margin-top:10px;color:var(--success);display:none;">Medições guardadas.</p>
+      </form>
+      <button class="ghost" id="btnFecharMedicoes" style="margin-top:12px;width:100%;">Fechar</button>
+    </div>
   </section>
 
   <!-- Área Cliente -->
@@ -183,7 +206,16 @@
         O teu treinador só pode avaliar-te (objetivo, nível, lesões/limitações) depois de dares consentimento
         para tratar esses dados. Podes revogar quando quiseres — o teu histórico continua a ser teu, sempre.
       </p>
-      <button class="btn" id="btnConsentir" style="margin-top:14px;">Dou consentimento</button>
+      <button class="btn" id="btnConsentir" style="margin-top:14px;">Dou consentimento (dados de saúde)</button>
+    </div>
+
+    <div class="card hidden" id="cardConsentimentoMedidas" style="margin-top:16px;">
+      <h3 style="font-size:16px;font-weight:600;">Medidas corporais</h3>
+      <p class="muted" style="margin-top:8px;">
+        Para o teu PT registar peso, altura e medidas (cintura, braço, perna) e acompanhares a evolução,
+        também precisamos do teu consentimento — separado do anterior.
+      </p>
+      <button class="btn" id="btnConsentirMedidas" style="margin-top:14px;">Dou consentimento (medidas corporais)</button>
     </div>
 
     <div class="card hidden" id="cardObjetivo" style="margin-top:20px;">
@@ -191,10 +223,50 @@
       <h3 id="objetivoAtual" style="font-size:20px;font-weight:600;margin-top:4px;"></h3>
     </div>
 
+    <div class="card hidden" id="cardMedicoesCliente" style="margin-top:20px;">
+      <h3 style="font-size:16px;font-weight:600;">As tuas medidas</h3>
+      <p class="tiny" id="medicoesFalta" style="margin-top:6px;color:var(--ember);"></p>
+      <div id="medicoesClienteLista" style="margin-top:10px;"></div>
+    </div>
+
     <div class="card hidden" id="cardPlanoCliente" style="margin-top:20px;">
       <h3 style="font-size:16px;font-weight:600;">O teu plano</h3>
       <p class="tiny" id="planoClienteResumo" style="margin-top:6px;"></p>
       <div id="planoClienteDias" style="margin-top:14px;display:flex;flex-direction:column;gap:14px;"></div>
+    </div>
+
+    <div class="card hidden" id="cardSessaoAtiva" style="margin-top:20px;">
+      <h3 style="font-size:16px;font-weight:600;">Treino: <span id="sessaoDiaNome"></span></h3>
+      <p class="tiny" style="margin-top:4px;">Regista carga, reps e RPE de cada série. Uma série à falha é a que mais te diz sobre a tua evolução real.</p>
+      <div id="sessaoExercicios" style="margin-top:14px;display:flex;flex-direction:column;gap:16px;"></div>
+
+      <div id="feedbackSessao" style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px;">
+        <label for="fbCorreu">Como correu? (1-10)</label>
+        <select id="fbCorreu">
+          <option value="">—</option>
+          <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+          <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+          <option value="7">7</option><option value="8">8</option><option value="9">9</option>
+          <option value="10">10</option>
+        </select>
+        <label for="fbEnergia" style="margin-top:12px;">Energia</label>
+        <select id="fbEnergia">
+          <option value="">—</option><option value="baixa">Baixa</option><option value="normal">Normal</option><option value="alta">Alta</option>
+        </select>
+        <label for="fbDor" style="margin-top:12px;">Dor muscular</label>
+        <select id="fbDor">
+          <option value="">—</option><option value="nenhuma">Nenhuma</option><option value="ligeira">Ligeira</option><option value="moderada">Moderada</option><option value="forte">Forte</option>
+        </select>
+        <label for="fbSono" style="margin-top:12px;">Sono (última noite)</label>
+        <select id="fbSono">
+          <option value="">—</option><option value="mau">Mau</option><option value="razoavel">Razoável</option><option value="bom">Bom</option>
+        </select>
+        <label for="fbObs" style="margin-top:12px;">Observações</label>
+        <input type="text" id="fbObs" placeholder="Opcional" />
+      </div>
+
+      <button class="btn" id="btnConcluirSessao" style="width:100%;">Concluir treino</button>
+      <p class="err hidden" id="errSessao"></p>
     </div>
 
     <div class="empty" id="clienteEmpty" style="margin-top:20px;">
@@ -312,6 +384,7 @@
           <span class="badge">desde ${new Date(r.inicio).toLocaleDateString('pt-PT')}</span>
           <button class="ghost" data-reenviar="${r.cliente?.email ?? ''}">Reenviar</button>
           <button class="ghost" data-avaliar="${r.cliente?.id}" data-nome="${r.cliente?.nome ?? r.cliente?.email}">Avaliar</button>
+          <button class="ghost" data-medir="${r.cliente?.id}" data-nome="${r.cliente?.nome ?? r.cliente?.email}">Medições</button>
           <button class="ghost" data-gerar="${r.cliente?.id}" data-nome="${r.cliente?.nome ?? r.cliente?.email}">Gerar plano</button>
         </span>
       </div>`).join('');
@@ -323,6 +396,9 @@
     });
     lista.querySelectorAll('[data-gerar]').forEach(btn => {
       btn.addEventListener('click', () => gerarPlano(btn.dataset.gerar, btn.dataset.nome, btn));
+    });
+    lista.querySelectorAll('[data-medir]').forEach(btn => {
+      btn.addEventListener('click', () => abrirMedicoes(btn.dataset.medir, btn.dataset.nome));
     });
   }
 
@@ -372,7 +448,8 @@
       p_minutos_por_sessao: parseInt($('avMinutos').value, 10),
       p_equipamento: lerPills('avEquipamento'),
       p_limitacoes: lerPills('avLimitacoes'),
-      p_notas_pt: $('avNotas').value.trim() || null
+      p_notas_pt: $('avNotas').value.trim() || null,
+      p_peso_objetivo_kg: $('avPesoObjetivo').value ? parseFloat($('avPesoObjetivo').value) : null
     });
     $('btnAvaliacao').disabled = false;
     if (error){
@@ -390,8 +467,8 @@
 
   // --- Área Cliente: consentimento + objetivo atual ---
   async function carregarAreaCliente(pessoaId){
-    const { data: consentido } = await sb.rpc('tem_consentimento', { p_pessoa: pessoaId, p_tipo: 'dados_saude' });
-    if (!consentido){
+    const { data: consentidoSaude } = await sb.rpc('tem_consentimento', { p_pessoa: pessoaId, p_tipo: 'dados_saude' });
+    if (!consentidoSaude){
       show('cardConsentimento');
     } else {
       const { data: obj } = await sb.from('objetivos_cliente')
@@ -403,20 +480,49 @@
       }
     }
 
+    const { data: consentidoMedidas } = await sb.rpc('tem_consentimento', { p_pessoa: pessoaId, p_tipo: 'medicoes_corporais' });
+    if (!consentidoMedidas){
+      show('cardConsentimentoMedidas');
+    } else {
+      const { data: medicoes } = await sb.rpc('bm_ultimas_medicoes', { p_cliente_id: pessoaId });
+      const { data: aval } = await sb.from('avaliacoes')
+        .select('peso_objetivo_kg').eq('cliente_id', pessoaId)
+        .order('criado_em', { ascending:false }).limit(1).maybeSingle();
+      if ((medicoes && medicoes.length > 0) || aval?.peso_objetivo_kg){
+        const pesoAtual = medicoes?.find(m => m.tipo === 'peso_kg');
+        let linhas = (medicoes || []).map(m => `<div class="ex-row"><b>${MEDICAO_LABEL[m.tipo] ?? m.tipo}</b><span>${m.valor}</span></div>`).join('');
+        if (aval?.peso_objetivo_kg){
+          linhas += `<div class="ex-row"><b>Peso objetivo</b><span>${aval.peso_objetivo_kg} kg</span></div>`;
+          if (pesoAtual){
+            const diff = (pesoAtual.valor - aval.peso_objetivo_kg).toFixed(1);
+            $('medicoesFalta').textContent = Math.abs(diff) < 0.1 ? 'Já lá estás! 🎯'
+              : (diff > 0 ? `Faltam ${diff} kg` : `${Math.abs(diff)} kg acima do objetivo`);
+          }
+        }
+        $('medicoesClienteLista').innerHTML = linhas;
+        show('cardMedicoesCliente');
+      }
+    }
+
     const { data: plano } = await sb.from('planos')
       .select('*').eq('cliente_id', pessoaId).eq('estado', 'publicado')
       .order('publicado_em', { ascending:false }).limit(1).maybeSingle();
     if (plano){
+      planoClienteAtual = plano;
       const p = plano.parametros;
       $('planoClienteResumo').textContent =
         `${p.series}x${p.reps_min}-${p.reps_max} reps · descanso ${p.descanso_seg}s`;
-      $('planoClienteDias').innerHTML = plano.conteudo.dias.map(dia => `
+      $('planoClienteDias').innerHTML = plano.conteudo.dias.map((dia, i) => `
         <div class="dia-plano">
           <h4>${dia.nome}</h4>
           ${dia.exercicios.map(ex => `
             <div class="ex-row"><b>${ex.nome}</b><span>${ex.series}x${ex.reps_min}-${ex.reps_max}</span></div>
           `).join('')}
+          <button class="btn" data-iniciar-dia="${i}" style="width:100%;margin-top:12px;">Iniciar treino</button>
         </div>`).join('');
+      $('planoClienteDias').querySelectorAll('[data-iniciar-dia]').forEach(btn => {
+        btn.addEventListener('click', () => iniciarTreino(parseInt(btn.dataset.iniciarDia, 10)));
+      });
       show('cardPlanoCliente');
       hide('clienteEmpty');
     }
@@ -425,6 +531,12 @@
   const OBJETIVO_LABEL = {
     hipertrofia:'Hipertrofia', forca:'Força', perda_peso:'Perda de peso', definicao:'Definição',
     saude_geral:'Saúde geral', manutencao:'Manutenção', reabilitacao:'Reabilitação', performance:'Performance'
+  };
+
+  const MEDICAO_LABEL = {
+    peso_kg:'Peso (kg)', altura_cm:'Altura (cm)', cintura_cm:'Cintura (cm)',
+    coxa_cm:'Coxa (cm)', braco_cm:'Braço (cm)', anca_cm:'Anca (cm)', peito_cm:'Peito (cm)',
+    gordura_pct:'Gordura (%)', massa_muscular_kg:'Massa muscular (kg)'
   };
 
   $('btnConsentir')?.addEventListener('click', async () => {
@@ -485,6 +597,147 @@
       return;
     }
     $('okPlano').style.display = 'block';
+  });
+
+  let clienteEmMedicao = null;
+
+  function abrirMedicoes(clienteId, nome){
+    clienteEmMedicao = clienteId;
+    $('medNomeCliente').textContent = nome;
+    hide('errMedicoes');
+    $('okMedicoes').style.display = 'none';
+    $('fMedicoes').reset();
+    show('cardMedicoes');
+    $('cardMedicoes').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  $('btnFecharMedicoes')?.addEventListener('click', () => hide('cardMedicoes'));
+
+  $('fMedicoes')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!clienteEmMedicao) return;
+    $('btnMedicoes').disabled = true;
+    hide('errMedicoes');
+    const medicoes = {};
+    const campos = { medPeso:'peso_kg', medAltura:'altura_cm', medCintura:'cintura_cm', medCoxa:'coxa_cm', medBraco:'braco_cm' };
+    for (const [inputId, tipo] of Object.entries(campos)) {
+      const v = $(inputId).value.trim();
+      if (v) medicoes[tipo] = parseFloat(v);
+    }
+    if (Object.keys(medicoes).length === 0){
+      $('btnMedicoes').disabled = false;
+      $('errMedicoes').textContent = 'Preenche pelo menos um campo.';
+      show('errMedicoes');
+      return;
+    }
+    const { error } = await sb.rpc('bm_registar_medicoes', { p_cliente_id: clienteEmMedicao, p_medicoes: medicoes });
+    $('btnMedicoes').disabled = false;
+    if (error){
+      $('errMedicoes').textContent = error.message.includes('consentimento')
+        ? 'Este cliente ainda não deu consentimento para medidas corporais.'
+        : 'Não foi possível guardar: ' + error.message;
+      show('errMedicoes');
+      return;
+    }
+    $('okMedicoes').style.display = 'block';
+    $('fMedicoes').reset();
+  });
+
+  $('btnConsentirMedidas')?.addEventListener('click', async () => {
+    $('btnConsentirMedidas').disabled = true;
+    const { error } = await sb.rpc('bm_registar_consentimento', { p_tipo: 'medicoes_corporais', p_concedido: true });
+    if (error){ alert('Não foi possível registar o consentimento: ' + error.message); $('btnConsentirMedidas').disabled = false; return; }
+    hide('cardConsentimentoMedidas');
+  });
+
+  let planoClienteAtual = null;
+  let sessaoAtiva = null;
+  let diaAtivo = null;
+
+  async function iniciarTreino(indiceDia){
+    const dia = planoClienteAtual.conteudo.dias[indiceDia];
+    diaAtivo = dia;
+    const { data: sessaoId, error } = await sb.rpc('bm_iniciar_sessao', {
+      p_plano_id: planoClienteAtual.id, p_dia_plano: dia.nome
+    });
+    if (error){ alert('Não foi possível iniciar o treino: ' + error.message); return; }
+    sessaoAtiva = sessaoId;
+
+    $('sessaoDiaNome').textContent = dia.nome;
+    $('sessaoExercicios').innerHTML = dia.exercicios.map((ex, ei) => `
+      <div>
+        <p style="font-weight:600;font-size:14px;">${ex.nome} <span class="tiny">(${ex.series}x${ex.reps_min}-${ex.reps_max}, descanso ${ex.descanso_seg}s)</span></p>
+        <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px;">
+          ${Array.from({length: ex.series}, (_, si) => `
+            <div style="display:flex;gap:6px;align-items:center;">
+              <span class="tiny mono" style="width:16px;">${si+1}</span>
+              <input type="text" inputmode="decimal" placeholder="kg" data-ex="${ei}" data-serie="${si+1}" data-campo="carga" style="flex:1;padding:8px;font-size:13px;" />
+              <input type="text" inputmode="numeric" placeholder="reps" data-ex="${ei}" data-serie="${si+1}" data-campo="reps" style="flex:1;padding:8px;font-size:13px;" />
+              <input type="text" inputmode="decimal" placeholder="RPE" data-ex="${ei}" data-serie="${si+1}" data-campo="rpe" style="flex:1;padding:8px;font-size:13px;" />
+            </div>`).join('')}
+        </div>
+      </div>`).join('');
+
+    $('sessaoExercicios').querySelectorAll('input').forEach(inp => {
+      inp.style.borderRadius = '8px'; inp.style.border = '1px solid var(--border)';
+      inp.style.background = 'var(--bg-raised)'; inp.style.color = 'var(--text-primary)';
+    });
+
+    hide('errSessao');
+    show('cardSessaoAtiva');
+    $('cardSessaoAtiva').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  $('btnConcluirSessao')?.addEventListener('click', async () => {
+    if (!sessaoAtiva || !diaAtivo) return;
+    $('btnConcluirSessao').disabled = true;
+    hide('errSessao');
+
+    const linhas = {};
+    $('sessaoExercicios').querySelectorAll('input').forEach(inp => {
+      const key = `${inp.dataset.ex}-${inp.dataset.serie}`;
+      linhas[key] = linhas[key] || {};
+      linhas[key][inp.dataset.campo] = inp.value.trim();
+    });
+
+    for (const [key, vals] of Object.entries(linhas)) {
+      if (!vals.reps) continue; // sem reps registadas, ignora a linha
+      const [exIdx, numSerie] = key.split('-');
+      const ex = diaAtivo.exercicios[parseInt(exIdx, 10)];
+      const { error } = await sb.rpc('bm_registar_serie', {
+        p_sessao_id: sessaoAtiva,
+        p_exercicio: ex.nome,
+        p_numero_serie: parseInt(numSerie, 10),
+        p_carga_kg: vals.carga ? parseFloat(vals.carga) : null,
+        p_repeticoes: parseInt(vals.reps, 10),
+        p_rpe: vals.rpe ? parseFloat(vals.rpe) : null
+      });
+      if (error){
+        $('errSessao').textContent = 'Erro a registar série: ' + error.message;
+        show('errSessao');
+        $('btnConcluirSessao').disabled = false;
+        return;
+      }
+    }
+
+    const feedback = {
+      como_correu: $('fbCorreu').value || null,
+      energia: $('fbEnergia').value || null,
+      dor_muscular: $('fbDor').value || null,
+      sono: $('fbSono').value || null,
+      observacoes: $('fbObs').value.trim() || null
+    };
+    const { error: errConcluir } = await sb.rpc('bm_concluir_sessao', { p_sessao_id: sessaoAtiva, p_feedback: feedback });
+    $('btnConcluirSessao').disabled = false;
+    if (errConcluir){
+      $('errSessao').textContent = 'Não foi possível concluir: ' + errConcluir.message;
+      show('errSessao');
+      return;
+    }
+
+    sessaoAtiva = null; diaAtivo = null;
+    hide('cardSessaoAtiva');
+    alert('Treino concluído! Boa 💪');
   });
 
   $('fOnboard')?.addEventListener('submit', async (e) => {
