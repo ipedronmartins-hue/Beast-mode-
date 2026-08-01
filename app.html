@@ -60,6 +60,42 @@
   .ex-row{display:flex;justify-content:space-between;font-size:13px;color:var(--text-secondary);padding:5px 0;}
   .ex-row b{color:var(--text-primary);font-weight:500;}
   #loading{display:flex;min-height:60dvh;align-items:center;justify-content:center;color:var(--text-tertiary);}
+
+  /* --- Design pass: dashboard PT + execução --- */
+  .section-title{font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:.04em;
+    color:var(--text-tertiary);margin:28px 0 10px;}
+  .chip{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;
+    border-radius:999px;padding:4px 10px;border:1px solid var(--border);color:var(--text-secondary);}
+  .chip-ok{border-color:rgba(61,220,132,0.35);color:var(--success);background:rgba(61,220,132,0.08);}
+  .chip-warn{border-color:rgba(255,176,32,0.35);color:var(--warning);background:rgba(255,176,32,0.08);}
+  .chip::before{content:'';width:6px;height:6px;border-radius:999px;background:currentColor;}
+
+  .client-card{border:1px solid var(--border);border-radius:12px;background:var(--bg-raised);
+    padding:16px 18px;margin-bottom:10px;}
+  .client-card:last-child{margin-bottom:0;}
+  .client-head{display:flex;align-items:center;gap:12px;}
+  .client-avatar{width:38px;height:38px;border-radius:999px;background:var(--ember-muted);color:var(--ember);
+    display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;
+    font-weight:600;font-size:15px;flex-shrink:0;}
+  .client-name{font-weight:600;font-size:15px;}
+  .client-meta{font-size:12px;color:var(--text-tertiary);margin-top:2px;}
+  .client-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
+  .client-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px;}
+  .client-actions .ghost{width:100%;padding:9px 10px;}
+
+  .set-row{display:grid;grid-template-columns:22px 1fr 1fr 1fr;gap:8px;align-items:center;}
+  .set-num{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--text-tertiary);text-align:center;}
+  .set-input{border-radius:8px;border:1px solid var(--border);background:var(--bg-raised);
+    color:var(--text-primary);padding:9px 8px;font-size:13px;text-align:center;font-family:'JetBrains Mono',monospace;
+    width:100%;outline:none;}
+  .set-input:focus{border-color:rgba(255,67,21,0.6);}
+  .set-input::placeholder{color:var(--text-tertiary);font-family:'Inter',sans-serif;}
+  .set-labels{display:grid;grid-template-columns:22px 1fr 1fr 1fr;gap:8px;margin-bottom:6px;}
+  .set-labels span{font-size:10px;text-transform:uppercase;letter-spacing:.04em;color:var(--text-tertiary);text-align:center;}
+  .ex-card{border:1px solid var(--border);border-radius:10px;padding:14px;background:var(--bg-raised);}
+  .ex-card-title{font-weight:600;font-size:14px;margin-bottom:2px;}
+  .ex-card-meta{font-size:11px;color:var(--text-tertiary);margin-bottom:10px;}
+  .sticky-cta{position:sticky;bottom:16px;z-index:5;}
 </style>
 </head>
 <body>
@@ -103,13 +139,11 @@
       </form>
     </div>
 
-    <p class="muted" style="margin-top:28px;">Os teus clientes</p>
-    <div class="card" style="margin-top:12px;">
-      <div id="listaClientes"></div>
-      <div class="empty hidden" id="semClientes">
-        <p style="margin:0;font-weight:500;">Ainda sem clientes</p>
-        <p class="muted" style="margin:8px 0 0;">Convida o primeiro cliente pelo email acima.</p>
-      </div>
+    <p class="section-title">Os teus clientes</p>
+    <div id="listaClientes"></div>
+    <div class="empty hidden" id="semClientes">
+      <p style="margin:0;font-weight:500;">Ainda sem clientes</p>
+      <p class="muted" style="margin:8px 0 0;">Convida o primeiro cliente pelo email acima.</p>
     </div>
 
     <div class="card hidden" id="cardAvaliacao" style="margin-top:20px;max-width:520px;">
@@ -281,7 +315,7 @@
         <input type="text" id="fbObs" placeholder="Opcional" />
       </div>
 
-      <button class="btn" id="btnConcluirSessao" style="width:100%;">Concluir treino</button>
+      <button class="btn sticky-cta" id="btnConcluirSessao" style="width:100%;">Concluir treino</button>
       <p class="err hidden" id="errSessao"></p>
     </div>
 
@@ -399,17 +433,42 @@
     const lista = $('listaClientes');
     if (!rel || rel.length === 0){ show('semClientes'); lista.innerHTML = ''; return; }
     hide('semClientes');
-    lista.innerHTML = rel.map(r => `
-      <div class="row">
-        <span>${r.cliente?.nome ?? r.cliente?.email ?? '—'}</span>
-        <span style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <span class="badge">desde ${new Date(r.inicio).toLocaleDateString('pt-PT')}</span>
-          <button class="ghost" data-reenviar="${r.cliente?.email ?? ''}">Reenviar</button>
-          <button class="ghost" data-avaliar="${r.cliente?.id}" data-nome="${r.cliente?.nome ?? r.cliente?.email}">Avaliar</button>
-          <button class="ghost" data-medir="${r.cliente?.id}" data-nome="${r.cliente?.nome ?? r.cliente?.email}">Medições</button>
-          <button class="ghost" data-gerar="${r.cliente?.id}" data-nome="${r.cliente?.nome ?? r.cliente?.email}">Gerar plano</button>
-        </span>
-      </div>`).join('');
+
+    const ids = rel.map(r => r.cliente?.id).filter(Boolean);
+    const [{ data: avals }, { data: planosAtivos }] = await Promise.all([
+      sb.from('avaliacoes').select('cliente_id').in('cliente_id', ids),
+      sb.from('planos').select('cliente_id').eq('estado','publicado').in('cliente_id', ids)
+    ]);
+    const temAvaliacao = new Set((avals || []).map(a => a.cliente_id));
+    const temPlano = new Set((planosAtivos || []).map(p => p.cliente_id));
+
+    lista.innerHTML = rel.map(r => {
+      const c = r.cliente;
+      const inicial = (c?.nome ?? c?.email ?? '?').trim().charAt(0).toUpperCase();
+      const avaliado = temAvaliacao.has(c?.id);
+      const planoAtivo = temPlano.has(c?.id);
+      return `
+      <div class="client-card">
+        <div class="client-head">
+          <div class="client-avatar">${inicial}</div>
+          <div>
+            <div class="client-name">${c?.nome ?? c?.email ?? '—'}</div>
+            <div class="client-meta">cliente desde ${new Date(r.inicio).toLocaleDateString('pt-PT')}</div>
+          </div>
+        </div>
+        <div class="client-chips">
+          <span class="chip ${avaliado ? 'chip-ok' : 'chip-warn'}">${avaliado ? 'Avaliado' : 'Sem avaliação'}</span>
+          <span class="chip ${planoAtivo ? 'chip-ok' : 'chip-warn'}">${planoAtivo ? 'Plano ativo' : 'Sem plano'}</span>
+        </div>
+        <div class="client-actions">
+          <button class="ghost" data-avaliar="${c?.id}" data-nome="${c?.nome ?? c?.email}">Avaliar</button>
+          <button class="ghost" data-medir="${c?.id}" data-nome="${c?.nome ?? c?.email}">Medições</button>
+          <button class="ghost" data-gerar="${c?.id}" data-nome="${c?.nome ?? c?.email}">Gerar plano</button>
+          <button class="ghost" data-reenviar="${c?.email ?? ''}">Reenviar convite</button>
+        </div>
+      </div>`;
+    }).join('');
+
     lista.querySelectorAll('[data-avaliar]').forEach(btn => {
       btn.addEventListener('click', () => abrirAvaliacao(btn.dataset.avaliar, btn.dataset.nome));
     });
@@ -716,26 +775,26 @@
     $('sessaoDiaNome').textContent = dia.nome;
     if (dia.tipo === 'forca'){
       $('sessaoExercicios').innerHTML = dia.exercicios.map((ex, ei) => `
-        <div>
-          <p style="font-weight:600;font-size:14px;">${ex.nome} <span class="tiny">(${ex.series}x${ex.reps_min}-${ex.reps_max}, descanso ${ex.descanso_seg}s)</span></p>
-          <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px;">
+        <div class="ex-card">
+          <p class="ex-card-title">${ex.nome}</p>
+          <p class="ex-card-meta">${ex.series}x${ex.reps_min}-${ex.reps_max} reps · descanso ${ex.descanso_seg}s</p>
+          <div class="set-labels"><span></span><span>kg</span><span>reps</span><span>RPE</span></div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
             ${Array.from({length: ex.series}, (_, si) => `
-              <div style="display:flex;gap:6px;align-items:center;">
-                <span class="tiny mono" style="width:16px;">${si+1}</span>
-                <input type="text" inputmode="decimal" placeholder="kg" data-ex="${ei}" data-serie="${si+1}" data-campo="carga" style="flex:1;padding:8px;font-size:13px;" />
-                <input type="text" inputmode="numeric" placeholder="reps" data-ex="${ei}" data-serie="${si+1}" data-campo="reps" style="flex:1;padding:8px;font-size:13px;" />
-                <input type="text" inputmode="decimal" placeholder="RPE" data-ex="${ei}" data-serie="${si+1}" data-campo="rpe" style="flex:1;padding:8px;font-size:13px;" />
+              <div class="set-row">
+                <span class="set-num">${si+1}</span>
+                <input type="text" inputmode="decimal" class="set-input" placeholder="—" data-ex="${ei}" data-serie="${si+1}" data-campo="carga" />
+                <input type="text" inputmode="numeric" class="set-input" placeholder="—" data-ex="${ei}" data-serie="${si+1}" data-campo="reps" />
+                <input type="text" inputmode="decimal" class="set-input" placeholder="—" data-ex="${ei}" data-serie="${si+1}" data-campo="rpe" />
               </div>`).join('')}
           </div>
         </div>`).join('');
-      $('sessaoExercicios').querySelectorAll('input').forEach(inp => {
-        inp.style.borderRadius = '8px'; inp.style.border = '1px solid var(--border)';
-        inp.style.background = 'var(--bg-raised)'; inp.style.color = 'var(--text-primary)';
-      });
     } else {
       $('sessaoExercicios').innerHTML = renderDia(dia) +
-        `<label style="margin-top:12px;">Resultado (tempo, distância, rondas — o que fizer sentido)</label>
-         <input type="text" id="sessaoResultado" placeholder="ex: 5km em 28min, ou 4 rondas + 12 burpees" style="width:100%;border-radius:10px;border:1px solid var(--border);background:var(--bg-raised);color:var(--text-primary);padding:12px 16px;font-size:15px;" />`;
+        `<div>
+          <label style="margin-top:12px;">Resultado (tempo, distância, rondas — o que fizer sentido)</label>
+          <input type="text" id="sessaoResultado" class="input" placeholder="ex: 5km em 28min, ou 4 rondas + 12 burpees" />
+        </div>`;
     }
 
     hide('errSessao');
