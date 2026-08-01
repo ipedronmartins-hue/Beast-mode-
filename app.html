@@ -396,27 +396,70 @@
       <button class="btn" id="btnConsentirMedidas" style="margin-top:14px;">Dou consentimento (medidas corporais)</button>
     </div>
 
-    <div class="card hidden" id="cardObjetivo" style="margin-top:20px;">
-      <p class="tiny">Objetivo atual</p>
-      <h3 id="objetivoAtual" style="font-size:20px;font-weight:600;margin-top:4px;"></h3>
-    </div>
+    <div class="card hidden" id="cardClientePivot" style="margin-top:20px;">
+      <div class="pivot-tabs" id="clPivotTabs">
+        <span class="pivot-tab active" data-panel="0">Treino</span>
+        <span class="pivot-tab" data-panel="1">Medidas</span>
+        <span class="pivot-tab" data-panel="2">Calendário</span>
+        <span class="pivot-tab" data-panel="3">Evolução</span>
+      </div>
+      <div class="pivot-track" id="clPivotTrack">
 
-    <div class="card hidden" id="cardMedicoesCliente" style="margin-top:20px;">
-      <h3 style="font-size:16px;font-weight:600;">As tuas medidas</h3>
-      <p class="tiny" id="medicoesFalta" style="margin-top:6px;color:var(--tertiary);"></p>
-      <div id="medicoesClienteLista" style="margin-top:10px;"></div>
-    </div>
+        <div class="pivot-panel">
+          <div class="card hidden" id="cardObjetivo" style="padding:0;border:none;background:none;">
+            <p class="tiny">Objetivo atual</p>
+            <h3 id="objetivoAtual" style="font-size:20px;font-weight:600;margin-top:4px;"></h3>
+          </div>
+          <div class="card hidden" id="cardPlanoCliente" style="margin-top:16px;">
+            <h3 style="font-size:16px;font-weight:600;">O teu plano</h3>
+            <p class="tiny" id="planoClienteResumo" style="margin-top:6px;"></p>
+            <div id="planoClienteDias" style="margin-top:14px;display:flex;flex-direction:column;gap:14px;"></div>
+          </div>
+          <div class="empty" id="clienteEmpty" style="margin-top:16px;">
+            <p style="margin:0;font-weight:500;">Sem treino atribuído</p>
+            <p class="muted" style="margin:8px 0 0;">Quando o teu PT publicar um plano, o treino do dia aparece aqui.</p>
+          </div>
+        </div>
 
-    <div class="card hidden" id="cardPlanoCliente" style="margin-top:20px;">
-      <h3 style="font-size:16px;font-weight:600;">O teu plano</h3>
-      <p class="tiny" id="planoClienteResumo" style="margin-top:6px;"></p>
-      <div id="planoClienteDias" style="margin-top:14px;display:flex;flex-direction:column;gap:14px;"></div>
-    </div>
+        <div class="pivot-panel">
+          <div class="card hidden" id="cardMedicoesCliente" style="padding:0;border:none;background:none;">
+            <h3 style="font-size:16px;font-weight:600;">As tuas medidas</h3>
+            <p class="tiny" id="medicoesFalta" style="margin-top:6px;color:var(--tertiary);"></p>
+            <div id="medicoesClienteLista" style="margin-top:10px;"></div>
+          </div>
+          <div class="card" style="margin-top:16px;">
+            <h3 style="font-size:15px;font-weight:700;">Registar peso</h3>
+            <p class="tiny" style="margin-top:4px;">Só tu podes atualizar isto — não precisas de esperar pelo teu PT.</p>
+            <form id="fPesoCliente" style="margin-top:12px;display:flex;gap:8px;">
+              <input type="text" inputmode="decimal" id="pesoClienteInput" placeholder="kg, ex: 74.5" style="flex:1;" />
+              <button class="btn" type="submit" style="margin-top:0;padding:12px 20px;">Guardar</button>
+            </form>
+            <p class="err hidden" id="errPesoCliente"></p>
+            <p class="tiny" id="okPesoCliente" style="margin-top:8px;color:var(--success);display:none;">Peso registado.</p>
+          </div>
+        </div>
 
-    <div class="card hidden" id="cardEvolucaoCliente" style="margin-top:20px;">
-      <h3 style="font-size:16px;font-weight:800;">A tua evolução</h3>
-      <p class="tiny" id="evolucaoResumo" style="margin-top:6px;"></p>
-      <div id="evolucaoLista" style="margin-top:14px;display:flex;flex-direction:column;gap:14px;"></div>
+        <div class="pivot-panel">
+          <div class="card" style="padding:16px;">
+            <h3 id="calMesTitulo" style="font-size:15px;font-weight:700;text-transform:capitalize;"></h3>
+            <div id="calGrid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:12px;"></div>
+            <p class="tiny" style="margin-top:12px;">● dia com treino concluído. Agendamento antecipado chega numa próxima fase.</p>
+          </div>
+        </div>
+
+        <div class="pivot-panel">
+          <div class="card hidden" id="cardEvolucaoCliente" style="padding:0;border:none;background:none;">
+            <h3 style="font-size:16px;font-weight:800;">A tua evolução</h3>
+            <p class="tiny" id="evolucaoResumo" style="margin-top:6px;"></p>
+            <div id="evolucaoLista" style="margin-top:14px;display:flex;flex-direction:column;gap:14px;"></div>
+          </div>
+        </div>
+
+      </div>
+      <div class="pivot-dots" id="clPivotDots">
+        <span class="pivot-dot active"></span><span class="pivot-dot"></span>
+        <span class="pivot-dot"></span><span class="pivot-dot"></span>
+      </div>
     </div>
 
     <div class="card hidden" id="cardSessaoAtiva" style="padding-top:12px;">
@@ -456,11 +499,6 @@
 
       <button class="btn sticky-cta" id="btnConcluirSessao" style="width:100%;">Concluir treino</button>
       <p class="err hidden" id="errSessao"></p>
-    </div>
-
-    <div class="empty" id="clienteEmpty" style="margin-top:20px;">
-      <p style="margin:0;font-weight:500;">Sem treino atribuído</p>
-      <p class="muted" style="margin:8px 0 0;">Quando o teu PT publicar um plano, o treino do dia aparece aqui.</p>
     </div>
   </section>
 </main>
@@ -503,6 +541,7 @@
     } else {
       $('clNome').textContent = pessoa.nome.split(' ')[0];
       show('areaCliente');
+      show('cardClientePivot');
       await carregarAreaCliente(pessoa.id);
     }
   }
@@ -702,7 +741,10 @@
   });
 
   // --- Área Cliente: consentimento + objetivo atual ---
+  let pessoaIdAtual = null;
+
   async function carregarAreaCliente(pessoaId){
+    pessoaIdAtual = pessoaId;
     const { data: consentidoSaude } = await sb.rpc('tem_consentimento', { p_pessoa: pessoaId, p_tipo: 'dados_saude' });
     if (!consentidoSaude){
       show('cardConsentimento');
@@ -765,6 +807,61 @@
     }
 
     await carregarEvolucaoCliente(pessoaId);
+    await carregarCalendario(pessoaId);
+  }
+
+  $('fPesoCliente')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const valor = $('pesoClienteInput').value.trim();
+    hide('errPesoCliente');
+    $('okPesoCliente').style.display = 'none';
+    if (!valor || !pessoaIdAtual) return;
+    const btn = e.target.querySelector('button');
+    btn.disabled = true;
+    const { error } = await sb.rpc('bm_registar_medicoes', {
+      p_cliente_id: pessoaIdAtual, p_medicoes: { peso_kg: parseFloat(valor) }
+    });
+    btn.disabled = false;
+    if (error){
+      $('errPesoCliente').textContent = error.message.includes('consentimento')
+        ? 'Ainda não deste consentimento para medidas corporais.'
+        : 'Não foi possível guardar: ' + error.message;
+      show('errPesoCliente');
+      return;
+    }
+    $('okPesoCliente').style.display = 'block';
+    $('pesoClienteInput').value = '';
+    await carregarAreaCliente(pessoaIdAtual);
+  });
+
+  async function carregarCalendario(pessoaId){
+    const hoje = new Date();
+    const ano = hoje.getFullYear(), mes = hoje.getMonth();
+    $('calMesTitulo').textContent = hoje.toLocaleDateString('pt-PT', { month:'long', year:'numeric' });
+
+    const { data: sessoes } = await sb.rpc('bm_sessoes_cliente', { p_cliente_id: pessoaId, p_limite: 60 });
+    const diasTreinados = new Set(
+      (sessoes || []).filter(s => s.concluida_em)
+        .map(s => new Date(s.concluida_em).toDateString())
+    );
+
+    const primeiroDia = new Date(ano, mes, 1);
+    const offset = primeiroDia.getDay();
+    const diasNoMes = new Date(ano, mes + 1, 0).getDate();
+    const nomesDias = ['D','S','T','Q','Q','S','S'];
+
+    let html = nomesDias.map(n => `<div class="tiny" style="text-align:center;color:var(--text-tertiary);">${n}</div>`).join('');
+    for (let i = 0; i < offset; i++) html += '<div></div>';
+    for (let d = 1; d <= diasNoMes; d++) {
+      const data = new Date(ano, mes, d);
+      const treinou = diasTreinados.has(data.toDateString());
+      const hojeMarcado = data.toDateString() === hoje.toDateString();
+      html += `<div style="text-align:center;padding:6px 0;border-radius:8px;font-size:12px;
+        ${hojeMarcado ? 'border:1px solid var(--primary);' : ''}
+        color:${treinou ? 'var(--primary)' : 'var(--text-secondary)'};font-weight:${treinou ? '700' : '400'};">
+        ${d}${treinou ? '<br>●' : ''}</div>`;
+    }
+    $('calGrid').innerHTML = html;
   }
 
   async function carregarEvolucaoCliente(pessoaId){
@@ -1075,6 +1172,7 @@
   }
   initPivot('avPivotTabs', 'avPivotTrack', 'avPivotDots');
   initPivot('adminPivotTabs', 'adminPivotTrack', 'adminPivotDots');
+  initPivot('clPivotTabs', 'clPivotTrack', 'clPivotDots');
 
   function abrirSheet(){
     $('sheetScrim').classList.add('active');
