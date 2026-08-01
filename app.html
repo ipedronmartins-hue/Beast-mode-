@@ -128,6 +128,19 @@
   .event-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--text-secondary);
     padding:7px 0;border-bottom:1px solid var(--border);}
   .event-row:last-child{border-bottom:none;}
+  /* Pivot horizontal — títulos grandes, arrasta lateralmente entre secções (estilo WP8) */
+  .pivot-tabs{display:flex;gap:28px;overflow-x:auto;scrollbar-width:none;margin-bottom:2px;}
+  .pivot-tabs::-webkit-scrollbar{display:none;}
+  .pivot-tab{font-size:22px;font-weight:800;letter-spacing:-0.01em;color:var(--text-tertiary);
+    white-space:nowrap;cursor:pointer;flex-shrink:0;transition:color .2s ease;padding-bottom:4px;}
+  .pivot-tab.active{color:var(--text-primary);}
+  .pivot-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
+    scrollbar-width:none;margin:0 -2px;}
+  .pivot-track::-webkit-scrollbar{display:none;}
+  .pivot-panel{flex:0 0 100%;scroll-snap-align:start;padding:14px 2px 4px;min-width:0;}
+  .pivot-dots{display:flex;gap:5px;justify-content:center;margin-top:10px;}
+  .pivot-dot{width:5px;height:5px;border-radius:999px;background:var(--border);transition:background .2s;}
+  .pivot-dot.active{background:var(--primary);}
   .sticky-cta{position:sticky;bottom:8px;z-index:5;}
 </style>
 </head>
@@ -155,11 +168,25 @@
   <!-- Admin: só visível se sou_admin() -->
   <div class="card hidden" id="cardAdmin" style="margin-bottom:20px;">
     <h3 style="font-size:16px;font-weight:800;">Painel de Administração</h3>
-    <div id="adminStats" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px;"></div>
-    <p class="section-title" style="margin-top:24px;">Treinadores</p>
-    <div id="adminPts"></div>
-    <p class="section-title">Atividade recente</p>
-    <div id="adminEventos" style="display:flex;flex-direction:column;gap:6px;"></div>
+    <div class="pivot-tabs" id="adminPivotTabs" style="margin-top:14px;">
+      <span class="pivot-tab active" data-panel="0">Resumo</span>
+      <span class="pivot-tab" data-panel="1">Treinadores</span>
+      <span class="pivot-tab" data-panel="2">Atividade</span>
+    </div>
+    <div class="pivot-track" id="adminPivotTrack">
+      <div class="pivot-panel">
+        <div id="adminStats" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;"></div>
+      </div>
+      <div class="pivot-panel">
+        <div id="adminPts"></div>
+      </div>
+      <div class="pivot-panel">
+        <div id="adminEventos" style="display:flex;flex-direction:column;gap:6px;"></div>
+      </div>
+    </div>
+    <div class="pivot-dots" id="adminPivotDots">
+      <span class="pivot-dot active"></span><span class="pivot-dot"></span><span class="pivot-dot"></span>
+    </div>
   </div>
 
   <!-- Onboarding: primeira entrada, sem registo de pessoa ainda -->
@@ -204,78 +231,100 @@
     <div class="card hidden" id="cardAvaliacao" style="margin-top:20px;max-width:520px;">
       <h3 style="font-size:16px;font-weight:600;">Anamnese e Perfil do Atleta — <span id="avNomeCliente"></span></h3>
       <form id="fAvaliacao" style="margin-top:14px;">
-        <label for="avObjetivo">Objetivo</label>
-        <select id="avObjetivo" required>
-          <option value="hipertrofia">Hipertrofia</option>
-          <option value="forca">Força</option>
-          <option value="perda_peso">Perda de peso</option>
-          <option value="definicao">Definição</option>
-          <option value="saude_geral">Saúde geral</option>
-          <option value="manutencao">Manutenção</option>
-          <option value="reabilitacao">Reabilitação</option>
-          <option value="performance">Performance</option>
-        </select>
+        <div class="pivot-tabs" id="avPivotTabs">
+          <span class="pivot-tab active" data-panel="0">Objetivo</span>
+          <span class="pivot-tab" data-panel="1">Desporto</span>
+          <span class="pivot-tab" data-panel="2">Equipamento</span>
+          <span class="pivot-tab" data-panel="3">Limitações</span>
+        </div>
+        <div class="pivot-track" id="avPivotTrack">
+          <div class="pivot-panel">
+            <label for="avObjetivo">Objetivo</label>
+            <select id="avObjetivo" required>
+              <option value="hipertrofia">Hipertrofia</option>
+              <option value="forca">Força</option>
+              <option value="perda_peso">Perda de peso</option>
+              <option value="definicao">Definição</option>
+              <option value="saude_geral">Saúde geral</option>
+              <option value="manutencao">Manutenção</option>
+              <option value="reabilitacao">Reabilitação</option>
+              <option value="performance">Performance</option>
+            </select>
 
-        <label for="avNivel" style="margin-top:12px;">Nível</label>
-        <select id="avNivel" required>
-          <option value="iniciante">Iniciante</option>
-          <option value="intermedio">Intermédio</option>
-          <option value="avancado">Avançado</option>
-        </select>
+            <label for="avNivel" style="margin-top:12px;">Nível</label>
+            <select id="avNivel" required>
+              <option value="iniciante">Iniciante</option>
+              <option value="intermedio">Intermédio</option>
+              <option value="avancado">Avançado</option>
+            </select>
 
-        <label for="avDias" style="margin-top:12px;">Dias disponíveis / semana</label>
-        <select id="avDias" required>
-          <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option>
-          <option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option>
-        </select>
+            <label for="avDias" style="margin-top:12px;">Dias disponíveis / semana</label>
+            <select id="avDias" required>
+              <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option>
+              <option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option>
+            </select>
 
-        <label for="avMinutos" style="margin-top:12px;">Minutos por sessão</label>
-        <select id="avMinutos" required>
-          <option value="30">30</option><option value="45">45</option>
-          <option value="60" selected>60</option><option value="90">90</option><option value="120">120</option>
-        </select>
+            <label for="avMinutos" style="margin-top:12px;">Minutos por sessão</label>
+            <select id="avMinutos" required>
+              <option value="30">30</option><option value="45">45</option>
+              <option value="60" selected>60</option><option value="90">90</option><option value="120">120</option>
+            </select>
 
-        <label for="avPesoObjetivo" style="margin-top:12px;">Peso objetivo (kg) — opcional</label>
-        <input type="text" inputmode="decimal" id="avPesoObjetivo" placeholder="ex: 68" />
+            <label for="avPesoObjetivo" style="margin-top:12px;">Peso objetivo (kg) — opcional</label>
+            <input type="text" inputmode="decimal" id="avPesoObjetivo" placeholder="ex: 68" />
+          </div>
 
-        <label class="check" style="margin-top:14px;"><input type="checkbox" id="avPraticaDesporto" /> Já pratica desporto</label>
+          <div class="pivot-panel">
+            <label class="check">
+              <input type="checkbox" id="avPraticaDesporto" /> Já pratica desporto
+            </label>
 
-        <label for="avFrequenciaAtual" style="margin-top:12px;">Frequência atual de treino (dias/semana, hoje)</label>
-        <select id="avFrequenciaAtual">
-          <option value="0" selected>0 — não treina atualmente</option>
-          <option value="1">1</option><option value="2">2</option><option value="3">3</option>
-          <option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option>
-        </select>
+            <label for="avFrequenciaAtual" style="margin-top:14px;">Frequência atual de treino (dias/semana, hoje)</label>
+            <select id="avFrequenciaAtual">
+              <option value="0" selected>0 — não treina atualmente</option>
+              <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+              <option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option>
+            </select>
 
-        <label for="avCapacidadeCarga" style="margin-top:12px;">Capacidade de carga</label>
-        <select id="avCapacidadeCarga">
-          <option value="peso_corporal">Só peso corporal</option>
-          <option value="leve_ate_10kg">Cargas leves (até 10kg)</option>
-          <option value="pesada_ginasio">Cargas pesadas / ginásio</option>
-        </select>
+            <label for="avCapacidadeCarga" style="margin-top:12px;">Capacidade de carga</label>
+            <select id="avCapacidadeCarga">
+              <option value="peso_corporal">Só peso corporal</option>
+              <option value="leve_ate_10kg">Cargas leves (até 10kg)</option>
+              <option value="pesada_ginasio">Cargas pesadas / ginásio</option>
+            </select>
 
-        <label for="avDesportoNivel" style="margin-top:12px;">Nível desportivo</label>
-        <select id="avDesportoNivel">
-          <option value="nao_pratica">Não pratica</option>
-          <option value="iniciante">Iniciante</option>
-          <option value="recreativo">Recreativo</option>
-          <option value="competitivo">Competitivo</option>
-        </select>
+            <label for="avDesportoNivel" style="margin-top:12px;">Nível desportivo</label>
+            <select id="avDesportoNivel">
+              <option value="nao_pratica">Não pratica</option>
+              <option value="iniciante">Iniciante</option>
+              <option value="recreativo">Recreativo</option>
+              <option value="competitivo">Competitivo</option>
+            </select>
 
-        <label style="margin-top:12px;">Modalidades</label>
-        <div id="avModalidades" class="pill-group"></div>
+            <label style="margin-top:12px;">Modalidades</label>
+            <div id="avModalidades" class="pill-group"></div>
 
-        <label style="margin-top:12px;">Local de treino</label>
-        <div id="avLocal" class="pill-group"></div>
+            <label style="margin-top:12px;">Local de treino</label>
+            <div id="avLocal" class="pill-group"></div>
+          </div>
 
-        <label style="margin-top:12px;">Equipamento disponível</label>
-        <div id="avEquipamento" class="pill-group"></div>
+          <div class="pivot-panel">
+            <label>Equipamento disponível</label>
+            <div id="avEquipamento" class="pill-group"></div>
+          </div>
 
-        <label style="margin-top:12px;">Lesões / limitações</label>
-        <div id="avLimitacoes" class="pill-group"></div>
+          <div class="pivot-panel">
+            <label>Lesões / limitações</label>
+            <div id="avLimitacoes" class="pill-group"></div>
 
-        <label for="avNotas" style="margin-top:12px;">Notas (só visíveis para ti)</label>
-        <input type="text" id="avNotas" placeholder="Opcional" />
+            <label for="avNotas" style="margin-top:14px;">Notas (só visíveis para ti)</label>
+            <input type="text" id="avNotas" placeholder="Opcional" />
+          </div>
+        </div>
+        <div class="pivot-dots" id="avPivotDots">
+          <span class="pivot-dot active"></span><span class="pivot-dot"></span>
+          <span class="pivot-dot"></span><span class="pivot-dot"></span>
+        </div>
 
         <button class="btn" type="submit" id="btnAvaliacao">Guardar avaliação</button>
         <p class="err hidden" id="errAvaliacao"></p>
@@ -997,6 +1046,35 @@
   let planoClienteAtual = null;
   let sessaoAtiva = null;
   let diaAtivo = null;
+
+  // Pivot horizontal genérico — liga separadores, faixa com scroll-snap, e pontos.
+  function initPivot(tabsId, trackId, dotsId){
+    const tabsEl = $(tabsId), trackEl = $(trackId), dotsEl = $(dotsId);
+    if (!tabsEl || !trackEl) return;
+    const tabs = Array.from(tabsEl.querySelectorAll('.pivot-tab'));
+    const panels = Array.from(trackEl.querySelectorAll('.pivot-panel'));
+    const dots = dotsEl ? Array.from(dotsEl.querySelectorAll('.pivot-dot')) : [];
+
+    function ativar(i){
+      tabs.forEach((t, idx) => t.classList.toggle('active', idx === i));
+      dots.forEach((d, idx) => d.classList.toggle('active', idx === i));
+    }
+    tabs.forEach((tab, i) => {
+      tab.addEventListener('click', () => {
+        panels[i].scrollIntoView({ behavior:'smooth', inline:'start', block:'nearest' });
+      });
+    });
+    let raf = null;
+    trackEl.addEventListener('scroll', () => {
+      if (raf) cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        const idx = Math.round(trackEl.scrollLeft / trackEl.clientWidth);
+        ativar(Math.max(0, Math.min(panels.length - 1, idx)));
+      });
+    }, { passive: true });
+  }
+  initPivot('avPivotTabs', 'avPivotTrack', 'avPivotDots');
+  initPivot('adminPivotTabs', 'adminPivotTrack', 'adminPivotDots');
 
   function abrirSheet(){
     $('sheetScrim').classList.add('active');
