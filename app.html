@@ -55,6 +55,10 @@
   select{width:100%;border-radius:10px;border:1px solid var(--border);background:var(--bg-raised);
     color:var(--text-primary);padding:12px 16px;font-size:15px;outline:none;}
   select:focus{border-color:rgba(255,67,21,0.6);}
+  .dia-plano{border:1px solid var(--border);border-radius:10px;padding:14px;}
+  .dia-plano h4{font-size:14px;font-weight:600;margin-bottom:8px;}
+  .ex-row{display:flex;justify-content:space-between;font-size:13px;color:var(--text-secondary);padding:5px 0;}
+  .ex-row b{color:var(--text-primary);font-weight:500;}
   #loading{display:flex;min-height:60dvh;align-items:center;justify-content:center;color:var(--text-tertiary);}
 </style>
 </head>
@@ -157,6 +161,16 @@
       </form>
       <button class="ghost" id="btnFecharAvaliacao" style="margin-top:12px;width:100%;">Fechar</button>
     </div>
+
+    <div class="card hidden" id="cardPlano" style="margin-top:20px;max-width:560px;">
+      <h3 style="font-size:16px;font-weight:600;">Plano gerado — <span id="planoNomeCliente"></span></h3>
+      <p class="tiny" id="planoResumo" style="margin-top:6px;"></p>
+      <div id="planoDias" style="margin-top:14px;display:flex;flex-direction:column;gap:14px;"></div>
+      <button class="btn" id="btnPublicarPlano" style="width:100%;">Publicar plano</button>
+      <p class="err hidden" id="errPlano"></p>
+      <p class="tiny" id="okPlano" style="margin-top:10px;color:var(--success);display:none;">Plano publicado — o cliente já o vê.</p>
+      <button class="ghost" id="btnFecharPlano" style="margin-top:12px;width:100%;">Fechar</button>
+    </div>
   </section>
 
   <!-- Área Cliente -->
@@ -175,6 +189,12 @@
     <div class="card hidden" id="cardObjetivo" style="margin-top:20px;">
       <p class="tiny">Objetivo atual</p>
       <h3 id="objetivoAtual" style="font-size:20px;font-weight:600;margin-top:4px;"></h3>
+    </div>
+
+    <div class="card hidden" id="cardPlanoCliente" style="margin-top:20px;">
+      <h3 style="font-size:16px;font-weight:600;">O teu plano</h3>
+      <p class="tiny" id="planoClienteResumo" style="margin-top:6px;"></p>
+      <div id="planoClienteDias" style="margin-top:14px;display:flex;flex-direction:column;gap:14px;"></div>
     </div>
 
     <div class="empty" id="clienteEmpty" style="margin-top:20px;">
@@ -292,6 +312,7 @@
           <span class="badge">desde ${new Date(r.inicio).toLocaleDateString('pt-PT')}</span>
           <button class="ghost" data-reenviar="${r.cliente?.email ?? ''}">Reenviar</button>
           <button class="ghost" data-avaliar="${r.cliente?.id}" data-nome="${r.cliente?.nome ?? r.cliente?.email}">Avaliar</button>
+          <button class="ghost" data-gerar="${r.cliente?.id}" data-nome="${r.cliente?.nome ?? r.cliente?.email}">Gerar plano</button>
         </span>
       </div>`).join('');
     lista.querySelectorAll('[data-avaliar]').forEach(btn => {
@@ -299,6 +320,9 @@
     });
     lista.querySelectorAll('[data-reenviar]').forEach(btn => {
       btn.addEventListener('click', () => reenviarConvite(btn));
+    });
+    lista.querySelectorAll('[data-gerar]').forEach(btn => {
+      btn.addEventListener('click', () => gerarPlano(btn.dataset.gerar, btn.dataset.nome, btn));
     });
   }
 
@@ -378,6 +402,24 @@
         show('cardObjetivo');
       }
     }
+
+    const { data: plano } = await sb.from('planos')
+      .select('*').eq('cliente_id', pessoaId).eq('estado', 'publicado')
+      .order('publicado_em', { ascending:false }).limit(1).maybeSingle();
+    if (plano){
+      const p = plano.parametros;
+      $('planoClienteResumo').textContent =
+        `${p.series}x${p.reps_min}-${p.reps_max} reps · descanso ${p.descanso_seg}s`;
+      $('planoClienteDias').innerHTML = plano.conteudo.dias.map(dia => `
+        <div class="dia-plano">
+          <h4>${dia.nome}</h4>
+          ${dia.exercicios.map(ex => `
+            <div class="ex-row"><b>${ex.nome}</b><span>${ex.series}x${ex.reps_min}-${ex.reps_max}</span></div>
+          `).join('')}
+        </div>`).join('');
+      show('cardPlanoCliente');
+      hide('clienteEmpty');
+    }
   }
 
   const OBJETIVO_LABEL = {
@@ -390,6 +432,59 @@
     const { error } = await sb.rpc('bm_registar_consentimento', { p_tipo: 'dados_saude', p_concedido: true });
     if (error){ alert('Não foi possível registar o consentimento: ' + error.message); $('btnConsentir').disabled = false; return; }
     hide('cardConsentimento');
+  });
+
+  let planoEmRevisao = null;
+
+  async function gerarPlano(clienteId, nome, btn){
+    btn.disabled = true;
+    const textoOriginal = btn.textContent;
+    btn.textContent = 'A gerar…';
+    const { data: planoId, error } = await sb.rpc('bm_gerar_plano', { p_cliente_id: clienteId });
+    btn.disabled = false;
+    btn.textContent = textoOriginal;
+    if (error){
+      alert(error.message.includes('Sem avaliação')
+        ? 'Este cliente ainda não tem avaliação — avalia primeiro.'
+        : (error.message.includes('consentimento')
+           ? 'Este cliente ainda não deu consentimento para dados de saúde.'
+           : 'Não foi possível gerar o plano: ' + error.message));
+      return;
+    }
+    const { data: plano } = await sb.from('planos').select('*').eq('id', planoId).maybeSingle();
+    if (!plano) return;
+    planoEmRevisao = plano.id;
+    $('planoNomeCliente').textContent = nome;
+    const p = plano.parametros;
+    $('planoResumo').textContent =
+      `${p.series}x${p.reps_min}-${p.reps_max} reps · descanso ${p.descanso_seg}s · RPE alvo ${p.rpe_alvo} · progressão ${p.progressao}`;
+    $('planoDias').innerHTML = plano.conteudo.dias.map(dia => `
+      <div class="dia-plano">
+        <h4>${dia.nome}</h4>
+        ${dia.exercicios.map(ex => `
+          <div class="ex-row"><b>${ex.nome}</b><span>${ex.series}x${ex.reps_min}-${ex.reps_max}</span></div>
+        `).join('') || '<p class="tiny">Sem exercícios elegíveis (equipamento/limitações demasiado restritivos).</p>'}
+      </div>`).join('');
+    hide('errPlano');
+    $('okPlano').style.display = 'none';
+    show('cardPlano');
+    $('cardPlano').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  $('btnFecharPlano')?.addEventListener('click', () => hide('cardPlano'));
+
+  $('btnPublicarPlano')?.addEventListener('click', async () => {
+    if (!planoEmRevisao) return;
+    $('btnPublicarPlano').disabled = true;
+    hide('errPlano');
+    const { error } = await sb.rpc('bm_publicar_plano', { p_plano_id: planoEmRevisao });
+    $('btnPublicarPlano').disabled = false;
+    if (error){
+      $('errPlano').textContent = 'Não foi possível publicar: ' + error.message;
+      show('errPlano');
+      return;
+    }
+    $('okPlano').style.display = 'block';
   });
 
   $('fOnboard')?.addEventListener('submit', async (e) => {
