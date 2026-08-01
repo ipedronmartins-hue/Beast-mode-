@@ -90,6 +90,7 @@
   .client-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
   .client-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px;}
   .client-actions .ghost{width:100%;padding:10px 10px;}
+  .client-actions .ghost:last-child:nth-child(odd){grid-column:1 / -1;}
 
   .set-row{display:grid;grid-template-columns:22px 1fr 1fr 1fr;gap:8px;align-items:center;}
   .set-num{font-family:'Inter',sans-serif;font-weight:700;font-size:12px;color:var(--text-tertiary);text-align:center;}
@@ -114,6 +115,12 @@
     padding-bottom:calc(24px + env(safe-area-inset-bottom));}
   #cardSessaoAtiva.sheet-open{transform:translateY(0);}
   .sheet-handle{width:36px;height:4px;border-radius:999px;background:var(--border);margin:0 auto 14px;}
+  .sess-row{border:1px solid var(--border);border-radius:16px;padding:16px;}
+  .sess-row h4{font-size:14px;font-weight:700;margin:0;}
+  .sess-meta{font-size:11px;color:var(--text-tertiary);margin-top:2px;}
+  .sess-feedback{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
+  .comment-item{background:var(--bg-raised);border-radius:10px;padding:8px 10px;margin-top:8px;font-size:13px;color:var(--text-secondary);}
+  .comment-item b{color:var(--text-primary);}
   .sticky-cta{position:sticky;bottom:8px;z-index:5;}
 </style>
 </head>
@@ -278,6 +285,16 @@
       </form>
       <button class="ghost" id="btnFecharMedicoes" style="margin-top:12px;width:100%;">Fechar</button>
     </div>
+
+    <div class="card hidden" id="cardHistorico" style="margin-top:20px;max-width:560px;">
+      <h3 style="font-size:16px;font-weight:800;">Histórico — <span id="histNomeCliente"></span></h3>
+      <div id="histLista" style="margin-top:14px;display:flex;flex-direction:column;gap:14px;"></div>
+      <div class="empty hidden" id="histVazio">
+        <p style="margin:0;font-weight:500;">Ainda sem sessões</p>
+        <p class="muted" style="margin:8px 0 0;">Assim que o atleta treinar, aparece aqui.</p>
+      </div>
+      <button class="ghost" id="btnFecharHistorico" style="margin-top:12px;width:100%;">Fechar</button>
+    </div>
   </section>
 
   <!-- Área Cliente -->
@@ -317,6 +334,12 @@
       <h3 style="font-size:16px;font-weight:600;">O teu plano</h3>
       <p class="tiny" id="planoClienteResumo" style="margin-top:6px;"></p>
       <div id="planoClienteDias" style="margin-top:14px;display:flex;flex-direction:column;gap:14px;"></div>
+    </div>
+
+    <div class="card hidden" id="cardEvolucaoCliente" style="margin-top:20px;">
+      <h3 style="font-size:16px;font-weight:800;">A tua evolução</h3>
+      <p class="tiny" id="evolucaoResumo" style="margin-top:6px;"></p>
+      <div id="evolucaoLista" style="margin-top:14px;display:flex;flex-direction:column;gap:14px;"></div>
     </div>
 
     <div class="card hidden" id="cardSessaoAtiva" style="padding-top:12px;">
@@ -504,9 +527,14 @@
           <button class="ghost" data-medir="${c?.id}" data-nome="${c?.nome ?? c?.email}">Medições</button>
           <button class="ghost" data-gerar="${c?.id}" data-nome="${c?.nome ?? c?.email}">Gerar plano</button>
           <button class="ghost" data-reenviar="${c?.email ?? ''}">Reenviar convite</button>
+          <button class="ghost" data-historico="${c?.id}" data-nome="${c?.nome ?? c?.email}">Histórico</button>
         </div>
       </div>`;
     }).join('');
+
+    lista.querySelectorAll('[data-historico]').forEach(btn => {
+      btn.addEventListener('click', () => abrirHistorico(btn.dataset.historico, btn.dataset.nome));
+    });
 
     lista.querySelectorAll('[data-avaliar]').forEach(btn => {
       btn.addEventListener('click', () => abrirAvaliacao(btn.dataset.avaliar, btn.dataset.nome));
@@ -655,6 +683,42 @@
       show('cardPlanoCliente');
       hide('clienteEmpty');
     }
+
+    await carregarEvolucaoCliente(pessoaId);
+  }
+
+  async function carregarEvolucaoCliente(pessoaId){
+    const { data: sessoes } = await sb.rpc('bm_sessoes_cliente', { p_cliente_id: pessoaId, p_limite: 8 });
+    if (!sessoes || sessoes.length === 0) return;
+
+    const seteDias = Date.now() - 7 * 86400000;
+    const nosUltimos7 = sessoes.filter(s => new Date(s.iniciada_em).getTime() >= seteDias && s.concluida_em).length;
+    $('evolucaoResumo').textContent = `${nosUltimos7} treino${nosUltimos7 === 1 ? '' : 's'} nos últimos 7 dias`;
+
+    const idsSessoes = sessoes.map(s => s.sessao_id);
+    const { data: comentarios } = await sb.from('comentarios_pt')
+      .select('sessao_id, texto, criado_em').in('sessao_id', idsSessoes).order('criado_em', { ascending: true });
+    const comentariosPorSessao = {};
+    (comentarios || []).forEach(c => {
+      comentariosPorSessao[c.sessao_id] = comentariosPorSessao[c.sessao_id] || [];
+      comentariosPorSessao[c.sessao_id].push(c);
+    });
+
+    $('evolucaoLista').innerHTML = sessoes.map(s => {
+      const fb = s.feedback || {};
+      const chips = [];
+      if (fb.como_correu) chips.push(`<span class="badge">Correu: ${fb.como_correu}/10</span>`);
+      if (fb.resultado) chips.push(`<span class="badge">${fb.resultado}</span>`);
+      const cmts = comentariosPorSessao[s.sessao_id] || [];
+      return `
+      <div class="sess-row">
+        <h4>${s.dia_plano}</h4>
+        <p class="sess-meta">${new Date(s.iniciada_em).toLocaleDateString('pt-PT')} · ${s.concluida_em ? 'concluída' : 'em curso'} · ${s.num_series} séries</p>
+        <div class="sess-feedback">${chips.join('')}</div>
+        ${cmts.map(c => `<div class="comment-item"><b>O teu PT:</b> ${c.texto}</div>`).join('')}
+      </div>`;
+    }).join('');
+    show('cardEvolucaoCliente');
   }
 
   const OBJETIVO_LABEL = {
@@ -794,6 +858,73 @@
   }
 
   $('btnFecharMedicoes')?.addEventListener('click', () => hide('cardMedicoes'));
+
+  async function abrirHistorico(clienteId, nome){
+    $('histNomeCliente').textContent = nome;
+    $('histLista').innerHTML = '<p class="tiny">A carregar…</p>';
+    hide('histVazio');
+    show('cardHistorico');
+    $('cardHistorico').scrollIntoView({ behavior:'smooth', block:'start' });
+
+    const { data: sessoes, error } = await sb.rpc('bm_sessoes_cliente', { p_cliente_id: clienteId, p_limite: 10 });
+    if (error || !sessoes || sessoes.length === 0){
+      $('histLista').innerHTML = '';
+      show('histVazio');
+      return;
+    }
+
+    const idsSessoes = sessoes.map(s => s.sessao_id);
+    const { data: comentarios } = await sb.from('comentarios_pt')
+      .select('id, sessao_id, texto, criado_em').in('sessao_id', idsSessoes).order('criado_em', { ascending: true });
+    const comentariosPorSessao = {};
+    (comentarios || []).forEach(c => {
+      comentariosPorSessao[c.sessao_id] = comentariosPorSessao[c.sessao_id] || [];
+      comentariosPorSessao[c.sessao_id].push(c);
+    });
+
+    $('histLista').innerHTML = sessoes.map(s => {
+      const fb = s.feedback || {};
+      const chips = [];
+      if (fb.como_correu) chips.push(`<span class="badge">Correu: ${fb.como_correu}/10</span>`);
+      if (fb.energia) chips.push(`<span class="badge">Energia: ${fb.energia}</span>`);
+      if (fb.dor_muscular) chips.push(`<span class="badge">Dor: ${fb.dor_muscular}</span>`);
+      if (fb.sono) chips.push(`<span class="badge">Sono: ${fb.sono}</span>`);
+      if (fb.resultado) chips.push(`<span class="badge">${fb.resultado}</span>`);
+      const meusComentarios = comentariosPorSessao[s.sessao_id] || [];
+      return `
+      <div class="sess-row">
+        <h4>${s.dia_plano}</h4>
+        <p class="sess-meta">${new Date(s.iniciada_em).toLocaleDateString('pt-PT')} · ${s.concluida_em ? 'concluída' : 'em curso'} · ${s.num_series} séries registadas</p>
+        <div class="sess-feedback">${chips.join('') || '<span class="tiny">Sem feedback registado</span>'}</div>
+        ${fb.observacoes ? `<p class="tiny" style="margin-top:8px;">"${fb.observacoes}"</p>` : ''}
+        <div id="comentarios-${s.sessao_id}">
+          ${meusComentarios.map(c => `<div class="comment-item"><b>Tu:</b> ${c.texto}</div>`).join('')}
+        </div>
+        <div style="display:flex;gap:6px;margin-top:10px;">
+          <input type="text" class="input-comentario" data-sessao="${s.sessao_id}" placeholder="Comentar esta sessão…" style="flex:1;border-radius:10px;border:1px solid var(--border);background:var(--bg-raised);color:var(--text-primary);padding:9px 12px;font-size:13px;" />
+          <button class="ghost" data-comentar="${s.sessao_id}">Enviar</button>
+        </div>
+      </div>`;
+    }).join('');
+
+    $('histLista').querySelectorAll('[data-comentar]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const sessaoId = btn.dataset.comentar;
+        const input = $('histLista').querySelector(`.input-comentario[data-sessao="${sessaoId}"]`);
+        const texto = input.value.trim();
+        if (!texto) return;
+        btn.disabled = true;
+        const { error: errC } = await sb.rpc('bm_comentar_sessao', { p_sessao_id: sessaoId, p_texto: texto });
+        btn.disabled = false;
+        if (errC){ alert('Não foi possível comentar: ' + errC.message); return; }
+        document.getElementById(`comentarios-${sessaoId}`).insertAdjacentHTML('beforeend',
+          `<div class="comment-item"><b>Tu:</b> ${texto}</div>`);
+        input.value = '';
+      });
+    });
+  }
+
+  $('btnFecharHistorico')?.addEventListener('click', () => hide('cardHistorico'));
 
   $('fMedicoes')?.addEventListener('submit', async (e) => {
     e.preventDefault();
