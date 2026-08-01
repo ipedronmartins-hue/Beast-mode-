@@ -228,11 +228,11 @@
       p_email: email,
       p_nome: $('nomeCliente').value.trim() || null
     });
-    if (error) {
+    const jaAssociado = error?.message?.includes('já está associado');
+    if (error && !jaAssociado) {
       $('btnConvidar').disabled = false;
-      $('errConvidar').textContent = error.message.includes('já está associado')
-        ? 'Este cliente já está associado a ti.'
-        : (error.message.includes('Email inválido') ? 'Email inválido.' : 'Não foi possível convidar: ' + error.message);
+      $('errConvidar').textContent = error.message.includes('Email inválido')
+        ? 'Email inválido.' : 'Não foi possível convidar: ' + error.message;
       show('errConvidar');
       return;
     }
@@ -243,10 +243,12 @@
     });
     $('btnConvidar').disabled = false;
     if (otpError) {
-      $('okConvidar').textContent = 'Cliente associado, mas o email de convite falhou a enviar: ' + otpError.message;
+      $('okConvidar').textContent = (jaAssociado ? 'Cliente já associado, mas o reenvio falhou: ' : 'Cliente associado, mas o email de convite falhou a enviar: ') + otpError.message;
       $('okConvidar').style.color = 'var(--danger)';
     } else {
-      $('okConvidar').textContent = 'Convite enviado — o cliente recebe um email com o link de acesso.';
+      $('okConvidar').textContent = jaAssociado
+        ? 'Já era cliente teu — reenviei o email com o link de acesso.'
+        : 'Convite enviado — o cliente recebe um email com o link de acesso.';
       $('okConvidar').style.color = 'var(--success)';
     }
     $('fConvidar').reset();
@@ -281,14 +283,40 @@
     lista.innerHTML = rel.map(r => `
       <div class="row">
         <span>${r.cliente?.nome ?? r.cliente?.email ?? '—'}</span>
-        <span style="display:flex;align-items:center;gap:8px;">
+        <span style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
           <span class="badge">desde ${new Date(r.inicio).toLocaleDateString('pt-PT')}</span>
+          <button class="ghost" data-reenviar="${r.cliente?.email ?? ''}">Reenviar</button>
           <button class="ghost" data-avaliar="${r.cliente?.id}" data-nome="${r.cliente?.nome ?? r.cliente?.email}">Avaliar</button>
         </span>
       </div>`).join('');
     lista.querySelectorAll('[data-avaliar]').forEach(btn => {
       btn.addEventListener('click', () => abrirAvaliacao(btn.dataset.avaliar, btn.dataset.nome));
     });
+    lista.querySelectorAll('[data-reenviar]').forEach(btn => {
+      btn.addEventListener('click', () => reenviarConvite(btn));
+    });
+  }
+
+  async function reenviarConvite(btn){
+    const email = btn.dataset.reenviar;
+    if (!email) return;
+    btn.disabled = true;
+    const textoOriginal = btn.textContent;
+    btn.textContent = 'A enviar…';
+    const { error } = await sb.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: window.location.origin + '/app.html' }
+    });
+    btn.disabled = false;
+    if (error){
+      btn.textContent = error.message.toLowerCase().includes('rate')
+        ? 'Limite atingido, espera'
+        : 'Falhou';
+      setTimeout(() => { btn.textContent = textoOriginal; }, 3000);
+      return;
+    }
+    btn.textContent = 'Enviado ✓';
+    setTimeout(() => { btn.textContent = textoOriginal; }, 3000);
   }
 
   function abrirAvaliacao(clienteId, nome){
