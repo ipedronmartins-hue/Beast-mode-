@@ -10,7 +10,7 @@
 <style>
   :root{
     color-scheme: dark;
-    --bg:#141316; --bg-surface:#1C1B1E; --bg-raised:#2A2C31;
+    --bg:#000000; --bg-surface:#121212; --bg-raised:#1C1C1E;
     --border:rgba(255,255,255,0.08);
     --primary:#A5D6A7; --primary-hover:#8BC490; --primary-muted:rgba(165,214,167,0.14); --on-primary:#06280A;
     --tertiary:#FFB74D; --warning:#FFB74D;
@@ -151,25 +151,25 @@
 
     <div class="card" style="margin-top:18px;max-width:440px;">
       <form id="fConvidar">
-        <label for="emailCliente">Convidar cliente (email)</label>
+        <label for="emailCliente">Convidar atleta (email)</label>
         <input type="text" id="emailCliente" placeholder="cliente@exemplo.com" required />
         <label for="nomeCliente" style="margin-top:12px;">Nome (opcional)</label>
-        <input type="text" id="nomeCliente" placeholder="Nome do cliente" />
+        <input type="text" id="nomeCliente" placeholder="Nome do atleta" />
         <button class="btn" type="submit" id="btnConvidar">Convidar</button>
         <p class="err hidden" id="errConvidar"></p>
         <p class="tiny" id="okConvidar" style="margin-top:10px;color:var(--success);display:none;">Cliente associado. Já pode entrar com o email dele.</p>
       </form>
     </div>
 
-    <p class="section-title">Os teus clientes</p>
+    <p class="section-title">Os teus atletas</p>
     <div id="listaClientes"></div>
     <div class="empty hidden" id="semClientes">
-      <p style="margin:0;font-weight:500;">Ainda sem clientes</p>
-      <p class="muted" style="margin:8px 0 0;">Convida o primeiro cliente pelo email acima.</p>
+      <p style="margin:0;font-weight:500;">Ainda sem atletas</p>
+      <p class="muted" style="margin:8px 0 0;">Convida o primeiro atleta pelo email acima.</p>
     </div>
 
     <div class="card hidden" id="cardAvaliacao" style="margin-top:20px;max-width:520px;">
-      <h3 style="font-size:16px;font-weight:600;">Avaliação inicial — <span id="avNomeCliente"></span></h3>
+      <h3 style="font-size:16px;font-weight:600;">Anamnese e Perfil do Atleta — <span id="avNomeCliente"></span></h3>
       <form id="fAvaliacao" style="margin-top:14px;">
         <label for="avObjetivo">Objetivo</label>
         <select id="avObjetivo" required>
@@ -257,7 +257,7 @@
       <div id="planoDias" style="margin-top:14px;display:flex;flex-direction:column;gap:14px;"></div>
       <button class="btn" id="btnPublicarPlano" style="width:100%;">Publicar plano</button>
       <p class="err hidden" id="errPlano"></p>
-      <p class="tiny" id="okPlano" style="margin-top:10px;color:var(--success);display:none;">Plano publicado — o cliente já o vê.</p>
+      <p class="tiny" id="okPlano" style="margin-top:10px;color:var(--success);display:none;">Plano publicado — o atleta já o vê.</p>
       <button class="ghost" id="btnFecharPlano" style="margin-top:12px;width:100%;">Fechar</button>
     </div>
 
@@ -435,8 +435,8 @@
       $('okConvidar').style.color = 'var(--danger)';
     } else {
       $('okConvidar').textContent = jaAssociado
-        ? 'Já era cliente teu — reenviei o email com o link de acesso.'
-        : 'Convite enviado — o cliente recebe um email com o link de acesso.';
+        ? 'Já era teu atleta — reenviei o email com o link de acesso.'
+        : 'Convite enviado — o atleta recebe um email com o link de acesso.';
       $('okConvidar').style.color = 'var(--success)';
     }
     $('fConvidar').reset();
@@ -494,11 +494,11 @@
           <div class="client-avatar">${inicial}</div>
           <div>
             <div class="client-name">${c?.nome ?? c?.email ?? '—'}</div>
-            <div class="client-meta">cliente desde ${new Date(r.inicio).toLocaleDateString('pt-PT')}</div>
+            <div class="client-meta">atleta desde ${new Date(r.inicio).toLocaleDateString('pt-PT')}</div>
           </div>
         </div>
         <div class="client-chips">
-          <span class="chip ${avaliado ? 'chip-ok' : 'chip-warn'}">${avaliado ? 'Avaliado' : 'Sem avaliação'}</span>
+          <span class="chip ${avaliado ? 'chip-ok' : 'chip-warn'}">${avaliado ? 'Avaliado' : 'Avaliação pendente'}</span>
           <span class="chip ${planoAtivo ? 'chip-ok' : 'chip-warn'}">${planoAtivo ? 'Plano ativo' : 'Sem plano'}</span>
         </div>
         <div class="client-actions">
@@ -582,7 +582,7 @@
     $('btnAvaliacao').disabled = false;
     if (error){
       $('errAvaliacao').textContent = error.message.includes('consentimento')
-        ? 'Este cliente ainda não deu consentimento para dados de saúde — pede-lhe para aceitar na área dele.'
+        ? 'Este atleta ainda não deu consentimento para dados de saúde — pede-lhe para aceitar na área dele.'
         : 'Não foi possível guardar: ' + error.message;
       show('errAvaliacao');
       return;
@@ -746,9 +746,9 @@
     btn.textContent = textoOriginal;
     if (error){
       alert(error.message.includes('Sem avaliação')
-        ? 'Este cliente ainda não tem avaliação — avalia primeiro.'
+        ? 'Este atleta ainda não tem avaliação — avalia primeiro.'
         : (error.message.includes('consentimento')
-           ? 'Este cliente ainda não deu consentimento para dados de saúde.'
+           ? 'Este atleta ainda não deu consentimento para dados de saúde.'
            : 'Não foi possível gerar o plano: ' + error.message));
       return;
     }
@@ -818,7 +818,7 @@
     $('btnMedicoes').disabled = false;
     if (error){
       $('errMedicoes').textContent = error.message.includes('consentimento')
-        ? 'Este cliente ainda não deu consentimento para medidas corporais.'
+        ? 'Este atleta ainda não deu consentimento para medidas corporais.'
         : 'Não foi possível guardar: ' + error.message;
       show('errMedicoes');
       return;
