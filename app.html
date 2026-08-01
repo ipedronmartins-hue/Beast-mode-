@@ -121,6 +121,12 @@
   .sess-feedback{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
   .comment-item{background:var(--bg-raised);border-radius:10px;padding:8px 10px;margin-top:8px;font-size:13px;color:var(--text-secondary);}
   .comment-item b{color:var(--text-primary);}
+  .stat-box{border:1px solid var(--border);border-radius:16px;padding:16px;background:var(--bg-raised);}
+  .stat-num{font-size:28px;font-weight:800;color:var(--primary);}
+  .stat-label{font-size:11px;color:var(--text-tertiary);margin-top:2px;}
+  .event-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--text-secondary);
+    padding:7px 0;border-bottom:1px solid var(--border);}
+  .event-row:last-child{border-bottom:none;}
   .sticky-cta{position:sticky;bottom:8px;z-index:5;}
 </style>
 </head>
@@ -133,6 +139,16 @@
 
 <main>
   <div id="loading">A carregar…</div>
+
+  <!-- Admin: só visível se sou_admin() -->
+  <div class="card hidden" id="cardAdmin" style="margin-bottom:20px;">
+    <h3 style="font-size:16px;font-weight:800;">Painel de Administração</h3>
+    <div id="adminStats" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:14px;"></div>
+    <p class="section-title" style="margin-top:24px;">Treinadores</p>
+    <div id="adminPts"></div>
+    <p class="section-title">Atividade recente</p>
+    <div id="adminEventos" style="display:flex;flex-direction:column;gap:6px;"></div>
+  </div>
 
   <!-- Onboarding: primeira entrada, sem registo de pessoa ainda -->
   <section id="onboarding" class="hidden">
@@ -412,6 +428,9 @@
 
     if (error){ alert('Erro a carregar o perfil.'); return; }
     if (!pessoa){ show('onboarding'); return; }
+
+    const { data: ehAdmin } = await sb.rpc('sou_admin');
+    if (ehAdmin) await carregarAdmin();
 
     // Sou PT? (RLS de perfis_pt permite ver o próprio)
     const { data: perfilPT } = await sb.from('perfis_pt').select('pessoa_id').eq('pessoa_id', pessoa.id).maybeSingle();
@@ -1098,6 +1117,36 @@
     show('loading');
     init();
   });
+
+  async function carregarAdmin(){
+    const [{ data: resumo }, { data: pts }, { data: eventos }] = await Promise.all([
+      sb.rpc('bm_admin_resumo'),
+      sb.rpc('bm_admin_pts'),
+      sb.rpc('bm_admin_eventos', { p_limite: 20 })
+    ]);
+
+    const r = resumo?.[0];
+    if (r){
+      $('adminStats').innerHTML = `
+        <div class="stat-box"><div class="stat-num">${r.pts}</div><div class="stat-label">Treinadores</div></div>
+        <div class="stat-box"><div class="stat-num">${r.atletas}</div><div class="stat-label">Atletas ativos</div></div>
+        <div class="stat-box"><div class="stat-num">${r.planos_publicados}</div><div class="stat-label">Planos publicados</div></div>
+        <div class="stat-box"><div class="stat-num">${r.sessoes_concluidas}</div><div class="stat-label">Sessões concluídas</div></div>`;
+    }
+
+    $('adminPts').innerHTML = (pts || []).map(p => `
+      <div class="row"><span>${p.nome}<br><span class="tiny">${p.email}</span></span>
+      <span class="badge">${p.num_atletas} atleta${p.num_atletas === 1 ? '' : 's'}</span></div>`).join('')
+      || '<p class="tiny">Ainda sem treinadores.</p>';
+
+    $('adminEventos').innerHTML = (eventos || []).map(e => `
+      <div class="event-row">
+        <span>${e.tipo}${e.ator_nome ? ' · ' + e.ator_nome : ''}</span>
+        <span>${new Date(e.ocorrido_em).toLocaleString('pt-PT', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })}</span>
+      </div>`).join('') || '<p class="tiny">Sem eventos.</p>';
+
+    show('cardAdmin');
+  }
 
   $('btnSair').addEventListener('click', async () => {
     await sb.auth.signOut();
