@@ -6,23 +6,23 @@
 <title>Beast Mode</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root{
     color-scheme: dark;
-    --bg:#000000; --bg-surface:#121212; --bg-raised:#1C1C1E;
+    --bg:#000000; --bg-surface:#121212; --bg-raised:#1C1C1E; --bg-band:#0A0A0B;
     --border:rgba(255,255,255,0.09);
-    --primary:#A5D6A7; --primary-hover:#8BC490; --on-primary:#06280A;
+    --primary:#A5D6A7; --primary-hover:#8BC490; --primary-muted:rgba(165,214,167,0.14); --on-primary:#06280A;
     --tertiary:#FFB74D;
     --text-primary:#E2E2E6; --text-secondary:#90909A; --text-tertiary:#6B6B75;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--text-primary);
-    font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased;}
-  h1,h2,h3{font-family:'Inter',sans-serif; font-weight:800; letter-spacing:-0.01em; margin:0;}
+    font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased; overflow-x:hidden;}
+  h1,h2,h3{font-family:'Inter',sans-serif; font-weight:800; letter-spacing:-0.02em; margin:0;}
   a{color:inherit; text-decoration:none;}
   .wrap{max-width:1152px; margin:0 auto; padding:0 24px;}
-  nav.wrap{display:flex; align-items:center; justify-content:space-between; padding-top:24px; padding-bottom:24px;}
+  nav.wrap{display:flex; align-items:center; justify-content:space-between; padding-top:24px; padding-bottom:24px; position:relative; z-index:2;}
   .logo{font-weight:800; font-size:18px;}
   .btn-secondary{display:inline-flex; align-items:center; justify-content:center;
     border-radius:999px; border:1px solid var(--border); background:var(--bg-surface);
@@ -33,15 +33,63 @@
     font-weight:700; font-size:15px; padding:15px 28px; cursor:pointer;}
   .btn-primary:hover{background:var(--primary-hover);}
 
-  .hero{display:flex; flex-direction:column; align-items:center; text-align:center; padding:56px 24px 72px;}
+  .hero-wrap{position:relative;}
+  .glow{position:absolute; top:-120px; left:50%; transform:translateX(-50%); width:900px; height:600px;
+    background:radial-gradient(ellipse at center, rgba(165,214,167,0.16) 0%, rgba(165,214,167,0) 65%);
+    pointer-events:none; z-index:0;}
+  .hero{position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; text-align:center; padding:64px 24px 8px;}
   .badge{border-radius:999px; border:1px solid var(--border); background:var(--bg-surface);
     padding:6px 14px; font-size:12px; color:var(--text-secondary);}
-  h1.headline{margin-top:24px; max-width:720px; font-size:44px; line-height:1.08;}
+  h1.headline{margin-top:26px; max-width:760px; font-size:52px; line-height:1.05;}
   h1.headline span{color:var(--primary);}
-  .sub{margin-top:22px; max-width:520px; font-size:18px; color:var(--text-secondary); font-weight:400; line-height:1.5;}
-  .cta-row{margin-top:34px; display:flex; gap:12px; flex-wrap:wrap; justify-content:center;}
+  .sub{margin-top:24px; max-width:540px; font-size:19px; color:var(--text-secondary); font-weight:400; line-height:1.55;}
+  .cta-row{margin-top:36px; display:flex; gap:12px; flex-wrap:wrap; justify-content:center;}
+  @media (max-width:640px){ h1.headline{font-size:34px;} .sub{font-size:16px;} }
 
-  .barload{margin-top:56px; display:flex; align-items:center; justify-content:center; gap:0; width:100%; max-width:460px;}
+  /* Product preview mockup — a real recreation of the execution screen, not an icon */
+  .preview-wrap{position:relative; z-index:1; display:flex; justify-content:center; padding:56px 24px 0;}
+  .phone{width:300px; background:var(--bg-surface); border:1px solid var(--border); border-radius:32px;
+    padding:14px; box-shadow:0 40px 80px -24px rgba(0,0,0,0.8);}
+  .phone-notch{width:60px; height:5px; border-radius:999px; background:var(--bg-raised); margin:0 auto 14px;}
+  .phone-screen{background:var(--bg); border-radius:20px; padding:18px;}
+  .pv-label{font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--tertiary); font-weight:700;}
+  .pv-title{font-size:15px; font-weight:700; margin-top:4px;}
+  .pv-ex{background:var(--bg-raised); border-radius:14px; padding:12px; margin-top:14px;}
+  .pv-ex-name{font-size:13px; font-weight:700;}
+  .pv-ex-meta{font-size:10px; color:var(--text-tertiary); margin-top:2px;}
+  .pv-set{display:grid; grid-template-columns:16px 1fr 1fr 1fr; gap:6px; margin-top:10px; align-items:center;}
+  .pv-set span:first-child{font-size:10px; color:var(--text-tertiary); font-family:monospace;}
+  .pv-cell{background:var(--bg-surface); border:1px solid var(--border); border-radius:8px; padding:6px 0;
+    text-align:center; font-size:11px; font-weight:700; color:var(--text-secondary);}
+  .pv-cell.filled{color:var(--primary); border-color:var(--primary);}
+  .pv-btn{margin-top:16px; background:var(--primary); color:var(--on-primary); text-align:center;
+    border-radius:999px; padding:11px; font-size:12px; font-weight:700;}
+
+  .section-band{background:var(--bg-band); border-top:1px solid var(--border); border-bottom:1px solid var(--border);}
+  .problem{max-width:840px; margin:0 auto; padding:72px 24px; text-align:center;}
+  .problem .section-label{margin-bottom:14px;}
+  .problem h2{font-size:30px; line-height:1.2; max-width:640px; margin:0 auto;}
+  .problem .compare{margin-top:40px; display:grid; grid-template-columns:1fr 1fr; gap:16px; text-align:left;}
+  @media (max-width:640px){ .problem .compare{grid-template-columns:1fr;} .problem h2{font-size:24px;} }
+  .compare-col{border-radius:20px; padding:24px; border:1px solid var(--border);}
+  .compare-col.bad{background:var(--bg-surface);}
+  .compare-col.good{background:var(--primary-muted); border-color:rgba(165,214,167,0.35);}
+  .compare-col .eyebrow{font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; margin-bottom:12px;}
+  .compare-col.bad .eyebrow{color:var(--text-tertiary);}
+  .compare-col.good .eyebrow{color:var(--primary);}
+  .compare-col ul{margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:10px;}
+  .compare-col li{font-size:14px; color:var(--text-secondary); display:flex; gap:8px;}
+  .compare-col.good li{color:var(--text-primary);}
+
+  .steps{max-width:1152px; margin:0 auto; padding:72px 24px; display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
+  @media (max-width:800px){ .steps{grid-template-columns:1fr;} }
+  .step{display:flex; flex-direction:column; gap:10px;}
+  .step-num{width:32px; height:32px; border-radius:999px; background:var(--bg-surface); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; color:var(--primary);}
+  .step h3{font-size:16px; font-weight:700;}
+  .step p{margin:0; font-size:14px; line-height:1.55; color:var(--text-secondary); font-weight:400;}
+
+  .barload{margin-top:8px; display:flex; align-items:center; justify-content:center; gap:0; width:100%; max-width:460px;}
   .plates{display:flex; align-items:center; gap:4px;}
   .plates.right{flex-direction:row-reverse;}
   .plate{border-radius:3px; background:var(--primary); animation:drop 560ms cubic-bezier(0.34,1.56,0.64,1) both;}
@@ -52,68 +100,95 @@
   @keyframes drop{from{transform:translateY(-16px); opacity:0;} to{transform:translateY(0); opacity:1;}}
   @keyframes draw{to{transform:scaleX(1);}}
 
-  .steps{max-width:1152px; margin:0 auto; padding:24px 24px 64px; display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
-  @media (max-width:800px){ .steps{grid-template-columns:1fr;} }
-  .step{display:flex; flex-direction:column; gap:10px;}
-  .step-num{width:32px; height:32px; border-radius:999px; background:var(--bg-surface); border:1px solid var(--border);
-    display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; color:var(--primary);}
-  .step h3{font-size:16px; font-weight:700;}
-  .step p{margin:0; font-size:14px; line-height:1.55; color:var(--text-secondary); font-weight:400;}
-
   .section-label{text-align:center; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.06em;
-    color:var(--text-tertiary); margin-top:8px;}
+    color:var(--text-tertiary);}
 
-  .spec-list{max-width:760px; margin:8px auto 48px; padding:0 24px;}
+  .spec-list{max-width:760px; margin:0 auto; padding:72px 24px;}
+  .spec-list > .section-label{margin-bottom:8px;}
   .spec-row{display:grid; grid-template-columns:96px 1fr; gap:20px; padding:24px 0; border-top:1px solid var(--border);}
   .spec-row:last-child{border-bottom:1px solid var(--border);}
-  @media (max-width:560px){ .spec-row{grid-template-columns:1fr; gap:6px;} h1.headline{font-size:32px;} }
+  @media (max-width:560px){ .spec-row{grid-template-columns:1fr; gap:6px;} }
   .spec-tag{font-family:'Inter',sans-serif; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
     color:var(--tertiary); padding-top:2px;}
   .spec-row h3{font-size:17px; font-weight:700; margin-bottom:6px;}
   .spec-row p{margin:0; font-size:14px; line-height:1.6; color:var(--text-secondary); font-weight:400; max-width:480px;}
 
-  .closing{max-width:1152px; margin:0 auto; padding:32px 24px 96px;}
+  .closing{max-width:1152px; margin:0 auto; padding:80px 24px 96px;}
   .closing-card{border-radius:28px; background:var(--bg-surface);
-    padding:56px 24px; display:flex; flex-direction:column; align-items:center; text-align:center; gap:18px;}
-  .closing-card h2{max-width:420px; font-size:28px;}
-  .closing-card p{max-width:420px; margin:0; font-size:14px; color:var(--text-secondary); font-weight:400;}
+    padding:64px 24px; display:flex; flex-direction:column; align-items:center; text-align:center; gap:18px;}
+  .closing-card h2{max-width:460px; font-size:32px; line-height:1.15;}
+  .closing-card p{max-width:420px; margin:0; font-size:15px; color:var(--text-secondary); font-weight:400;}
   footer{margin-top:40px; text-align:center; font-size:12px; color:var(--text-tertiary);}
 </style>
 </head>
 <body>
 
-<nav class="wrap">
-  <span class="logo">Beast Mode</span>
-  <a href="login.html" class="btn-secondary">Entrar</a>
-</nav>
+<div class="hero-wrap">
+  <div class="glow" aria-hidden="true"></div>
+  <nav class="wrap">
+    <span class="logo">Beast Mode</span>
+    <a href="login.html" class="btn-secondary">Entrar</a>
+  </nav>
 
-<section class="hero">
-  <span class="badge">Plataforma de Prescrição para Personal Trainers</span>
-  <h1 class="headline">O treino de cada atleta,<br><span>prescrito, executado e medido.</span></h1>
-  <p class="sub">Do ginásio à corrida, do treino em casa à alta performance. Motor de prescrição determinístico, periodização real e uma app que os teus atletas realmente usam.</p>
-  <div class="cta-row">
-    <a href="login.html" class="btn-primary">Entrar
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-    </a>
-    <a href="mailto:contacto@beastmode.pt?subject=Pedido de acesso" class="btn-secondary" style="padding:15px 28px; font-size:15px;">Pedir acesso</a>
-  </div>
-
-  <div class="barload" aria-hidden="true">
-    <div class="plates">
-      <div class="plate tertiary" style="width:6px;height:20px;animation-delay:280ms;"></div>
-      <div class="plate" style="width:8px;height:32px;animation-delay:180ms;"></div>
-      <div class="plate" style="width:10px;height:44px;animation-delay:80ms;"></div>
+  <section class="hero">
+    <span class="badge">Plataforma de Prescrição para Personal Trainers</span>
+    <h1 class="headline">O treino de cada atleta,<br><span>prescrito, executado e medido.</span></h1>
+    <p class="sub">Do ginásio à corrida, do treino em casa à alta performance. Motor de prescrição determinístico, periodização real e uma app que os teus atletas realmente usam.</p>
+    <div class="cta-row">
+      <a href="login.html" class="btn-primary">Entrar
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+      </a>
+      <a href="mailto:contacto@beastmode.pt?subject=Pedido de acesso" class="btn-secondary" style="padding:15px 28px; font-size:15px;">Pedir acesso</a>
     </div>
-    <div class="bar-line"></div>
-    <div class="plates right">
-      <div class="plate tertiary" style="width:6px;height:20px;animation-delay:280ms;"></div>
-      <div class="plate" style="width:8px;height:32px;animation-delay:180ms;"></div>
-      <div class="plate" style="width:10px;height:44px;animation-delay:80ms;"></div>
-    </div>
-  </div>
-</section>
+  </section>
 
-<p class="section-label">Como funciona</p>
+  <section class="preview-wrap">
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <span class="pv-label">Treino: Full Body A</span>
+        <p class="pv-title">Semana 2 · Acumulação</p>
+        <div class="pv-ex">
+          <p class="pv-ex-name">Agachamento livre</p>
+          <p class="pv-ex-meta">4x8-12 reps · descanso 75s</p>
+          <div class="pv-set"><span>1</span><div class="pv-cell filled">40</div><div class="pv-cell filled">10</div><div class="pv-cell filled">7</div></div>
+          <div class="pv-set"><span>2</span><div class="pv-cell filled">42</div><div class="pv-cell filled">9</div><div class="pv-cell filled">8</div></div>
+          <div class="pv-set"><span>3</span><div class="pv-cell">—</div><div class="pv-cell">—</div><div class="pv-cell">—</div></div>
+        </div>
+        <div class="pv-btn">Concluir treino</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="section-band">
+  <section class="problem">
+    <p class="section-label">O problema real</p>
+    <h2 style="margin-top:14px;">Sabes prescrever. O que falta é o sistema à volta disso.</h2>
+    <div class="compare">
+      <div class="compare-col bad">
+        <p class="eyebrow">Hoje</p>
+        <ul>
+          <li>— Planos em PDF que ninguém abre depois da 1ª semana</li>
+          <li>— WhatsApp a explodir com "que carga fiz na 3ª série?"</li>
+          <li>— Reavaliar de cabeça, sem histórico real</li>
+          <li>— Cada atleta novo, uma folha de Excel nova</li>
+        </ul>
+      </div>
+      <div class="compare-col good">
+        <p class="eyebrow">Com o Beast Mode</p>
+        <ul>
+          <li>— O atleta abre a app, o treino de hoje está lá</li>
+          <li>— Carga, reps e RPE ficam registados série a série</li>
+          <li>— Progressão automática, mesociclo a mesociclo</li>
+          <li>— Um motor, a mesma qualidade para todos os atletas</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+
+<p class="section-label" style="margin-top:72px;">Como funciona</p>
 <section class="steps">
   <div class="step">
     <div class="step-num">1</div>
@@ -132,37 +207,39 @@
   </div>
 </section>
 
-<p class="section-label">O que o motor faz</p>
-<section class="spec-list">
-  <div class="spec-row">
-    <span class="spec-tag">Avaliação</span>
-    <div>
-      <h3>Anamnese completa</h3>
-      <p>Objetivo, nível, lesões, equipamento, modalidades e contexto — tudo o que o motor precisa para decidir bem.</p>
+<div class="section-band">
+  <section class="spec-list">
+    <p class="section-label">O que o motor faz</p>
+    <div class="spec-row">
+      <span class="spec-tag">Avaliação</span>
+      <div>
+        <h3>Anamnese completa</h3>
+        <p>Objetivo, nível, lesões, equipamento, modalidades e contexto — tudo o que o motor precisa para decidir bem.</p>
+      </div>
     </div>
-  </div>
-  <div class="spec-row">
-    <span class="spec-tag">Motor</span>
-    <div>
-      <h3>Prescrição determinística</h3>
-      <p>Força, corrida, WODs em casa. Cruza objetivo, nível, dias e equipamento real disponível. Editável antes de publicar.</p>
+    <div class="spec-row">
+      <span class="spec-tag">Motor</span>
+      <div>
+        <h3>Prescrição determinística</h3>
+        <p>Força, corrida, WODs em casa. Cruza objetivo, nível, dias e equipamento real disponível. Editável antes de publicar.</p>
+      </div>
     </div>
-  </div>
-  <div class="spec-row">
-    <span class="spec-tag">Atleta</span>
-    <div>
-      <h3>Área do atleta</h3>
-      <p>Entra por link mágico, vê o treino do dia, regista cargas, reps e feedback — mobile first, sem fricção.</p>
+    <div class="spec-row">
+      <span class="spec-tag">Atleta</span>
+      <div>
+        <h3>Área do atleta</h3>
+        <p>Entra por link mágico, vê o treino do dia, regista cargas, reps e feedback — mobile first, sem fricção.</p>
+      </div>
     </div>
-  </div>
-  <div class="spec-row">
-    <span class="spec-tag">Ciclo</span>
-    <div>
-      <h3>Periodização real</h3>
-      <p>Mesociclos de 4 semanas com progressão automática, medidas corporais e reavaliação a cada 12 semanas.</p>
+    <div class="spec-row">
+      <span class="spec-tag">Ciclo</span>
+      <div>
+        <h3>Periodização real</h3>
+        <p>Mesociclos de 4 semanas com progressão automática, medidas corporais e reavaliação a cada 12 semanas.</p>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
+</div>
 
 <section class="closing">
   <div class="closing-card">
