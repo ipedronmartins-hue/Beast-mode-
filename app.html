@@ -207,6 +207,20 @@
 
         <label class="check" style="margin-top:14px;"><input type="checkbox" id="avPraticaDesporto" /> Já pratica desporto</label>
 
+        <label for="avFrequenciaAtual" style="margin-top:12px;">Frequência atual de treino (dias/semana, hoje)</label>
+        <select id="avFrequenciaAtual">
+          <option value="0" selected>0 — não treina atualmente</option>
+          <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+          <option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option>
+        </select>
+
+        <label for="avCapacidadeCarga" style="margin-top:12px;">Capacidade de carga</label>
+        <select id="avCapacidadeCarga">
+          <option value="peso_corporal">Só peso corporal</option>
+          <option value="leve_ate_10kg">Cargas leves (até 10kg)</option>
+          <option value="pesada_ginasio">Cargas pesadas / ginásio</option>
+        </select>
+
         <label for="avDesportoNivel" style="margin-top:12px;">Nível desportivo</label>
         <select id="avDesportoNivel">
           <option value="nao_pratica">Não pratica</option>
@@ -314,6 +328,7 @@
         <button class="ghost" id="btnCancelarSessao" style="padding:6px 14px;font-size:12px;">Cancelar</button>
       </div>
       <p class="tiny" style="margin-top:4px;">Regista carga, reps e RPE de cada série. Uma série à falha é a que mais te diz sobre a tua evolução real.</p>
+      <p class="tiny" id="sessaoMesoLabel" style="margin-top:2px;color:var(--tertiary);font-weight:600;"></p>
       <div id="sessaoExercicios" style="margin-top:14px;display:flex;flex-direction:column;gap:16px;"></div>
 
       <div id="feedbackSessao" style="margin-top:20px;border-top:1px solid var(--border);padding-top:16px;">
@@ -429,7 +444,7 @@
     await carregarClientes();
   });
 
-  const EQUIPAMENTO = ['Sem equipamento','Halteres','Barra e discos','Máquinas','Elásticos','Kettlebell'];
+  const EQUIPAMENTO = ['Sem equipamento','Barra de porta','Mesa ou cadeira','Halteres','Barra e discos','Máquinas','Elásticos','Kettlebell'];
   const LIMITACOES = ['Nenhuma','Lombar','Joelho','Ombro','Cervical','Anca','Outra'];
   const MODALIDADES = ['corrida'];
   const MODALIDADE_LABEL = { corrida: 'Corrida' };
@@ -560,7 +575,9 @@
       p_pratica_desporto: $('avPraticaDesporto').checked,
       p_desporto_nivel: $('avDesportoNivel').value || null,
       p_modalidades: lerPills('avModalidades'),
-      p_local_treino: lerPills('avLocal')
+      p_local_treino: lerPills('avLocal'),
+      p_frequencia_atual_semana: parseInt($('avFrequenciaAtual').value, 10),
+      p_capacidade_carga: $('avCapacidadeCarga').value
     });
     $('btnAvaliacao').disabled = false;
     if (error){
@@ -623,11 +640,13 @@
     if (plano){
       planoClienteAtual = plano;
       const p = plano.parametros;
-      $('planoClienteResumo').textContent =
-        `${p.series}x${p.reps_min}-${p.reps_max} reps · descanso ${p.descanso_seg}s · próxima reavaliação: ${formatarData(p.reavaliar_em)}`;
+      const meso = calcularMesociclo(plano.publicado_em);
+      $('planoClienteResumo').innerHTML =
+        `<span class="chip chip-ok" style="margin-right:6px;">Semana ${meso.semanaTotal} · ${meso.label}</span>
+         descanso ${p.descanso_seg}s · próxima reavaliação: ${formatarData(p.reavaliar_em)}`;
       $('planoClienteDias').innerHTML = plano.conteudo.dias.map((dia, i) => `
         <div>
-          ${renderDia(dia)}
+          ${renderDia(dia, meso)}
           <button class="btn" data-iniciar-dia="${i}" style="width:100%;margin-top:8px;">
             ${dia.tipo === 'forca' ? 'Iniciar treino' : 'Marcar como feito'}
           </button>
@@ -664,7 +683,34 @@
     return `${d}/${m}/${a}`;
   }
 
-  function renderDia(dia){
+  // Mesociclo de 4 semanas: introdução -> acumulação -> intensificação -> deload.
+  // Calculado a partir de plano.publicado_em, sem precisar de regenerar nada —
+  // o treino no ecrã muda sozinho a cada semana.
+  const MESOCICLO_WAVE = {
+    1: { label:'Introdução',      seriesDelta: 0, repsDelta: 0, rpeDelta:-0.5 },
+    2: { label:'Acumulação',      seriesDelta: 1, repsDelta: 0, rpeDelta: 0   },
+    3: { label:'Intensificação',  seriesDelta: 0, repsDelta:-2, rpeDelta: 0.5 },
+    4: { label:'Deload',          seriesDelta:-1, repsDelta: 0, rpeDelta:-1.5 }
+  };
+
+  function calcularMesociclo(publicadoEm){
+    if (!publicadoEm) return { semanaTotal: 1, semanaCiclo: 1, ...MESOCICLO_WAVE[1] };
+    const dias = Math.floor((Date.now() - new Date(publicadoEm).getTime()) / 86400000);
+    const semanaTotal = Math.max(1, Math.floor(dias / 7) + 1);
+    const semanaCiclo = ((semanaTotal - 1) % 4) + 1;
+    return { semanaTotal, semanaCiclo, ...MESOCICLO_WAVE[semanaCiclo] };
+  }
+
+  function aplicarMesociclo(ex, meso){
+    return {
+      ...ex,
+      series: Math.max(1, ex.series + meso.seriesDelta),
+      reps_min: Math.max(3, ex.reps_min + meso.repsDelta),
+      reps_max: Math.max(3, ex.reps_max + meso.repsDelta)
+    };
+  }
+
+  function renderDia(dia, meso){
     if (dia.tipo === 'corrida'){
       return `<div class="dia-plano">
         <h4>${dia.nome} <span class="badge">${dia.formato}</span></h4>
@@ -675,13 +721,14 @@
     if (dia.tipo === 'estimulo'){
       return `<div class="dia-plano">
         <h4>${dia.nome} <span class="badge">${dia.wod_formato}</span></h4>
-        <p style="font-weight:600;font-size:13px;color:var(--text-primary);">${dia.wod_nome}</p>
+        <p style="font-weight:700;font-size:13px;color:var(--text-primary);">${dia.wod_nome}</p>
         <p class="tiny" style="margin-top:4px;">${dia.wod_descricao}</p>
       </div>`;
     }
+    const exercicios = meso ? dia.exercicios.map(ex => aplicarMesociclo(ex, meso)) : dia.exercicios;
     return `<div class="dia-plano">
       <h4>${dia.nome}</h4>
-      ${dia.exercicios.map(ex => `
+      ${exercicios.map(ex => `
         <div class="ex-row"><b>${ex.nome}</b><span>${ex.series}x${ex.reps_min}-${ex.reps_max}</span></div>
       `).join('') || '<p class="tiny">Sem exercícios elegíveis (equipamento/limitações demasiado restritivos).</p>'}
     </div>`;
@@ -709,8 +756,9 @@
     planoEmRevisao = plano.id;
     $('planoNomeCliente').textContent = nome;
     const p = plano.parametros;
-    $('planoResumo').textContent =
-      `${p.series}x${p.reps_min}-${p.reps_max} reps · descanso ${p.descanso_seg}s · RPE alvo ${p.rpe_alvo} · progressão ${p.progressao} · reavaliar em ${formatarData(p.reavaliar_em)}`;
+    $('planoResumo').innerHTML =
+      `${p.series}x${p.reps_min}-${p.reps_max} reps · descanso ${p.descanso_seg}s · RPE alvo ${p.rpe_alvo} · reavaliar em ${formatarData(p.reavaliar_em)}<br>
+       <span style="color:var(--tertiary);">Semana 1 (Introdução) — a progressão sobe sozinha a cada semana depois de publicares (mesociclo de 4 semanas).</span>`;
     $('planoDias').innerHTML = plano.conteudo.dias.map(dia => renderDia(dia)).join('');
     hide('errPlano');
     $('okPlano').style.display = 'none';
@@ -806,7 +854,11 @@
   });
 
   async function iniciarTreino(indiceDia){
-    const dia = planoClienteAtual.conteudo.dias[indiceDia];
+    let dia = planoClienteAtual.conteudo.dias[indiceDia];
+    const meso = calcularMesociclo(planoClienteAtual.publicado_em);
+    if (dia.tipo === 'forca'){
+      dia = { ...dia, exercicios: dia.exercicios.map(ex => aplicarMesociclo(ex, meso)) };
+    }
     diaAtivo = dia;
     const { data: sessaoId, error } = await sb.rpc('bm_iniciar_sessao', {
       p_plano_id: planoClienteAtual.id, p_dia_plano: dia.nome
@@ -815,6 +867,7 @@
     sessaoAtiva = sessaoId;
 
     $('sessaoDiaNome').textContent = dia.nome;
+    $('sessaoMesoLabel').textContent = `Semana ${meso.semanaTotal} · ${meso.label}`;
     if (dia.tipo === 'forca'){
       $('sessaoExercicios').innerHTML = dia.exercicios.map((ex, ei) => `
         <div class="ex-card">
