@@ -24,8 +24,12 @@
   main{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:48px 24px;}
   .wrap{width:100%;max-width:384px;}
   .hero{display:flex;flex-direction:column;align-items:center;gap:20px;text-align:center;}
-  .plates{display:flex;flex-direction:column;align-items:center;gap:6px;}
-  .plate{height:6px;border-radius:999px;background:var(--primary);}
+  .barload{display:flex;align-items:center;gap:0;width:110px;}
+  .plates{display:flex;align-items:center;gap:3px;}
+  .plates.right{flex-direction:row-reverse;}
+  .plate{border-radius:2px;background:var(--primary);}
+  .plate.tertiary{background:var(--tertiary);}
+  .bar-line{flex:1;height:3px;background:var(--primary);margin:0 2px;min-width:14px;}
   .card{margin-top:40px;border-radius:20px;background:var(--bg-surface);padding:24px;}
   label{font-size:14px;font-weight:500;color:var(--text-secondary);display:block;margin-bottom:6px;}
   input{width:100%;border-radius:14px;border:1px solid var(--border);background:var(--bg-raised);
@@ -50,10 +54,16 @@
 <main>
   <div class="wrap">
     <div class="hero">
-      <div class="plates" aria-hidden="true">
-        <div class="plate" style="width:44px;opacity:1"></div>
-        <div class="plate" style="width:32px;opacity:.78"></div>
-        <div class="plate" style="width:22px;opacity:.56"></div>
+      <div class="barload" aria-hidden="true">
+        <div class="plates">
+          <div class="plate tertiary" style="width:4px;height:14px;"></div>
+          <div class="plate" style="width:5px;height:22px;"></div>
+        </div>
+        <div class="bar-line"></div>
+        <div class="plates right">
+          <div class="plate tertiary" style="width:4px;height:14px;"></div>
+          <div class="plate" style="width:5px;height:22px;"></div>
+        </div>
       </div>
       <div>
         <h1 style="font-size:24px;">Beast Mode</h1>
