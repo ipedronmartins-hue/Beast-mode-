@@ -197,8 +197,13 @@
     if (!session){ location.href = 'login.html'; return; }
     show('btnSair');
 
-    // A minha pessoa (RLS: só a própria linha é visível)
-    const { data: pessoa, error } = await sb.from('pessoas').select('id, nome').maybeSingle();
+    // A minha pessoa (filtro explícito — desde que há policies de leitura
+    // cruzada PT<->cliente, uma query sem filtro pode devolver mais do
+    // que uma linha e rebentar o .maybeSingle())
+    const { data: pessoa, error } = await sb.from('pessoas')
+      .select('id, nome')
+      .eq('auth_user_id', session.user.id)
+      .maybeSingle();
     hide('loading');
 
     if (error){ alert('Erro a carregar o perfil.'); return; }
