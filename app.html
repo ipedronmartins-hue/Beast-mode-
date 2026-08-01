@@ -49,9 +49,11 @@
     border-bottom:1px solid var(--border);padding:14px 4px;}
   .row:last-child{border-bottom:none;}
   .badge{font-size:11px;border:1px solid var(--border);border-radius:999px;padding:3px 10px;color:var(--text-secondary);}
+  .pill-group{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;}
   .pill{position:relative;display:inline-flex;align-items:center;justify-content:center;
+    flex:1 1 calc(33.333% - 6px);min-width:96px;text-align:center;
     border:1px solid var(--border);background:var(--bg-raised);
-    border-radius:999px;padding:10px 18px;font-size:13px;font-weight:500;color:var(--text-secondary);
+    border-radius:999px;padding:10px 12px;font-size:13px;font-weight:500;color:var(--text-secondary);
     cursor:pointer;user-select:none;transition:background-color .18s ease,border-color .18s ease,
     color .18s ease,box-shadow .18s ease,transform .1s ease;}
   .pill:active{transform:scale(0.96);}
@@ -226,16 +228,16 @@
         </select>
 
         <label style="margin-top:12px;">Modalidades</label>
-        <div id="avModalidades" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;"></div>
+        <div id="avModalidades" class="pill-group"></div>
 
         <label style="margin-top:12px;">Local de treino</label>
-        <div id="avLocal" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;"></div>
+        <div id="avLocal" class="pill-group"></div>
 
         <label style="margin-top:12px;">Equipamento disponível</label>
-        <div id="avEquipamento" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;"></div>
+        <div id="avEquipamento" class="pill-group"></div>
 
         <label style="margin-top:12px;">Lesões / limitações</label>
-        <div id="avLimitacoes" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:6px;"></div>
+        <div id="avLimitacoes" class="pill-group"></div>
 
         <label for="avNotas" style="margin-top:12px;">Notas (só visíveis para ti)</label>
         <input type="text" id="avNotas" placeholder="Opcional" />
