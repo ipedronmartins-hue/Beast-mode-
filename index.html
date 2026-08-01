@@ -15,6 +15,8 @@
     --primary:#A5D6A7; --primary-hover:#8BC490; --primary-muted:rgba(165,214,167,0.14); --on-primary:#06280A;
     --tertiary:#FFB74D;
     --text-primary:#E2E2E6; --text-secondary:#90909A; --text-tertiary:#6B6B75;
+    /* Escala de seis tamanhos — princípio "poucos tamanhos, hierarquia forte" */
+    --fs-hero:52px; --fs-titulo:28px; --fs-sub:17px; --fs-corpo:14px; --fs-legenda:12px; --fs-micro:10px;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--text-primary);
@@ -23,15 +25,17 @@
   a{color:inherit; text-decoration:none;}
   .wrap{max-width:1152px; margin:0 auto; padding:0 24px;}
   nav.wrap{display:flex; align-items:center; justify-content:space-between; padding-top:24px; padding-bottom:24px; position:relative; z-index:2;}
-  .logo{font-weight:800; font-size:18px;}
+  .logo{font-weight:800; font-size:var(--fs-sub);}
   .btn-secondary{display:inline-flex; align-items:center; justify-content:center;
     border-radius:999px; border:1px solid var(--border); background:var(--bg-surface);
-    color:var(--text-primary); font-weight:600;
-    font-size:14px; padding:11px 22px; cursor:pointer;}
+    color:var(--text-primary); font-weight:600; font-size:var(--fs-corpo); padding:11px 22px; cursor:pointer;}
   .btn-primary{display:inline-flex; align-items:center; gap:8px; justify-content:center;
     border-radius:999px; border:none; background:var(--primary); color:var(--on-primary);
-    font-weight:700; font-size:15px; padding:15px 28px; cursor:pointer;}
+    font-weight:700; font-size:var(--fs-sub); padding:15px 28px; cursor:pointer;}
   .btn-primary:hover{background:var(--primary-hover);}
+
+  .reveal{opacity:0; transform:translateY(18px); transition:opacity .6s ease, transform .6s ease;}
+  .reveal.in{opacity:1; transform:translateY(0);}
 
   .hero-wrap{position:relative;}
   .glow{position:absolute; top:-120px; left:50%; transform:translateX(-50%); width:900px; height:600px;
@@ -39,86 +43,89 @@
     pointer-events:none; z-index:0;}
   .hero{position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; text-align:center; padding:64px 24px 8px;}
   .badge{border-radius:999px; border:1px solid var(--border); background:var(--bg-surface);
-    padding:6px 14px; font-size:12px; color:var(--text-secondary);}
-  h1.headline{margin-top:26px; max-width:760px; font-size:52px; line-height:1.05;}
+    padding:6px 14px; font-size:var(--fs-legenda); color:var(--text-secondary);}
+  h1.headline{margin-top:26px; max-width:760px; font-size:var(--fs-hero); line-height:1.05;}
   h1.headline span{color:var(--primary);}
-  .sub{margin-top:24px; max-width:540px; font-size:19px; color:var(--text-secondary); font-weight:400; line-height:1.55;}
+  .sub{margin-top:24px; max-width:540px; font-size:var(--fs-sub); color:var(--text-secondary); font-weight:400; line-height:1.6;}
   .cta-row{margin-top:36px; display:flex; gap:12px; flex-wrap:wrap; justify-content:center;}
-  @media (max-width:640px){ h1.headline{font-size:34px;} .sub{font-size:16px;} }
+  @media (max-width:640px){ h1.headline{font-size:34px;} }
 
-  /* Product preview mockup — a real recreation of the execution screen, not an icon */
-  .preview-wrap{position:relative; z-index:1; display:flex; justify-content:center; padding:56px 24px 0;}
+  .preview-wrap{position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; padding:56px 24px 0;}
   .phone{width:300px; background:var(--bg-surface); border:1px solid var(--border); border-radius:32px;
     padding:14px; box-shadow:0 40px 80px -24px rgba(0,0,0,0.8);}
   .phone-notch{width:60px; height:5px; border-radius:999px; background:var(--bg-raised); margin:0 auto 14px;}
   .phone-screen{background:var(--bg); border-radius:20px; padding:18px;}
-  .pv-label{font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--tertiary); font-weight:700;}
-  .pv-title{font-size:15px; font-weight:700; margin-top:4px;}
+  .pv-label{font-size:var(--fs-micro); text-transform:uppercase; letter-spacing:.06em; color:var(--tertiary); font-weight:700;}
+  .pv-title{font-size:var(--fs-sub); font-weight:700; margin-top:4px;}
   .pv-ex{background:var(--bg-raised); border-radius:14px; padding:12px; margin-top:14px;}
-  .pv-ex-name{font-size:13px; font-weight:700;}
-  .pv-ex-meta{font-size:10px; color:var(--text-tertiary); margin-top:2px;}
+  .pv-ex-name{font-size:var(--fs-corpo); font-weight:700;}
+  .pv-ex-meta{font-size:var(--fs-micro); color:var(--text-tertiary); margin-top:2px;}
   .pv-set{display:grid; grid-template-columns:16px 1fr 1fr 1fr; gap:6px; margin-top:10px; align-items:center;}
-  .pv-set span:first-child{font-size:10px; color:var(--text-tertiary); font-family:monospace;}
+  .pv-set span:first-child{font-size:var(--fs-micro); color:var(--text-tertiary); font-family:monospace;}
   .pv-cell{background:var(--bg-surface); border:1px solid var(--border); border-radius:8px; padding:6px 0;
-    text-align:center; font-size:11px; font-weight:700; color:var(--text-secondary);}
+    text-align:center; font-size:var(--fs-legenda); font-weight:700; color:var(--text-secondary);}
   .pv-cell.filled{color:var(--primary); border-color:var(--primary);}
   .pv-btn{margin-top:16px; background:var(--primary); color:var(--on-primary); text-align:center;
-    border-radius:999px; padding:11px; font-size:12px; font-weight:700;}
+    border-radius:999px; padding:11px; font-size:var(--fs-legenda); font-weight:700;}
+  .illustrative{margin-top:12px; font-size:var(--fs-micro); color:var(--text-tertiary); text-transform:uppercase; letter-spacing:.05em;}
 
   .section-band{background:var(--bg-band); border-top:1px solid var(--border); border-bottom:1px solid var(--border);}
+  .section-label{text-align:center; font-size:var(--fs-legenda); font-weight:700; text-transform:uppercase; letter-spacing:.06em;
+    color:var(--text-tertiary);}
+
+  /* Número gigante sozinho — estabelece o problema antes da solução */
+  .numstage{max-width:640px; margin:0 auto; padding:88px 24px; text-align:center;}
+  .numstage .big{font-size:104px; font-weight:900; line-height:1; color:var(--text-primary); letter-spacing:-.03em;}
+  .numstage .big span{color:var(--primary);}
+  .numstage p{margin-top:20px; font-size:var(--fs-sub); color:var(--text-secondary); font-weight:400; max-width:420px; margin-left:auto; margin-right:auto;}
+  @media (max-width:560px){ .numstage .big{font-size:72px;} }
+
   .problem{max-width:840px; margin:0 auto; padding:72px 24px; text-align:center;}
-  .problem .section-label{margin-bottom:14px;}
-  .problem h2{font-size:30px; line-height:1.2; max-width:640px; margin:0 auto;}
+  .problem h2{font-size:var(--fs-titulo); line-height:1.25; max-width:620px; margin:14px auto 0;}
   .problem .compare{margin-top:40px; display:grid; grid-template-columns:1fr 1fr; gap:16px; text-align:left;}
-  @media (max-width:640px){ .problem .compare{grid-template-columns:1fr;} .problem h2{font-size:24px;} }
+  @media (max-width:640px){ .problem .compare{grid-template-columns:1fr;} }
   .compare-col{border-radius:20px; padding:24px; border:1px solid var(--border);}
   .compare-col.bad{background:var(--bg-surface);}
   .compare-col.good{background:var(--primary-muted); border-color:rgba(165,214,167,0.35);}
-  .compare-col .eyebrow{font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; margin-bottom:12px;}
+  .compare-col .eyebrow{font-size:var(--fs-legenda); font-weight:700; text-transform:uppercase; letter-spacing:.06em; margin-bottom:12px;}
   .compare-col.bad .eyebrow{color:var(--text-tertiary);}
   .compare-col.good .eyebrow{color:var(--primary);}
   .compare-col ul{margin:0; padding:0; list-style:none; display:flex; flex-direction:column; gap:10px;}
-  .compare-col li{font-size:14px; color:var(--text-secondary); display:flex; gap:8px;}
+  .compare-col li{font-size:var(--fs-corpo); color:var(--text-secondary); display:flex; gap:8px;}
   .compare-col.good li{color:var(--text-primary);}
 
   .steps{max-width:1152px; margin:0 auto; padding:72px 24px; display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
   @media (max-width:800px){ .steps{grid-template-columns:1fr;} }
   .step{display:flex; flex-direction:column; gap:10px;}
   .step-num{width:32px; height:32px; border-radius:999px; background:var(--bg-surface); border:1px solid var(--border);
-    display:flex; align-items:center; justify-content:center; font-weight:800; font-size:14px; color:var(--primary);}
-  .step h3{font-size:16px; font-weight:700;}
-  .step p{margin:0; font-size:14px; line-height:1.55; color:var(--text-secondary); font-weight:400;}
+    display:flex; align-items:center; justify-content:center; font-weight:800; font-size:var(--fs-corpo); color:var(--primary);}
+  .step h3{font-size:var(--fs-sub); font-weight:700;}
+  .step p{margin:0; font-size:var(--fs-corpo); line-height:1.55; color:var(--text-secondary); font-weight:400;}
 
-  .barload{margin-top:8px; display:flex; align-items:center; justify-content:center; gap:0; width:100%; max-width:460px;}
-  .plates{display:flex; align-items:center; gap:4px;}
-  .plates.right{flex-direction:row-reverse;}
-  .plate{border-radius:3px; background:var(--primary); animation:drop 560ms cubic-bezier(0.34,1.56,0.64,1) both;}
-  .plate.tertiary{background:var(--tertiary);}
-  .bar-line{flex:1; height:3px; background:var(--border); margin:0 2px; position:relative; min-width:40px;}
-  .bar-line::before{content:'';position:absolute; inset:0; background:var(--primary); transform-origin:center;
-    transform:scaleX(0); animation:draw 500ms ease-out 480ms both;}
-  @keyframes drop{from{transform:translateY(-16px); opacity:0;} to{transform:translateY(0); opacity:1;}}
-  @keyframes draw{to{transform:scaleX(1);}}
-
-  .section-label{text-align:center; font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.06em;
-    color:var(--text-tertiary);}
+  /* Prova: nunca um número sozinho, sempre com contexto — factos reais do sistema */
+  .proof{max-width:900px; margin:0 auto; padding:72px 24px; text-align:center;}
+  .proof-grid{margin-top:40px; display:grid; grid-template-columns:repeat(4,1fr); gap:24px;}
+  @media (max-width:700px){ .proof-grid{grid-template-columns:repeat(2,1fr);} }
+  .proof-num{font-size:36px; font-weight:800; color:var(--primary); letter-spacing:-.02em;}
+  .proof-label{margin-top:6px; font-size:var(--fs-legenda); color:var(--text-secondary); line-height:1.4;}
 
   .spec-list{max-width:760px; margin:0 auto; padding:72px 24px;}
   .spec-list > .section-label{margin-bottom:8px;}
   .spec-row{display:grid; grid-template-columns:96px 1fr; gap:20px; padding:24px 0; border-top:1px solid var(--border);}
   .spec-row:last-child{border-bottom:1px solid var(--border);}
   @media (max-width:560px){ .spec-row{grid-template-columns:1fr; gap:6px;} }
-  .spec-tag{font-family:'Inter',sans-serif; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
-    color:var(--tertiary); padding-top:2px;}
-  .spec-row h3{font-size:17px; font-weight:700; margin-bottom:6px;}
-  .spec-row p{margin:0; font-size:14px; line-height:1.6; color:var(--text-secondary); font-weight:400; max-width:480px;}
+  .spec-tag{font-size:var(--fs-legenda); font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--tertiary); padding-top:2px;}
+  .spec-row h3{font-size:var(--fs-sub); font-weight:700; margin-bottom:6px;}
+  .spec-row p{margin:0; font-size:var(--fs-corpo); line-height:1.6; color:var(--text-secondary); font-weight:400; max-width:480px;}
 
-  .closing{max-width:1152px; margin:0 auto; padding:80px 24px 96px;}
+  .closing{max-width:1152px; margin:0 auto; padding:80px 24px 32px;}
   .closing-card{border-radius:28px; background:var(--bg-surface);
     padding:64px 24px; display:flex; flex-direction:column; align-items:center; text-align:center; gap:18px;}
-  .closing-card h2{max-width:460px; font-size:32px; line-height:1.15;}
-  .closing-card p{max-width:420px; margin:0; font-size:15px; color:var(--text-secondary); font-weight:400;}
-  footer{margin-top:40px; text-align:center; font-size:12px; color:var(--text-tertiary);}
+  .closing-card h2{max-width:460px; font-size:var(--fs-titulo); line-height:1.2;}
+  .closing-card p{max-width:420px; margin:0; font-size:var(--fs-corpo); color:var(--text-secondary); font-weight:400;}
+  .closing-alt{margin-top:18px; font-size:var(--fs-legenda); color:var(--text-tertiary);}
+  .closing-alt a{color:var(--text-secondary); text-decoration:underline;}
+  .whisper{text-align:center; padding:56px 24px 40px; font-size:var(--fs-legenda); color:var(--text-tertiary); letter-spacing:.08em; text-transform:uppercase;}
 </style>
 </head>
 <body>
@@ -138,11 +145,11 @@
       <a href="login.html" class="btn-primary">Entrar
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
       </a>
-      <a href="mailto:contacto@beastmode.pt?subject=Pedido de acesso" class="btn-secondary" style="padding:15px 28px; font-size:15px;">Pedir acesso</a>
+      <a href="mailto:contacto@beastmode.pt?subject=Pedido de acesso" class="btn-secondary" style="padding:15px 28px; font-size:var(--fs-sub);">Pedir acesso</a>
     </div>
   </section>
 
-  <section class="preview-wrap">
+  <section class="preview-wrap reveal">
     <div class="phone">
       <div class="phone-notch"></div>
       <div class="phone-screen">
@@ -158,38 +165,45 @@
         <div class="pv-btn">Concluir treino</div>
       </div>
     </div>
+    <p class="illustrative">Dados ilustrativos</p>
   </section>
 </div>
 
 <div class="section-band">
-  <section class="problem">
-    <p class="section-label">O problema real</p>
-    <h2 style="margin-top:14px;">Sabes prescrever. O que falta é o sistema à volta disso.</h2>
-    <div class="compare">
-      <div class="compare-col bad">
-        <p class="eyebrow">Hoje</p>
-        <ul>
-          <li>— Planos em PDF que ninguém abre depois da 1ª semana</li>
-          <li>— WhatsApp a explodir com "que carga fiz na 3ª série?"</li>
-          <li>— Reavaliar de cabeça, sem histórico real</li>
-          <li>— Cada atleta novo, uma folha de Excel nova</li>
-        </ul>
-      </div>
-      <div class="compare-col good">
-        <p class="eyebrow">Com o Beast Mode</p>
-        <ul>
-          <li>— O atleta abre a app, o treino de hoje está lá</li>
-          <li>— Carga, reps e RPE ficam registados série a série</li>
-          <li>— Progressão automática, mesociclo a mesociclo</li>
-          <li>— Um motor, a mesma qualidade para todos os atletas</li>
-        </ul>
-      </div>
-    </div>
+  <section class="numstage reveal">
+    <p class="section-label">O problema</p>
+    <div class="big" style="margin-top:16px;">0<span>%</span></div>
+    <p>É quanto histórico sobrevive a um Excel apagado por engano, ou a um WhatsApp onde já ninguém encontra a mensagem de há 3 semanas.</p>
   </section>
 </div>
 
-<p class="section-label" style="margin-top:72px;">Como funciona</p>
-<section class="steps">
+<section class="problem reveal">
+  <p class="section-label">Antes / depois</p>
+  <h2>Sabes prescrever. O que falta é o sistema à volta disso.</h2>
+  <div class="compare">
+    <div class="compare-col bad">
+      <p class="eyebrow">Hoje</p>
+      <ul>
+        <li>— Planos em PDF que ninguém abre depois da 1ª semana</li>
+        <li>— WhatsApp a explodir com "que carga fiz na 3ª série?"</li>
+        <li>— Reavaliar de cabeça, sem histórico real</li>
+        <li>— Cada atleta novo, uma folha de Excel nova</li>
+      </ul>
+    </div>
+    <div class="compare-col good">
+      <p class="eyebrow">Com o Beast Mode</p>
+      <ul>
+        <li>— O atleta abre a app, o treino de hoje está lá</li>
+        <li>— Carga, reps e RPE ficam registados série a série</li>
+        <li>— Progressão automática, mesociclo a mesociclo</li>
+        <li>— Um motor, a mesma qualidade para todos os atletas</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<p class="section-label reveal" style="margin-top:72px;">Como funciona</p>
+<section class="steps reveal">
   <div class="step">
     <div class="step-num">1</div>
     <h3>Avalias o atleta</h3>
@@ -208,47 +222,66 @@
 </section>
 
 <div class="section-band">
-  <section class="spec-list">
-    <p class="section-label">O que o motor faz</p>
-    <div class="spec-row">
-      <span class="spec-tag">Avaliação</span>
-      <div>
-        <h3>Anamnese completa</h3>
-        <p>Objetivo, nível, lesões, equipamento, modalidades e contexto — tudo o que o motor precisa para decidir bem.</p>
-      </div>
-    </div>
-    <div class="spec-row">
-      <span class="spec-tag">Motor</span>
-      <div>
-        <h3>Prescrição determinística</h3>
-        <p>Força, corrida, WODs em casa. Cruza objetivo, nível, dias e equipamento real disponível. Editável antes de publicar.</p>
-      </div>
-    </div>
-    <div class="spec-row">
-      <span class="spec-tag">Atleta</span>
-      <div>
-        <h3>Área do atleta</h3>
-        <p>Entra por link mágico, vê o treino do dia, regista cargas, reps e feedback — mobile first, sem fricção.</p>
-      </div>
-    </div>
-    <div class="spec-row">
-      <span class="spec-tag">Ciclo</span>
-      <div>
-        <h3>Periodização real</h3>
-        <p>Mesociclos de 4 semanas com progressão automática, medidas corporais e reavaliação a cada 12 semanas.</p>
-      </div>
+  <section class="proof reveal">
+    <p class="section-label">Não é promessa, é o que está construído</p>
+    <div class="proof-grid">
+      <div><div class="proof-num">60</div><div class="proof-label">exercícios na biblioteca, cobrindo os 6 padrões de movimento sem equipamento</div></div>
+      <div><div class="proof-num">8</div><div class="proof-label">objetivos, cada um com séries/reps/RPE/progressão próprios</div></div>
+      <div><div class="proof-num">4</div><div class="proof-label">semanas por mesociclo, progressão automática sem regenerar nada</div></div>
+      <div><div class="proof-num">12</div><div class="proof-label">semanas até à reavaliação seguinte, visível ao PT e ao atleta</div></div>
     </div>
   </section>
 </div>
 
-<section class="closing">
+<section class="spec-list reveal">
+  <p class="section-label">O que o motor faz</p>
+  <div class="spec-row">
+    <span class="spec-tag">Avaliação</span>
+    <div>
+      <h3>Anamnese completa</h3>
+      <p>Objetivo, nível, lesões, equipamento, modalidades e contexto — tudo o que o motor precisa para decidir bem.</p>
+    </div>
+  </div>
+  <div class="spec-row">
+    <span class="spec-tag">Motor</span>
+    <div>
+      <h3>Prescrição determinística</h3>
+      <p>Força, corrida, WODs em casa. Cruza objetivo, nível, dias e equipamento real disponível. Editável antes de publicar.</p>
+    </div>
+  </div>
+  <div class="spec-row">
+    <span class="spec-tag">Atleta</span>
+    <div>
+      <h3>Área do atleta</h3>
+      <p>Entra por link mágico, vê o treino do dia, regista cargas, reps e feedback — mobile first, sem fricção.</p>
+    </div>
+  </div>
+  <div class="spec-row">
+    <span class="spec-tag">Ciclo</span>
+    <div>
+      <h3>Periodização real</h3>
+      <p>Mesociclos de 4 semanas com progressão automática, medidas corporais e reavaliação a cada 12 semanas.</p>
+    </div>
+  </div>
+</section>
+
+<section class="closing reveal">
   <div class="closing-card">
     <h2>Plataforma privada. Sem marketplace, sem ruído.</h2>
     <p>O acesso é feito por convite do treinador. Se giras atletas a sério, fala connosco.</p>
     <a href="mailto:contacto@beastmode.pt?subject=Pedido de acesso" class="btn-primary">Pedir acesso</a>
+    <p class="closing-alt">Prefere falar primeiro? <a href="mailto:contacto@beastmode.pt">Escreve-nos</a>.</p>
   </div>
-  <footer>Beast Mode — © 2026</footer>
 </section>
 
+<p class="whisper">Beast Mode</p>
+
+<script>
+  const revealEls = document.querySelectorAll('.reveal');
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.15 });
+  revealEls.forEach(el => io.observe(el));
+</script>
 </body>
 </html>
