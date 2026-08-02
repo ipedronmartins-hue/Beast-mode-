@@ -187,23 +187,28 @@
   <div class="hidden" id="cardAdmin" style="margin-bottom:32px;">
     <p class="section-title" style="margin-top:0;">Painel de Administração</p>
     <div class="pivot-tabs on-bg" id="adminPivotTabs" style="margin-top:6px;">
-      <span class="pivot-tab active" data-panel="0">Resumo</span>
-      <span class="pivot-tab" data-panel="1">Treinadores</span>
-      <span class="pivot-tab" data-panel="2">Atividade</span>
+      <span class="pivot-tab active" data-panel="0">Treinadores</span>
+      <span class="pivot-tab" data-panel="1">Atletas</span>
+      <span class="pivot-tab" data-panel="2">Resumo</span>
+      <span class="pivot-tab" data-panel="3">Atividade</span>
     </div>
     <div class="pivot-track" id="adminPivotTrack">
       <div class="pivot-panel">
-        <div id="adminStats" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;"></div>
+        <div id="adminPts" class="pivot-scroll"></div>
       </div>
       <div class="pivot-panel">
-        <div id="adminPts" class="pivot-scroll"></div>
+        <div id="adminAtletas" class="pivot-scroll"></div>
+      </div>
+      <div class="pivot-panel">
+        <div id="adminStats" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;"></div>
       </div>
       <div class="pivot-panel">
         <div id="adminEventos" class="pivot-scroll" style="display:flex;flex-direction:column;gap:6px;"></div>
       </div>
     </div>
     <div class="pivot-dots" id="adminPivotDots">
-      <span class="pivot-dot active"></span><span class="pivot-dot"></span><span class="pivot-dot"></span>
+      <span class="pivot-dot active"></span><span class="pivot-dot"></span>
+      <span class="pivot-dot"></span><span class="pivot-dot"></span>
     </div>
   </div>
 
@@ -1325,9 +1330,10 @@
   });
 
   async function carregarAdmin(){
-    const [{ data: resumo }, { data: pts }, { data: eventos }] = await Promise.all([
+    const [{ data: resumo }, { data: pts }, { data: atletas }, { data: eventos }] = await Promise.all([
       sb.rpc('bm_admin_resumo'),
       sb.rpc('bm_admin_pts'),
+      sb.rpc('bm_admin_atletas'),
       sb.rpc('bm_admin_eventos', { p_limite: 10 })
     ]);
 
@@ -1340,10 +1346,42 @@
         <div class="stat-box"><div class="stat-num">${r.sessoes_concluidas}</div><div class="stat-label">Sessões concluídas</div></div>`;
     }
 
-    $('adminPts').innerHTML = (pts || []).map(p => `
-      <div class="row"><span>${p.nome}<br><span class="tiny">${p.email}</span></span>
-      <span class="badge">${p.num_atletas} atleta${p.num_atletas === 1 ? '' : 's'}</span></div>`).join('')
-      || '<p class="tiny">Ainda sem treinadores.</p>';
+    $('adminPts').innerHTML = (pts || []).map(p => {
+      const inicial = (p.nome ?? p.email ?? '?').trim().charAt(0).toUpperCase();
+      return `
+      <div class="client-card">
+        <div class="client-head">
+          <div class="client-avatar">${inicial}</div>
+          <div>
+            <div class="client-name">${p.nome}</div>
+            <div class="client-meta">${p.email}</div>
+          </div>
+        </div>
+        <div class="client-chips">
+          <span class="chip ${p.num_atletas > 0 ? 'chip-ok' : 'chip-warn'}">${p.num_atletas} atleta${p.num_atletas === 1 ? '' : 's'}</span>
+          <span class="chip">desde ${new Date(p.criado_em).toLocaleDateString('pt-PT')}</span>
+        </div>
+      </div>`;
+    }).join('') || '<p class="tiny">Ainda sem treinadores.</p>';
+
+    $('adminAtletas').innerHTML = (atletas || []).map(a => {
+      const inicial = (a.nome ?? a.email ?? '?').trim().charAt(0).toUpperCase();
+      return `
+      <div class="client-card">
+        <div class="client-head">
+          <div class="client-avatar">${inicial}</div>
+          <div>
+            <div class="client-name">${a.nome}</div>
+            <div class="client-meta">${a.email}${a.pt_nome ? ' · PT: ' + a.pt_nome : ''}</div>
+          </div>
+        </div>
+        <div class="client-chips">
+          <span class="chip ${a.conta_ativa ? 'chip-ok' : 'chip-warn'}">${a.conta_ativa ? 'Conta ativa' : 'Convite pendente'}</span>
+          <span class="chip ${a.tem_avaliacao ? 'chip-ok' : 'chip-warn'}">${a.tem_avaliacao ? 'Avaliado' : 'Sem avaliação'}</span>
+          <span class="chip ${a.tem_plano ? 'chip-ok' : 'chip-warn'}">${a.tem_plano ? 'Plano ativo' : 'Sem plano'}</span>
+        </div>
+      </div>`;
+    }).join('') || '<p class="tiny">Ainda sem atletas.</p>';
 
     const FRASE_EVENTO = {
       pt_registado: e => `${e.ator_nome} registou-se como treinador`,
