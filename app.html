@@ -141,6 +141,7 @@
     position:sticky;top:0;z-index:10;background:var(--bg-surface);padding:10px 0 10px;
     border-bottom:1px solid var(--border);}
   .pivot-tabs::-webkit-scrollbar{display:none;}
+  .pivot-tabs.on-bg{background:var(--bg);}
   .pivot-tab{font-family:var(--font-display);font-size:34px;font-weight:700;letter-spacing:0;color:var(--text-tertiary);
     white-space:nowrap;cursor:pointer;flex-shrink:0;transition:color .2s ease,text-shadow .2s ease;
     padding:4px 2px 8px;text-transform:lowercase;}
@@ -183,9 +184,9 @@
   <h1 id="saudacaoTopo" class="hidden" style="margin-bottom:20px;">Olá, <span id="nomeSaudacao"></span></h1>
 
   <!-- Admin: só visível se sou_admin() -->
-  <div class="card hidden" id="cardAdmin" style="margin-bottom:20px;">
-    <h3 style="font-size:16px;font-weight:800;">Painel de Administração</h3>
-    <div class="pivot-tabs" id="adminPivotTabs" style="margin-top:14px;">
+  <div class="hidden" id="cardAdmin" style="margin-bottom:32px;">
+    <p class="section-title" style="margin-top:0;">Painel de Administração</p>
+    <div class="pivot-tabs on-bg" id="adminPivotTabs" style="margin-top:6px;">
       <span class="pivot-tab active" data-panel="0">Resumo</span>
       <span class="pivot-tab" data-panel="1">Treinadores</span>
       <span class="pivot-tab" data-panel="2">Atividade</span>
