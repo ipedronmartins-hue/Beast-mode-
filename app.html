@@ -1320,7 +1320,7 @@
     const [{ data: resumo }, { data: pts }, { data: eventos }] = await Promise.all([
       sb.rpc('bm_admin_resumo'),
       sb.rpc('bm_admin_pts'),
-      sb.rpc('bm_admin_eventos', { p_limite: 20 })
+      sb.rpc('bm_admin_eventos', { p_limite: 10 })
     ]);
 
     const r = resumo?.[0];
@@ -1337,11 +1337,27 @@
       <span class="badge">${p.num_atletas} atleta${p.num_atletas === 1 ? '' : 's'}</span></div>`).join('')
       || '<p class="tiny">Ainda sem treinadores.</p>';
 
+    const FRASE_EVENTO = {
+      pt_registado: e => `${e.ator_nome} registou-se como treinador`,
+      pessoa_registada: e => `${e.ator_nome} entrou na plataforma`,
+      conta_reclamada: e => `${e.sujeito_nome} entrou pela primeira vez`,
+      cliente_convidado: e => `${e.ator_nome} convidou um novo atleta`,
+      consentimento_concedido: e => `${e.sujeito_nome} deu consentimento`,
+      consentimento_revogado: e => `${e.sujeito_nome} revogou consentimento`,
+      avaliacao_criada: e => `${e.ator_nome} avaliou ${e.sujeito_nome ?? 'um atleta'}`,
+      plano_gerado: e => `${e.ator_nome} gerou um plano para ${e.sujeito_nome ?? 'um atleta'}`,
+      plano_publicado: e => `${e.ator_nome} publicou um plano para ${e.sujeito_nome ?? 'um atleta'}`,
+      medicoes_registadas: e => `Medições registadas para ${e.sujeito_nome ?? 'um atleta'}`,
+      sessao_iniciada: e => `${e.sujeito_nome ?? 'Um atleta'} iniciou um treino`,
+      sessao_concluida: e => `${e.sujeito_nome ?? 'Um atleta'} concluiu um treino`,
+      sessao_comentada: e => `${e.ator_nome} comentou uma sessão`
+    };
+
     $('adminEventos').innerHTML = (eventos || []).map(e => `
       <div class="event-row">
-        <span>${e.tipo}${e.ator_nome ? ' · ' + e.ator_nome : ''}</span>
+        <span>${(FRASE_EVENTO[e.tipo] ?? (ev => ev.tipo))(e)}</span>
         <span>${new Date(e.ocorrido_em).toLocaleString('pt-PT', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })}</span>
-      </div>`).join('') || '<p class="tiny">Sem eventos.</p>';
+      </div>`).join('') || '<p class="tiny">Sem atividade ainda.</p>';
 
     show('cardAdmin');
   }
