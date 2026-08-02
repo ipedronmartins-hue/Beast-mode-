@@ -189,8 +189,9 @@
     <div class="pivot-tabs on-bg" id="adminPivotTabs" style="margin-top:6px;">
       <span class="pivot-tab active" data-panel="0">Treinadores</span>
       <span class="pivot-tab" data-panel="1">Atletas</span>
-      <span class="pivot-tab" data-panel="2">Resumo</span>
-      <span class="pivot-tab" data-panel="3">Atividade</span>
+      <span class="pivot-tab" data-panel="2">Comissões</span>
+      <span class="pivot-tab" data-panel="3">Resumo</span>
+      <span class="pivot-tab" data-panel="4">Atividade</span>
     </div>
     <div class="pivot-track" id="adminPivotTrack">
       <div class="pivot-panel">
@@ -198,6 +199,9 @@
       </div>
       <div class="pivot-panel">
         <div id="adminAtletas" class="pivot-scroll"></div>
+      </div>
+      <div class="pivot-panel">
+        <div id="adminComissoes" class="pivot-scroll"></div>
       </div>
       <div class="pivot-panel">
         <div id="adminStats" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;"></div>
@@ -208,7 +212,7 @@
     </div>
     <div class="pivot-dots" id="adminPivotDots">
       <span class="pivot-dot active"></span><span class="pivot-dot"></span>
-      <span class="pivot-dot"></span><span class="pivot-dot"></span>
+      <span class="pivot-dot"></span><span class="pivot-dot"></span><span class="pivot-dot"></span>
     </div>
   </div>
 
@@ -398,6 +402,10 @@
 
   <!-- Área Cliente -->
   <section id="areaCliente" class="hidden">
+    <div class="card hidden" id="cardBloqueado" style="text-align:center;">
+      <h3 style="font-size:20px;">Acesso pendente</h3>
+      <p class="muted" id="bloqueadoTexto" style="margin-top:10px;"></p>
+    </div>
 
     <div class="card hidden" id="cardConsentimento" style="margin-top:20px;">
       <h3 style="font-size:16px;font-weight:600;">Antes de continuar</h3>
@@ -541,7 +549,7 @@
     // cruzada PT<->cliente, uma query sem filtro pode devolver mais do
     // que uma linha e rebentar o .maybeSingle())
     const { data: pessoa, error } = await sb.from('pessoas')
-      .select('id, nome')
+      .select('id, nome, estado')
       .eq('auth_user_id', session.user.id)
       .maybeSingle();
     hide('loading');
@@ -561,6 +569,15 @@
     if (perfilPT){
       show('areaPT');
       await carregarClientes();
+    } else if (pessoa.estado !== 'ativo') {
+      show('areaCliente');
+      show('cardBloqueado');
+      const MSG_BLOQUEIO = {
+        pendente: 'A tua conta está à espera de confirmação de pagamento pelo teu treinador.',
+        suspenso: 'A tua conta está suspensa. Fala com o teu treinador.',
+        arquivado: 'A tua conta está arquivada.'
+      };
+      $('bloqueadoTexto').textContent = MSG_BLOQUEIO[pessoa.estado] ?? 'Sem acesso de momento.';
     } else {
       show('areaCliente');
       show('cardClientePivot');
@@ -1330,11 +1347,12 @@
   });
 
   async function carregarAdmin(){
-    const [{ data: resumo }, { data: pts }, { data: atletas }, { data: eventos }] = await Promise.all([
+    const [{ data: resumo }, { data: pts }, { data: atletas }, { data: eventos }, { data: comissoes }] = await Promise.all([
       sb.rpc('bm_admin_resumo'),
       sb.rpc('bm_admin_pts'),
       sb.rpc('bm_admin_atletas'),
-      sb.rpc('bm_admin_eventos', { p_limite: 10 })
+      sb.rpc('bm_admin_eventos', { p_limite: 10 }),
+      sb.rpc('bm_admin_comissoes')
     ]);
 
     const r = resumo?.[0];
@@ -1376,6 +1394,12 @@
       </div>`;
     }).join('') || '<p class="tiny">Ainda sem treinadores.</p>';
 
+    const acoesAtleta = (id, estado) => {
+      if (estado === 'pendente') return `<button class="ghost" data-confirmar-pag="${id}">Confirmar pagamento</button>` +
+        `<button class="ghost" data-admin-estado="arquivado" data-admin-id="${id}" data-admin-alvo="pessoa">Rejeitar</button>`;
+      return acoesAdmin(id, estado, 'pessoa');
+    };
+
     $('adminAtletas').innerHTML = (atletas || []).map(a => {
       const inicial = (a.nome ?? a.email ?? '?').trim().charAt(0).toUpperCase();
       return `
@@ -1388,13 +1412,45 @@
           </div>
         </div>
         <div class="client-chips">
-          <span class="chip ${ESTADO_CHIP[a.estado] ?? ''}">${a.estado}</span>
+          <span class="chip ${ESTADO_CHIP[a.estado] ?? ''}">${a.estado === 'pendente' ? 'Por pagar' : a.estado}</span>
           <span class="chip ${a.conta_ativa ? 'chip-ok' : 'chip-warn'}">${a.conta_ativa ? 'Conta reclamada' : 'Convite pendente'}</span>
           <span class="chip ${a.tem_plano ? 'chip-ok' : 'chip-warn'}">${a.tem_plano ? 'Plano ativo' : 'Sem plano'}</span>
         </div>
-        <div class="client-actions">${acoesAdmin(a.pessoa_id, a.estado, 'pessoa')}</div>
+        <div class="client-actions">${acoesAtleta(a.pessoa_id, a.estado)}</div>
       </div>`;
     }).join('') || '<p class="tiny">Ainda sem atletas.</p>';
+
+    $('adminComissoes').innerHTML = (comissoes || []).map(c => `
+      <div class="client-card">
+        <div class="client-head">
+          <div>
+            <div class="client-name">${c.pt_nome}</div>
+            <div class="client-meta">Atleta: ${c.atleta_nome} · ${new Date(c.criado_em).toLocaleDateString('pt-PT')}</div>
+          </div>
+        </div>
+        <div class="client-chips">
+          <span class="chip ${c.estado === 'paga' ? 'chip-ok' : 'chip-warn'}">${c.estado === 'paga' ? 'Paga' : 'Pendente'} · ${c.valor.toFixed(2)}€</span>
+        </div>
+        ${c.estado === 'pendente' ? `<div class="client-actions"><button class="ghost" data-pagar-comissao="${c.id}">Marcar como paga</button></div>` : ''}
+      </div>`).join('') || '<p class="tiny">Ainda sem comissões.</p>';
+
+    document.querySelectorAll('[data-confirmar-pag]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm('Confirmar que este atleta pagou via MBWay? Ativa a conta e gera a comissão do PT.')) return;
+        btn.disabled = true;
+        const { error } = await sb.rpc('bm_admin_confirmar_pagamento', { p_atleta_id: btn.dataset.confirmarPag });
+        if (error){ alert('Não foi possível: ' + error.message); btn.disabled = false; return; }
+        await carregarAdmin();
+      });
+    });
+    document.querySelectorAll('[data-pagar-comissao]').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        btn.disabled = true;
+        const { error } = await sb.rpc('bm_admin_marcar_comissao_paga', { p_comissao_id: btn.dataset.pagarComissao });
+        if (error){ alert('Não foi possível: ' + error.message); btn.disabled = false; return; }
+        await carregarAdmin();
+      });
+    });
 
     document.querySelectorAll('[data-admin-estado]').forEach(btn => {
       btn.addEventListener('click', async () => {
