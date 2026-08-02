@@ -28,6 +28,8 @@
   .wrap{max-width:1152px; margin:0 auto; padding:0 24px;}
   nav.wrap{display:flex; align-items:center; justify-content:space-between; padding-top:24px; padding-bottom:24px; position:relative; z-index:2;}
   .logo{font-weight:800; font-size:var(--fs-sub);}
+  .logo-tag{font-size:10px; letter-spacing:.12em; color:var(--text-tertiary); margin-left:8px; font-weight:600;}
+  .nav-links{display:flex; align-items:center; gap:10px;}
   .btn-secondary{display:inline-flex; align-items:center; justify-content:center;
     border-radius:999px; border:1px solid var(--border); background:var(--bg-surface);
     color:var(--text-primary); font-weight:600; font-size:var(--fs-corpo); padding:11px 22px; cursor:pointer;}
@@ -108,10 +110,12 @@
 
   /* Prova: nunca um número sozinho, sempre com contexto — factos reais do sistema */
   .proof{max-width:900px; margin:0 auto; padding:72px 24px; text-align:center;}
-  .proof-grid{margin-top:40px; display:grid; grid-template-columns:repeat(4,1fr); gap:24px;}
-  @media (max-width:700px){ .proof-grid{grid-template-columns:repeat(2,1fr);} }
-  .proof-num{font-size:36px; font-weight:800; color:var(--primary); letter-spacing:-.02em;}
-  .proof-label{margin-top:6px; font-size:var(--fs-legenda); color:var(--text-secondary); line-height:1.4;}
+  .proof-pill{margin-top:40px; display:inline-flex; flex-wrap:wrap; justify-content:center; gap:28px;
+    border:1px solid var(--border); border-radius:999px; padding:24px 36px; background:var(--bg-surface);}
+  .proof-stat{display:flex; align-items:baseline; gap:8px;}
+  .proof-num{font-size:32px; font-weight:800; color:var(--primary); letter-spacing:-.02em;}
+  .proof-label{font-size:var(--fs-legenda); color:var(--text-secondary); line-height:1.3; text-align:left; max-width:120px;}
+  @media (max-width:640px){ .proof-pill{border-radius:24px; padding:20px;} }
 
   .spec-list{max-width:760px; margin:0 auto; padding:72px 24px;}
   .spec-list > .section-label{margin-bottom:8px;}
@@ -123,6 +127,20 @@
   .spec-tag{font-size:var(--fs-legenda); font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--tertiary); padding-top:2px;}
   .spec-row h3{font-size:var(--fs-sub); font-weight:700; margin-bottom:6px;}
   .spec-row p{margin:0; font-size:var(--fs-corpo); line-height:1.6; color:var(--text-secondary); font-weight:400; max-width:480px;}
+
+  .diff-list{max-width:640px; margin:0 auto; padding:0 24px 72px;}
+  .diff-row{display:flex; gap:14px; align-items:flex-start; padding:18px 0; border-top:1px solid var(--border);}
+  .diff-row:last-child{border-bottom:1px solid var(--border);}
+  .diff-icon{font-size:16px; flex-shrink:0; width:20px; text-align:center; padding-top:1px;}
+  .diff-icon.plus{color:var(--primary);}
+  .diff-icon.minus{color:var(--text-tertiary);}
+  .diff-row p{margin:0; font-size:var(--fs-sub); font-weight:600; color:var(--text-primary);}
+
+  .site-footer{max-width:1152px; margin:0 auto; padding:0 24px 40px; text-align:center;}
+  .site-footer .foot-brand{font-size:11px; letter-spacing:.1em; color:var(--text-tertiary); text-transform:uppercase;}
+  .site-footer .foot-tagline{margin-top:6px; font-size:var(--fs-legenda); color:var(--text-secondary);}
+  .site-footer .foot-contact{margin-top:14px; font-size:var(--fs-legenda); color:var(--text-tertiary);}
+  .site-footer .foot-contact a{color:var(--text-secondary); text-decoration:underline;}
 
   .closing{max-width:1152px; margin:0 auto; padding:80px 24px 32px;}
   .closing-card{border-radius:28px; background:var(--bg-surface);
@@ -149,9 +167,12 @@
       <rect x="40" y="18" width="3" height="12" rx="1.5" fill="#E8A93D"/>
       <rect x="44" y="20" width="3" height="8" rx="1.5" fill="#6E9BFF"/>
     </svg>
-    Beast Mode
+    Beast Mode<span class="logo-tag">PRESCRIÇÃO PARA PTs</span>
   </span>
-    <a href="login.html" class="btn-secondary">Entrar</a>
+    <div class="nav-links">
+      <a href="#como-funciona" class="btn-secondary">Como funciona</a>
+      <a href="login.html" class="btn-secondary">Entrar</a>
+    </div>
   </nav>
 
   <section class="hero">
@@ -219,7 +240,7 @@
   </div>
 </section>
 
-<p class="section-label reveal">Como funciona</p>
+<p class="section-label reveal" id="como-funciona">Como funciona</p>
 <section class="steps">
   <div class="step reveal">
     <div class="step-num">1</div>
@@ -241,14 +262,30 @@
 <div class="section-band">
   <section class="proof reveal">
     <p class="section-label">Não é promessa, é o que está construído</p>
-    <div class="proof-grid">
-      <div class="reveal"><div class="proof-num" data-count="60">0</div><div class="proof-label">exercícios na biblioteca, cobrindo os 6 padrões de movimento sem equipamento</div></div>
-      <div class="reveal" style="transition-delay:80ms;"><div class="proof-num" data-count="8">0</div><div class="proof-label">objetivos, cada um com séries/reps/RPE/progressão próprios</div></div>
-      <div class="reveal" style="transition-delay:160ms;"><div class="proof-num" data-count="4">0</div><div class="proof-label">semanas por mesociclo, progressão automática sem regenerar nada</div></div>
-      <div class="reveal" style="transition-delay:240ms;"><div class="proof-num" data-count="12">0</div><div class="proof-label">semanas até à reavaliação seguinte, visível ao PT e ao atleta</div></div>
+    <div class="proof-pill reveal">
+      <div class="proof-stat"><div class="proof-num" data-count="60">0</div><div class="proof-label">exercícios cobrindo os 6 padrões de movimento sem equipamento</div></div>
+      <div class="proof-stat"><div class="proof-num" data-count="8">0</div><div class="proof-label">objetivos, cada um com séries/reps/RPE próprios</div></div>
+      <div class="proof-stat"><div class="proof-num" data-count="4">0</div><div class="proof-label">semanas por mesociclo, progressão automática</div></div>
+      <div class="proof-stat"><div class="proof-num" data-count="12">0</div><div class="proof-label">semanas até à reavaliação seguinte</div></div>
     </div>
   </section>
 </div>
+
+<p class="section-label reveal" style="margin-top:64px;">Porque é diferente</p>
+<section class="diff-list">
+  <div class="diff-row reveal">
+    <span class="diff-icon plus">✦</span>
+    <p>Determinístico — mesma avaliação, mesmo plano. Nunca uma caixa preta.</p>
+  </div>
+  <div class="diff-row reveal" style="transition-delay:80ms;">
+    <span class="diff-icon minus">—</span>
+    <p>O histórico é do atleta. Muda de PT, o registo continua com ele.</p>
+  </div>
+  <div class="diff-row reveal" style="transition-delay:160ms;">
+    <span class="diff-icon minus">—</span>
+    <p>Segurança ao nível da base de dados (RLS), não só da interface.</p>
+  </div>
+</section>
 
 <section class="spec-list">
   <p class="section-label reveal">O que o motor faz</p>
@@ -292,6 +329,11 @@
 </section>
 
 <p class="whisper">Beast Mode</p>
+<footer class="site-footer">
+  <p class="foot-brand">Beast Mode</p>
+  <p class="foot-tagline">Prescrição determinística para Personal Trainers · Motor de treino, não só um diário</p>
+  <p class="foot-contact">contacto@beastmode.pt</p>
+</footer>
 
 <script>
   const revealEls = document.querySelectorAll('.reveal');
