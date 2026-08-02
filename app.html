@@ -1163,6 +1163,7 @@
     function ativar(i){
       tabs.forEach((t, idx) => t.classList.toggle('active', idx === i));
       dots.forEach((d, idx) => d.classList.toggle('active', idx === i));
+      tabs[i]?.scrollIntoView({ behavior:'smooth', inline:'center', block:'nearest' });
     }
     tabs.forEach((tab, i) => {
       tab.addEventListener('click', () => {
