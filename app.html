@@ -7,7 +7,7 @@
 <title>App — Beast Mode</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     color-scheme: dark;
@@ -17,15 +17,19 @@
     --tertiary:#6E9BFF; --warning:#FFB74D;
     --text-primary:#E2E2E6; --text-secondary:#90909A; --text-tertiary:#6B6B75;
     --success:#66BB6A; --danger:#F2B8B5;
+    --font-display:'Barlow Condensed', system-ui, sans-serif;
+    --font-body:'Inter', system-ui, sans-serif;
+    --r-sm:9px; --r:14px; --r-lg:20px;
   }
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--text-primary);
-    font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
-  h1,h2,h3{font-family:'Inter',sans-serif;font-weight:800;letter-spacing:-0.01em;margin:0;}
+    font-family:var(--font-body);-webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:var(--font-display);font-weight:800;letter-spacing:0;margin:0;line-height:1.05;}
+  h1{font-size:38px;}
   .mono{font-family:'Inter',sans-serif;font-weight:700;font-variant-numeric:tabular-nums;}
   header{display:flex;align-items:center;justify-content:space-between;
     max-width:960px;margin:0 auto;padding:20px 24px;}
-  .logo{font-weight:800;font-size:17px;}
+  .logo{font-family:var(--font-display);font-weight:800;font-size:22px;letter-spacing:.01em;}
   .ghost{background:none;border:1px solid var(--border);color:var(--text-secondary);
     border-radius:999px;padding:9px 16px;font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;}
   main{max-width:960px;margin:0 auto;padding:12px 24px 96px;}
@@ -126,7 +130,7 @@
     padding:16px;background:var(--bg-raised);}
   .stat-box.c-blue{border-left-color:var(--tertiary);}
   .stat-box.c-green{border-left-color:var(--success);}
-  .stat-num{font-size:28px;font-weight:800;color:var(--primary);}
+  .stat-num{font-family:var(--font-display);font-size:38px;font-weight:800;line-height:1;color:var(--primary);}
   .stat-label{font-size:11px;color:var(--text-tertiary);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;}
   .event-row{display:flex;flex-direction:column;gap:2px;font-size:13px;color:var(--text-secondary);
     padding:10px 0;border-bottom:1px solid var(--border);text-align:left;}
@@ -137,7 +141,7 @@
     position:sticky;top:0;z-index:10;background:var(--bg-surface);padding:10px 0 10px;
     border-bottom:1px solid var(--border);}
   .pivot-tabs::-webkit-scrollbar{display:none;}
-  .pivot-tab{font-size:26px;font-weight:900;letter-spacing:-0.02em;color:var(--text-tertiary);
+  .pivot-tab{font-family:var(--font-display);font-size:34px;font-weight:700;letter-spacing:0;color:var(--text-tertiary);
     white-space:nowrap;cursor:pointer;flex-shrink:0;transition:color .2s ease,text-shadow .2s ease;
     padding:4px 2px 8px;text-transform:lowercase;}
   .pivot-tab.active{color:var(--text-primary);text-shadow:0 0 18px var(--primary-muted),0 0 4px rgba(232,169,61,0.5);}
@@ -176,7 +180,7 @@
 <main>
   <div id="loading">A carregar…</div>
 
-  <h1 id="saudacaoTopo" class="hidden" style="font-size:26px;margin-bottom:20px;">Olá, <span id="nomeSaudacao"></span></h1>
+  <h1 id="saudacaoTopo" class="hidden" style="margin-bottom:20px;">Olá, <span id="nomeSaudacao"></span></h1>
 
   <!-- Admin: só visível se sou_admin() -->
   <div class="card hidden" id="cardAdmin" style="margin-bottom:20px;">

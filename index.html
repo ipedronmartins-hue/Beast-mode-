@@ -7,7 +7,7 @@
 <title>Beast Mode</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     color-scheme: dark;
@@ -16,14 +16,20 @@
     --primary:#E8A93D; --primary-hover:#D6941F; --primary-muted:rgba(232,169,61,0.14); --on-primary:#241300;
     --tertiary:#6E9BFF;
     --text-primary:#E2E2E6; --text-secondary:#90909A; --text-tertiary:#6B6B75;
+    /* Tipografia — display condensada para títulos, Inter para corpo */
+    --font-display:'Barlow Condensed', system-ui, sans-serif;
+    --font-body:'Inter', system-ui, sans-serif;
     /* Escala de seis tamanhos — princípio "poucos tamanhos, hierarquia forte" */
-    --fs-hero:52px; --fs-titulo:28px; --fs-sub:17px; --fs-corpo:14px; --fs-legenda:12px; --fs-micro:10px;
+    --fs-hero:64px; --fs-titulo:38px; --fs-sub:17px; --fs-corpo:14px; --fs-legenda:12px; --fs-micro:10px;
+    /* Três raios, não mais */
+    --r-sm:9px; --r:14px; --r-lg:20px;
+    --shadow:0 1px 0 rgba(255,255,255,.02), 0 8px 30px rgba(0,0,0,.35);
   }
   html{scroll-behavior:smooth;}
   *{box-sizing:border-box;}
   html,body{margin:0;padding:0;background:var(--bg);color:var(--text-primary);
-    font-family:'Inter',sans-serif; -webkit-font-smoothing:antialiased; overflow-x:hidden;}
-  h1,h2,h3{font-family:'Inter',sans-serif; font-weight:800; letter-spacing:-0.02em; margin:0;}
+    font-family:var(--font-body); -webkit-font-smoothing:antialiased; overflow-x:hidden;}
+  h1,h2,h3{font-family:var(--font-display); font-weight:800; letter-spacing:0; margin:0; line-height:1.02;}
   a{color:inherit; text-decoration:none;}
   .wrap{max-width:1152px; margin:0 auto; padding:0 24px;}
   nav.wrap{display:flex; align-items:center; justify-content:space-between; padding-top:24px; padding-bottom:24px; position:relative; z-index:2;}
@@ -53,7 +59,7 @@
   h1.headline span{color:var(--primary);}
   .sub{margin-top:24px; max-width:540px; font-size:var(--fs-sub); color:var(--text-secondary); font-weight:400; line-height:1.6;}
   .cta-row{margin-top:36px; display:flex; gap:12px; flex-wrap:wrap; justify-content:center;}
-  @media (max-width:640px){ h1.headline{font-size:34px;} }
+  @media (max-width:640px){ h1.headline{font-size:42px;} }
 
   .preview-wrap{position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; padding:56px 24px 0;}
   .phone{width:300px; background:var(--bg-surface); border:1px solid var(--border); border-radius:32px;
@@ -80,16 +86,16 @@
 
   /* Número gigante sozinho — estabelece o problema antes da solução */
   .numstage{max-width:640px; margin:0 auto; padding:88px 24px; text-align:center;}
-  .numstage .big{font-size:104px; font-weight:900; line-height:1; color:var(--text-primary); letter-spacing:-.03em;}
+  .numstage .big{font-family:var(--font-display); font-size:120px; font-weight:800; line-height:.9; color:var(--text-primary); letter-spacing:0;}
   .numstage .big span{color:var(--primary);}
   .numstage p{margin-top:20px; font-size:var(--fs-sub); color:var(--text-secondary); font-weight:400; max-width:420px; margin-left:auto; margin-right:auto;}
-  @media (max-width:560px){ .numstage .big{font-size:72px;} }
+  @media (max-width:560px){ .numstage .big{font-size:84px;} }
 
   .problem{max-width:840px; margin:0 auto; padding:72px 24px; text-align:center;}
-  .problem h2{font-size:var(--fs-titulo); line-height:1.25; max-width:620px; margin:14px auto 0;}
+  .problem h2{font-size:var(--fs-titulo); line-height:1.08; max-width:640px; margin:14px auto 0;}
   .problem .compare{margin-top:40px; display:grid; grid-template-columns:1fr 1fr; gap:16px; text-align:left;}
   @media (max-width:640px){ .problem .compare{grid-template-columns:1fr;} }
-  .compare-col{border-radius:20px; padding:24px; border:1px solid var(--border); transition:transform .25s ease, border-color .25s ease;}
+  .compare-col{border-radius:var(--r-lg); padding:24px; border:1px solid var(--border); transition:transform .25s ease, border-color .25s ease;}
   .compare-col:hover{transform:translateY(-3px);}
   .compare-col.bad{background:var(--bg-surface);}
   .compare-col.good{background:var(--primary-muted); border-color:rgba(165,214,167,0.35);}
@@ -105,7 +111,7 @@
   .step{display:flex; flex-direction:column; gap:10px;}
   .step-num{width:32px; height:32px; border-radius:999px; background:var(--bg-surface); border:1px solid var(--border);
     display:flex; align-items:center; justify-content:center; font-weight:800; font-size:var(--fs-corpo); color:var(--primary);}
-  .step h3{font-size:var(--fs-sub); font-weight:700;}
+  .step h3{font-size:24px; font-weight:700;}
   .step p{margin:0; font-size:var(--fs-corpo); line-height:1.55; color:var(--text-secondary); font-weight:400;}
 
   /* Prova: nunca um número sozinho, sempre com contexto — factos reais do sistema */
@@ -113,7 +119,7 @@
   .proof-pill{margin-top:40px; display:inline-flex; flex-wrap:wrap; justify-content:center; gap:28px;
     border:1px solid var(--border); border-radius:999px; padding:24px 36px; background:var(--bg-surface);}
   .proof-stat{display:flex; align-items:baseline; gap:8px;}
-  .proof-num{font-size:32px; font-weight:800; color:var(--primary); letter-spacing:-.02em;}
+  .proof-num{font-family:var(--font-display); font-size:40px; font-weight:800; color:var(--primary); line-height:1;}
   .proof-label{font-size:var(--fs-legenda); color:var(--text-secondary); line-height:1.3; text-align:left; max-width:120px;}
   @media (max-width:640px){ .proof-pill{border-radius:24px; padding:20px;} }
 
@@ -125,7 +131,7 @@
   .spec-row:last-child{border-bottom:1px solid var(--border);}
   @media (max-width:560px){ .spec-row{grid-template-columns:1fr; gap:6px;} }
   .spec-tag{font-size:var(--fs-legenda); font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--tertiary); padding-top:2px;}
-  .spec-row h3{font-size:var(--fs-sub); font-weight:700; margin-bottom:6px;}
+  .spec-row h3{font-size:24px; font-weight:700; margin-bottom:6px;}
   .spec-row p{margin:0; font-size:var(--fs-corpo); line-height:1.6; color:var(--text-secondary); font-weight:400; max-width:480px;}
 
   .diff-list{max-width:640px; margin:0 auto; padding:0 24px 72px;}
@@ -134,7 +140,7 @@
   .diff-icon{font-size:16px; flex-shrink:0; width:20px; text-align:center; padding-top:1px;}
   .diff-icon.plus{color:var(--primary);}
   .diff-icon.minus{color:var(--text-tertiary);}
-  .diff-row p{margin:0; font-size:var(--fs-sub); font-weight:600; color:var(--text-primary);}
+  .diff-row p{margin:0; font-family:var(--font-display); font-size:22px; font-weight:700; color:var(--text-primary); line-height:1.15;}
 
   .site-footer{max-width:1152px; margin:0 auto; padding:0 24px 40px; text-align:center;}
   .site-footer .foot-brand{font-size:11px; letter-spacing:.1em; color:var(--text-tertiary); text-transform:uppercase;}
@@ -145,7 +151,7 @@
   .closing{max-width:1152px; margin:0 auto; padding:80px 24px 32px;}
   .closing-card{border-radius:28px; background:var(--bg-surface);
     padding:64px 24px; display:flex; flex-direction:column; align-items:center; text-align:center; gap:18px;}
-  .closing-card h2{max-width:460px; font-size:var(--fs-titulo); line-height:1.2;}
+  .closing-card h2{max-width:520px; font-size:var(--fs-titulo); line-height:1.08;}
   .closing-card p{max-width:420px; margin:0; font-size:var(--fs-corpo); color:var(--text-secondary); font-weight:400;}
   .closing-alt{margin-top:18px; font-size:var(--fs-legenda); color:var(--text-tertiary);}
   .closing-alt a{color:var(--text-secondary); text-decoration:underline;}
