@@ -122,9 +122,12 @@
   .sess-feedback{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;}
   .comment-item{background:var(--bg-raised);border-radius:10px;padding:8px 10px;margin-top:8px;font-size:13px;color:var(--text-secondary);}
   .comment-item b{color:var(--text-primary);}
-  .stat-box{border:1px solid var(--border);border-radius:16px;padding:16px;background:var(--bg-raised);}
+  .stat-box{border:1px solid var(--border);border-left:3px solid var(--primary);border-radius:12px;
+    padding:16px;background:var(--bg-raised);}
+  .stat-box.c-blue{border-left-color:var(--tertiary);}
+  .stat-box.c-green{border-left-color:var(--success);}
   .stat-num{font-size:28px;font-weight:800;color:var(--primary);}
-  .stat-label{font-size:11px;color:var(--text-tertiary);margin-top:2px;}
+  .stat-label{font-size:11px;color:var(--text-tertiary);margin-top:2px;text-transform:uppercase;letter-spacing:.04em;}
   .event-row{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--text-secondary);
     padding:7px 0;border-bottom:1px solid var(--border);}
   .event-row:last-child{border-bottom:none;}
@@ -133,9 +136,10 @@
     position:sticky;top:0;z-index:10;background:var(--bg-surface);padding:10px 0 10px;
     border-bottom:1px solid var(--border);}
   .pivot-tabs::-webkit-scrollbar{display:none;}
-  .pivot-tab{font-size:22px;font-weight:800;letter-spacing:-0.01em;color:var(--text-tertiary);
-    white-space:nowrap;cursor:pointer;flex-shrink:0;transition:color .2s ease;padding-bottom:4px;}
-  .pivot-tab.active{color:var(--text-primary);}
+  .pivot-tab{font-size:26px;font-weight:900;letter-spacing:-0.02em;color:var(--text-tertiary);
+    white-space:nowrap;cursor:pointer;flex-shrink:0;transition:color .2s ease,text-shadow .2s ease;
+    padding:4px 2px 8px;text-transform:lowercase;}
+  .pivot-tab.active{color:var(--text-primary);text-shadow:0 0 18px var(--primary-muted),0 0 4px rgba(232,169,61,0.5);}
   .pivot-track{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;
     scrollbar-width:none;margin:0 -2px;}
   .pivot-track::-webkit-scrollbar{display:none;}
@@ -166,6 +170,8 @@
 
 <main>
   <div id="loading">A carregar…</div>
+
+  <h1 id="saudacaoTopo" class="hidden" style="font-size:26px;margin-bottom:20px;">Olá, <span id="nomeSaudacao"></span></h1>
 
   <!-- Admin: só visível se sou_admin() -->
   <div class="card hidden" id="cardAdmin" style="margin-bottom:20px;">
@@ -209,7 +215,6 @@
 
   <!-- Área PT -->
   <section id="areaPT" class="hidden">
-    <h1 style="font-size:26px;">Olá, <span id="ptNome"></span></h1>
 
     <div class="card" style="margin-top:18px;max-width:440px;">
       <form id="fConvidar">
@@ -378,7 +383,6 @@
 
   <!-- Área Cliente -->
   <section id="areaCliente" class="hidden">
-    <h1 style="font-size:26px;">Olá, <span id="clNome"></span></h1>
 
     <div class="card hidden" id="cardConsentimento" style="margin-top:20px;">
       <h3 style="font-size:16px;font-weight:600;">Antes de continuar</h3>
@@ -536,12 +540,13 @@
     // Sou PT? (RLS de perfis_pt permite ver o próprio)
     const { data: perfilPT } = await sb.from('perfis_pt').select('pessoa_id').eq('pessoa_id', pessoa.id).maybeSingle();
 
+    $('nomeSaudacao').textContent = pessoa.nome.split(' ')[0];
+    show('saudacaoTopo');
+
     if (perfilPT){
-      $('ptNome').textContent = pessoa.nome.split(' ')[0];
       show('areaPT');
       await carregarClientes();
     } else {
-      $('clNome').textContent = pessoa.nome.split(' ')[0];
       show('areaCliente');
       show('cardClientePivot');
       await carregarAreaCliente(pessoa.id);
@@ -1319,8 +1324,8 @@
     if (r){
       $('adminStats').innerHTML = `
         <div class="stat-box"><div class="stat-num">${r.pts}</div><div class="stat-label">Treinadores</div></div>
-        <div class="stat-box"><div class="stat-num">${r.atletas}</div><div class="stat-label">Atletas ativos</div></div>
-        <div class="stat-box"><div class="stat-num">${r.planos_publicados}</div><div class="stat-label">Planos publicados</div></div>
+        <div class="stat-box c-blue"><div class="stat-num" style="color:var(--tertiary);">${r.atletas}</div><div class="stat-label">Atletas ativos</div></div>
+        <div class="stat-box c-green"><div class="stat-num" style="color:var(--success);">${r.planos_publicados}</div><div class="stat-label">Planos publicados</div></div>
         <div class="stat-box"><div class="stat-num">${r.sessoes_concluidas}</div><div class="stat-label">Sessões concluídas</div></div>`;
     }
 
