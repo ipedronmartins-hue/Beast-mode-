@@ -129,7 +129,9 @@
     padding:7px 0;border-bottom:1px solid var(--border);}
   .event-row:last-child{border-bottom:none;}
   /* Pivot horizontal — títulos grandes, arrasta lateralmente entre secções (estilo WP8) */
-  .pivot-tabs{display:flex;gap:28px;overflow-x:auto;scrollbar-width:none;margin-bottom:2px;}
+  .pivot-tabs{display:flex;gap:28px;overflow-x:auto;scrollbar-width:none;margin-bottom:2px;
+    position:sticky;top:0;z-index:10;background:var(--bg-surface);padding:10px 0 10px;
+    border-bottom:1px solid var(--border);}
   .pivot-tabs::-webkit-scrollbar{display:none;}
   .pivot-tab{font-size:22px;font-weight:800;letter-spacing:-0.01em;color:var(--text-tertiary);
     white-space:nowrap;cursor:pointer;flex-shrink:0;transition:color .2s ease;padding-bottom:4px;}
