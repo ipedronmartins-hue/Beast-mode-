@@ -830,7 +830,7 @@
       const meso = calcularMesociclo(plano.publicado_em);
       $('planoClienteResumo').innerHTML =
         `<span class="chip chip-ok" style="margin-right:6px;">Semana ${meso.semanaTotal} · ${meso.label}</span>
-         descanso ${p.descanso_seg}s · próxima reavaliação: ${formatarData(p.reavaliar_em)}`;
+         ${p.so_corrida ? 'plano de corrida' : 'descanso ' + p.descanso_seg + 's'} · próxima reavaliação: ${formatarData(p.reavaliar_em)}`;
       $('planoClienteDias').innerHTML = plano.conteudo.dias.map((dia, i) => `
         <div>
           ${renderDia(dia, meso)}
@@ -1035,9 +1035,11 @@
     planoEmRevisao = plano.id;
     $('planoNomeCliente').textContent = nome;
     const p = plano.parametros;
-    $('planoResumo').innerHTML =
-      `${p.series}x${p.reps_min}-${p.reps_max} reps · descanso ${p.descanso_seg}s · RPE alvo ${p.rpe_alvo} · reavaliar em ${formatarData(p.reavaliar_em)}<br>
-       <span style="color:var(--tertiary);">Semana 1 (Introdução) — a progressão sobe sozinha a cada semana depois de publicares (mesociclo de 4 semanas).</span>`;
+    $('planoResumo').innerHTML = p.so_corrida
+      ? `Plano de corrida · reavaliar em ${formatarData(p.reavaliar_em)}<br>
+         <span style="color:var(--tertiary);">Sem exercícios de ginásio — o atleta não tem local para isso na avaliação.</span>`
+      : `${p.series}x${p.reps_min}-${p.reps_max} reps · descanso ${p.descanso_seg}s · RPE alvo ${p.rpe_alvo} · reavaliar em ${formatarData(p.reavaliar_em)}<br>
+         <span style="color:var(--tertiary);">Semana 1 (Introdução) — a progressão sobe sozinha a cada semana depois de publicares (mesociclo de 4 semanas).</span>`;
     $('planoDias').innerHTML = plano.conteudo.dias.map(dia => renderDia(dia)).join('');
     hide('errPlano');
     $('okPlano').style.display = 'none';
