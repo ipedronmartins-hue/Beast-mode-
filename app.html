@@ -458,6 +458,13 @@
     <div class="card hidden" id="cardBloqueado" style="text-align:center;">
       <h3 style="font-size:20px;">Acesso pendente</h3>
       <p class="muted" id="bloqueadoTexto" style="margin-top:10px;"></p>
+      <div class="card hidden" id="cardPagamentoInfo" style="margin-top:20px;background:var(--bg-raised);">
+        <p class="tiny">Valor a pagar</p>
+        <h3 id="pagamentoValor" style="font-size:32px;font-weight:800;color:var(--primary);margin-top:4px;"></h3>
+        <p class="tiny" style="margin-top:14px;">Por MBWay para</p>
+        <h3 id="pagamentoContacto" style="font-size:22px;font-weight:700;margin-top:4px;"></h3>
+        <p class="tiny" style="margin-top:14px;">Depois de enviares, avisa o teu treinador — é ele que confirma o acesso.</p>
+      </div>
     </div>
 
     <div class="card hidden" id="cardConsentimento" style="margin-top:20px;">
@@ -629,11 +636,23 @@
       show('areaCliente');
       show('cardBloqueado');
       const MSG_BLOQUEIO = {
-        pendente: 'A tua conta está à espera de confirmação de pagamento pelo teu treinador.',
+        pendente: 'Ainda não tens acesso — falta o pagamento da subscrição.',
         suspenso: 'A tua conta está suspensa. Fala com o teu treinador.',
         arquivado: 'A tua conta está arquivada.'
       };
       $('bloqueadoTexto').textContent = MSG_BLOQUEIO[pessoa.estado] ?? 'Sem acesso de momento.';
+
+      if (pessoa.estado === 'pendente'){
+        const { data: config } = await sb.from('configuracoes')
+          .select('chave, valor, valor_texto').in('chave', ['preco_atleta_mensal', 'mbway_contacto']);
+        const preco = config?.find(c => c.chave === 'preco_atleta_mensal')?.valor;
+        const contacto = config?.find(c => c.chave === 'mbway_contacto')?.valor_texto;
+        if (preco){
+          $('pagamentoValor').textContent = Number(preco).toFixed(2) + '€ / mês';
+          $('pagamentoContacto').textContent = contacto || '—';
+          show('cardPagamentoInfo');
+        }
+      }
     } else {
       show('areaCliente');
       show('cardClientePivot');
