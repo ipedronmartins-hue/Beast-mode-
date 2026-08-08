@@ -157,11 +157,20 @@
   .pivot-scroll{max-height:340px;overflow-y:auto;touch-action:pan-y;-webkit-overflow-scrolling:touch;
     scrollbar-width:none;}
   .pivot-scroll::-webkit-scrollbar{display:none;}
+  .rest-btn{margin-top:10px;width:100%;padding:9px;border-radius:10px;border:1px solid var(--border);
+    background:var(--bg-surface);color:var(--text-secondary);font-size:13px;font-weight:600;cursor:pointer;}
+  .rest-btn.counting{color:var(--primary);border-color:var(--primary);font-family:'Inter',sans-serif;font-weight:800;font-size:16px;}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);
+    background:var(--bg-raised);border:1px solid var(--border);border-radius:999px;padding:12px 22px;
+    font-size:13px;font-weight:600;color:var(--text-primary);opacity:0;pointer-events:none;
+    transition:opacity .25s ease,transform .25s ease;z-index:50;box-shadow:0 12px 30px -8px rgba(0,0,0,.6);}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
   .sticky-cta{position:sticky;bottom:8px;z-index:5;}
 </style>
 </head>
 <body>
 <div class="sheet-scrim" id="sheetScrim"></div>
+<div class="toast" id="toast"></div>
 <header>
   <span class="logo" style="display:flex;align-items:center;gap:8px;">
     <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true">
@@ -1232,6 +1241,53 @@
     fecharSheet();
   });
 
+  // Apito curto (Web Audio, sem ficheiro nenhum) — inspirado no cronómetro da YTB.
+  let audioCtx = null;
+  function beep(freq, dur, vol){
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+      o.connect(g); g.connect(audioCtx.destination);
+      o.frequency.value = freq || 880;
+      g.gain.setValueAtTime(vol || 0.25, audioCtx.currentTime);
+      g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + (dur || 0.15));
+      o.start(); o.stop(audioCtx.currentTime + (dur || 0.15));
+    } catch(e) {}
+  }
+
+  function mostrarToast(msg){
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(window.__toastTimer);
+    window.__toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+  }
+
+  function iniciarDescanso(btn, segundos){
+    if (btn.dataset.counting === '1') return;
+    btn.dataset.counting = '1';
+    btn.classList.add('counting');
+    let restantes = segundos;
+    const textoOriginal = 'Descansar ' + segundos + 's';
+    btn.textContent = restantes + 's';
+    beep(660, 0.12, 0.3);
+    const iv = setInterval(() => {
+      restantes--;
+      if (restantes <= 3 && restantes > 0) beep(880, 0.08, 0.25);
+      if (restantes <= 0){
+        clearInterval(iv);
+        beep(660, 0.12, 0.35); setTimeout(() => beep(880, 0.15, 0.35), 120);
+        if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
+        btn.textContent = textoOriginal;
+        btn.classList.remove('counting');
+        btn.dataset.counting = '0';
+        mostrarToast('Descanso terminado — próxima série 💪');
+        return;
+      }
+      btn.textContent = restantes + 's';
+    }, 1000);
+  }
+
   async function iniciarTreino(indiceDia){
     let dia = planoClienteAtual.conteudo.dias[indiceDia];
     const meso = calcularMesociclo(planoClienteAtual.publicado_em);
@@ -1245,7 +1301,7 @@
     if (error){ alert('Não foi possível iniciar o treino: ' + error.message); return; }
     sessaoAtiva = sessaoId;
 
-    $('sessaoDiaNome').textContent = dia.nome;
+    $('sessaoDiaNome').textContent = 'Sessão: ' + dia.nome;
     $('sessaoMesoLabel').textContent = `Semana ${meso.semanaTotal} · ${meso.label}`;
     if (dia.tipo === 'forca'){
       $('sessaoExercicios').innerHTML = dia.exercicios.map((ex, ei) => `
@@ -1263,7 +1319,11 @@
                 <input type="text" inputmode="decimal" class="set-input" placeholder="—" data-ex="${ei}" data-serie="${si+1}" data-campo="rpe" />
               </div>`).join('')}
           </div>
+          <button type="button" class="rest-btn" data-descanso="${ex.descanso_seg}">Descansar ${ex.descanso_seg}s</button>
         </div>`).join('');
+      $('sessaoExercicios').querySelectorAll('[data-descanso]').forEach(btn => {
+        btn.addEventListener('click', () => iniciarDescanso(btn, parseInt(btn.dataset.descanso, 10)));
+      });
     } else {
       $('sessaoExercicios').innerHTML = renderDia(dia) +
         `<div>
@@ -1326,7 +1386,7 @@
 
     sessaoAtiva = null; diaAtivo = null;
     fecharSheet();
-    alert('Treino concluído! Boa 💪');
+    mostrarToast('Treino concluído! Boa 💪');
   });
 
   $('fOnboard')?.addEventListener('submit', async (e) => {
