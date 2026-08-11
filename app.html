@@ -170,7 +170,7 @@
   /* Redesign do PT: navegação persistente + páginas, em vez de scroll de cartões soltos */
   .pt-page{display:none;}
   .pt-page.active{display:block;}
-  #areaPT{padding-bottom:88px;}
+  #areaPT, #cardAdmin{padding-bottom:88px;}
   .pt-hero h1{font-family:var(--font-display);font-size:32px;font-weight:800;}
   .pt-hero p{margin:4px 0 20px;color:var(--text-secondary);font-size:14px;}
   .pt-nav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;justify-content:space-around;
@@ -185,10 +185,11 @@
   @media (min-width:860px){
     .pt-nav{left:0;right:auto;top:0;bottom:0;width:92px;flex-direction:column;justify-content:flex-start;
       padding:36px 0 0;gap:26px;border-top:none;border-right:1px solid var(--border);}
-    #areaPT{padding-bottom:0;padding-left:112px;max-width:1100px;}
+    #areaPT, #cardAdmin{padding-bottom:0;padding-left:112px;max-width:1100px;}
     .pt-hero h1{font-size:38px;}
     #pagAtletas .client-card, #pagHoje .card{max-width:100%;}
   }
+  #cardAdmin{margin-bottom:24px;}
 
   /* Cartões de "atenção" mais ricos: avatar + motivo + ação */
   .atencao-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--border);}
@@ -198,6 +199,8 @@
   .atencao-row .atencao-nome{font-weight:700;font-size:14px;}
   .atencao-row .atencao-motivo{font-size:12px;color:var(--warning);margin-top:1px;}
   .atencao-row .ghost{flex-shrink:0;padding:8px 14px;font-size:12px;}
+  .vista-btn{color:var(--text-secondary);}
+  .vista-btn.active{background:var(--primary);color:var(--on-primary);border-color:var(--primary);font-weight:700;}
 </style>
 </head>
 <body>
@@ -224,36 +227,55 @@
 
   <h1 id="saudacaoTopo" class="hidden" style="margin-bottom:20px;">Olá, <span id="nomeSaudacao"></span></h1>
 
+  <div class="hidden" id="vistaSwitch" style="display:flex;gap:8px;margin-bottom:20px;">
+    <button class="ghost vista-btn active" data-vista="admin" style="flex:1;">Admin</button>
+    <button class="ghost vista-btn" data-vista="pt" style="flex:1;">Treinador</button>
+  </div>
+
   <!-- Admin: só visível se sou_admin() -->
-  <div class="hidden" id="cardAdmin" style="margin-bottom:32px;">
-    <p class="section-title" style="margin-top:0;">Painel de Administração</p>
-    <div class="pivot-tabs on-bg" id="adminPivotTabs" style="margin-top:6px;">
-      <span class="pivot-tab active" data-panel="0">Treinadores</span>
-      <span class="pivot-tab" data-panel="1">Atletas</span>
-      <span class="pivot-tab" data-panel="2">Comissões</span>
-      <span class="pivot-tab" data-panel="3">Resumo</span>
-      <span class="pivot-tab" data-panel="4">Atividade</span>
+  <div class="hidden" id="cardAdmin">
+    <nav class="pt-nav" id="adminNav">
+      <button class="pt-nav-btn active" data-pagina="resumo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>
+        Resumo
+      </button>
+      <button class="pt-nav-btn" data-pagina="treinadores">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Treinadores
+      </button>
+      <button class="pt-nav-btn" data-pagina="atletas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Atletas
+      </button>
+      <button class="pt-nav-btn" data-pagina="comissoes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6.5a6.5 6.5 0 1 0 0 11"/><path d="M4 10h9M4 14h7"/></svg>
+        Comissões
+      </button>
+    </nav>
+
+    <div class="pt-page active" data-pagina="resumo">
+      <div class="pt-hero">
+        <h1>Painel de Administração</h1>
+        <p>Visão geral da plataforma.</p>
+      </div>
+      <div id="adminStats" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;"></div>
+      <p class="tiny" style="margin-top:28px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-tertiary);">Atividade recente</p>
+      <div id="adminEventos" class="pivot-scroll" style="display:flex;flex-direction:column;gap:6px;margin-top:10px;"></div>
     </div>
-    <div class="pivot-track" id="adminPivotTrack">
-      <div class="pivot-panel">
-        <div id="adminPts" class="pivot-scroll"></div>
-      </div>
-      <div class="pivot-panel">
-        <div id="adminAtletas" class="pivot-scroll"></div>
-      </div>
-      <div class="pivot-panel">
-        <div id="adminComissoes" class="pivot-scroll"></div>
-      </div>
-      <div class="pivot-panel">
-        <div id="adminStats" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;"></div>
-      </div>
-      <div class="pivot-panel">
-        <div id="adminEventos" class="pivot-scroll" style="display:flex;flex-direction:column;gap:6px;"></div>
-      </div>
+
+    <div class="pt-page" data-pagina="treinadores">
+      <div class="pt-hero"><h1>Treinadores</h1></div>
+      <div id="adminPts" class="pivot-scroll" style="max-height:none;"></div>
     </div>
-    <div class="pivot-dots" id="adminPivotDots">
-      <span class="pivot-dot active"></span><span class="pivot-dot"></span>
-      <span class="pivot-dot"></span><span class="pivot-dot"></span><span class="pivot-dot"></span>
+
+    <div class="pt-page" data-pagina="atletas">
+      <div class="pt-hero"><h1>Atletas</h1></div>
+      <div id="adminAtletas" class="pivot-scroll" style="max-height:none;"></div>
+    </div>
+
+    <div class="pt-page" data-pagina="comissoes">
+      <div class="pt-hero"><h1>Comissões</h1></div>
+      <div id="adminComissoes" class="pivot-scroll" style="max-height:none;"></div>
     </div>
   </div>
 
@@ -329,7 +351,7 @@
       </button>
     </nav>
 
-    <div class="pt-page active" id="pagHoje">
+    <div class="pt-page active" id="pagHoje" data-pagina="hoje">
       <div class="pt-hero">
         <h1>Bom dia, <span id="ptNomeHero"></span> 👋</h1>
         <p>Foca-te. Lidera. Transforma.</p>
@@ -347,7 +369,7 @@
     </div>
     </div>
 
-    <div class="pt-page" id="pagAtletas">
+    <div class="pt-page" id="pagAtletas" data-pagina="atletas">
     <div class="card" style="margin-top:18px;max-width:440px;">
       <p class="tiny">Link de cadastro</p>
       <p class="muted" style="margin-top:4px;">Partilha isto — quem entrar fica automaticamente ligado a ti, sem precisares de saber o email antes.</p>
@@ -516,7 +538,7 @@
     </div>
     </div>
 
-    <div class="pt-page" id="pagFinanceiro">
+    <div class="pt-page" id="pagFinanceiro" data-pagina="financeiro">
     <div class="card" style="max-width:440px;">
       <p class="tiny">Os teus ganhos</p>
       <h3 style="font-size:20px;font-weight:800;margin-top:4px;">Defines o preço. Nós ficamos com 15€.</h3>
@@ -536,7 +558,7 @@
     </div>
     </div>
 
-    <div class="pt-page" id="pagMais">
+    <div class="pt-page" id="pagMais" data-pagina="mais">
       <div class="card">
         <p class="tiny">A tua conta</p>
         <p class="muted" style="margin-top:6px;">Definições adicionais (perfil profissional, notificações) chegam numa próxima fase.</p>
@@ -766,6 +788,14 @@
       show('areaCliente');
       show('cardClientePivot');
       await carregarAreaCliente(pessoa.id);
+    }
+
+    // Admin + PT ao mesmo tempo: nunca as duas barras fixas juntas — mostra o
+    // interruptor e arranca na vista de Admin (a área do PT já carregou os
+    // dados atrás, fica só escondida até se trocar de vista).
+    if (ehAdmin && perfilPT && perfilPT.perfil_completo){
+      show('vistaSwitch');
+      hide('areaPT');
     }
   }
 
@@ -1475,15 +1505,33 @@
   let sessaoAtiva = null;
   let diaAtivo = null;
 
-  // Pivot horizontal genérico — liga separadores, faixa com scroll-snap, e pontos.
-  // Navegação persistente do PT — 4 páginas, em vez de scroll de cartões soltos
-  function mostrarPaginaPT(nome){
-    document.querySelectorAll('#areaPT .pt-page').forEach(p => p.classList.toggle('active', p.id === 'pag' + nome.charAt(0).toUpperCase() + nome.slice(1)));
-    document.querySelectorAll('.pt-nav-btn').forEach(b => b.classList.toggle('active', b.dataset.pagina === nome));
-    window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+  // Navegação persistente, genérica — usada tanto na área do PT como no admin.
+  // Cada instância fica isolada ao seu contentor (evita que os botões de um
+  // interfiram com as páginas do outro, já que os dois podem coexistir no ecrã).
+  function criarNavegador(containerId){
+    const container = document.getElementById(containerId);
+    if (!container) return () => {};
+    function mostrar(nome){
+      container.querySelectorAll(':scope > .pt-page').forEach(p => p.classList.toggle('active', p.dataset.pagina === nome));
+      container.querySelectorAll('.pt-nav-btn').forEach(b => b.classList.toggle('active', b.dataset.pagina === nome));
+      window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+    }
+    container.querySelectorAll('.pt-nav-btn').forEach(btn => {
+      btn.addEventListener('click', () => mostrar(btn.dataset.pagina));
+    });
+    return mostrar;
   }
-  document.querySelectorAll('.pt-nav-btn').forEach(btn => {
-    btn.addEventListener('click', () => mostrarPaginaPT(btn.dataset.pagina));
+  const mostrarPaginaPT = criarNavegador('areaPT');
+  const mostrarPaginaAdmin = criarNavegador('cardAdmin');
+
+  // Interruptor Admin/Treinador — só aparece quando a conta acumula os dois papéis,
+  // para nunca haver duas barras de navegação fixas ao mesmo tempo no ecrã.
+  document.querySelectorAll('.vista-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.vista-btn').forEach(b => b.classList.toggle('active', b === btn));
+      if (btn.dataset.vista === 'admin'){ show('cardAdmin'); hide('areaPT'); }
+      else { hide('cardAdmin'); show('areaPT'); }
+    });
   });
 
   function initPivot(tabsId, trackId, dotsId){
@@ -1513,7 +1561,6 @@
     }, { passive: true });
   }
   initPivot('avPivotTabs', 'avPivotTrack', 'avPivotDots');
-  initPivot('adminPivotTabs', 'adminPivotTrack', 'adminPivotDots');
   initPivot('clPivotTabs', 'clPivotTrack', 'clPivotDots');
 
   function abrirSheet(){
