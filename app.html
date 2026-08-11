@@ -166,6 +166,38 @@
     transition:opacity .25s ease,transform .25s ease;z-index:50;box-shadow:0 12px 30px -8px rgba(0,0,0,.6);}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
   .sticky-cta{position:sticky;bottom:8px;z-index:5;}
+
+  /* Redesign do PT: navegação persistente + páginas, em vez de scroll de cartões soltos */
+  .pt-page{display:none;}
+  .pt-page.active{display:block;}
+  #areaPT{padding-bottom:88px;}
+  .pt-hero h1{font-family:var(--font-display);font-size:32px;font-weight:800;}
+  .pt-hero p{margin:4px 0 20px;color:var(--text-secondary);font-size:14px;}
+  .pt-nav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;justify-content:space-around;
+    background:var(--bg-surface);border-top:1px solid var(--border);
+    padding:9px 4px calc(9px + env(safe-area-inset-bottom));}
+  .pt-nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;background:none;border:none;
+    color:var(--text-tertiary);font-family:'Inter',sans-serif;font-size:10px;font-weight:700;
+    cursor:pointer;padding:4px 12px;-webkit-tap-highlight-color:transparent;}
+  .pt-nav-btn svg{width:21px;height:21px;}
+  .pt-nav-btn.active{color:var(--primary);}
+
+  @media (min-width:860px){
+    .pt-nav{left:0;right:auto;top:0;bottom:0;width:92px;flex-direction:column;justify-content:flex-start;
+      padding:36px 0 0;gap:26px;border-top:none;border-right:1px solid var(--border);}
+    #areaPT{padding-bottom:0;padding-left:112px;max-width:1100px;}
+    .pt-hero h1{font-size:38px;}
+    #pagAtletas .client-card, #pagHoje .card{max-width:100%;}
+  }
+
+  /* Cartões de "atenção" mais ricos: avatar + motivo + ação */
+  .atencao-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--border);}
+  .atencao-row:first-child{border-top:none;}
+  .atencao-row .client-avatar{flex-shrink:0;width:36px;height:36px;font-size:14px;}
+  .atencao-row .atencao-info{flex:1;min-width:0;}
+  .atencao-row .atencao-nome{font-weight:700;font-size:14px;}
+  .atencao-row .atencao-motivo{font-size:12px;color:var(--warning);margin-top:1px;}
+  .atencao-row .ghost{flex-shrink:0;padding:8px 14px;font-size:12px;}
 </style>
 </head>
 <body>
@@ -278,24 +310,30 @@
   <!-- Área PT -->
   <section id="areaPT" class="hidden">
 
-    <div class="card" style="max-width:440px;">
-      <p class="tiny">Os teus ganhos</p>
-      <h3 style="font-size:20px;font-weight:800;margin-top:4px;">Defines o preço. Nós ficamos com 15€.</h3>
-      <p class="muted" style="margin-top:6px;" id="ptPrecoResumo">A carregar…</p>
+    <nav class="pt-nav" id="ptNav">
+      <button class="pt-nav-btn active" data-pagina="hoje">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+        Hoje
+      </button>
+      <button class="pt-nav-btn" data-pagina="atletas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Atletas
+      </button>
+      <button class="pt-nav-btn" data-pagina="financeiro">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6.5a6.5 6.5 0 1 0 0 11"/><path d="M4 10h9M4 14h7"/></svg>
+        Financeiro
+      </button>
+      <button class="pt-nav-btn" data-pagina="mais">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+        Mais
+      </button>
+    </nav>
 
-      <div id="ptPrecoForm" class="hidden" style="margin-top:12px;display:flex;gap:8px;">
-        <input type="text" inputmode="decimal" id="ptPrecoInput" placeholder="ex: 39.90" style="flex:1;" />
-        <button class="ghost" id="btnGuardarPreco" style="flex-shrink:0;">Guardar</button>
+    <div class="pt-page active" id="pagHoje">
+      <div class="pt-hero">
+        <h1>Bom dia, <span id="ptNomeHero"></span> 👋</h1>
+        <p>Foca-te. Lidera. Transforma.</p>
       </div>
-      <button class="ghost" id="btnEditarPreco" style="margin-top:10px;width:100%;">Mudar preço</button>
-      <p class="err hidden" id="errPreco" style="margin-top:8px;"></p>
-
-      <div style="display:flex;gap:10px;margin-top:18px;border-top:1px solid var(--border);padding-top:16px;">
-        <div style="text-align:center;flex:1;"><div class="stat-num" style="color:var(--warning);" id="ptGanhosPendente">—</div><div class="stat-label">Pendente</div></div>
-        <div style="text-align:center;flex:1;"><div class="stat-num" style="color:var(--success);" id="ptGanhosPago">—</div><div class="stat-label">Já pago</div></div>
-      </div>
-    </div>
-
     <div class="card" style="margin-top:18px;max-width:440px;">
       <div style="display:flex;gap:10px;">
         <div style="text-align:center;flex:1;"><div class="stat-num" style="color:var(--success);" id="resAtivos">—</div><div class="stat-label">Ativos</div></div>
@@ -303,7 +341,13 @@
         <div style="text-align:center;flex:1;"><div class="stat-num" style="color:var(--tertiary);" id="resAdesao">—</div><div class="stat-label">Treinaram (7d)</div></div>
       </div>
     </div>
+    <div class="card hidden" id="cardAtencao" style="margin-top:18px;max-width:440px;">
+      <p class="tiny">Precisam de atenção</p>
+      <div id="listaAtencao" style="margin-top:10px;display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+    </div>
 
+    <div class="pt-page" id="pagAtletas">
     <div class="card" style="margin-top:18px;max-width:440px;">
       <p class="tiny">Link de cadastro</p>
       <p class="muted" style="margin-top:4px;">Partilha isto — quem entrar fica automaticamente ligado a ti, sem precisares de saber o email antes.</p>
@@ -312,12 +356,6 @@
         <button class="ghost" id="btnCopiarLink" style="flex-shrink:0;">Copiar</button>
       </div>
     </div>
-
-    <div class="card hidden" id="cardAtencao" style="margin-top:18px;max-width:440px;">
-      <p class="tiny">Precisam de atenção</p>
-      <div id="listaAtencao" style="margin-top:10px;display:flex;flex-direction:column;gap:8px;"></div>
-    </div>
-
     <div class="card" style="margin-top:18px;max-width:440px;">
       <form id="fConvidar">
         <label for="emailCliente">Convidar atleta (email)</label>
@@ -329,14 +367,12 @@
         <p class="tiny" id="okConvidar" style="margin-top:10px;color:var(--success);display:none;">Cliente associado. Já pode entrar com o email dele.</p>
       </form>
     </div>
-
     <p class="section-title">Os teus atletas</p>
     <div id="listaClientes"></div>
     <div class="empty hidden" id="semClientes">
       <p style="margin:0;font-weight:500;">Ainda sem atletas</p>
       <p class="muted" style="margin:8px 0 0;">Convida o primeiro atleta pelo email acima.</p>
     </div>
-
     <div class="card hidden" id="cardAvaliacao" style="margin-top:20px;max-width:520px;">
       <h3 style="font-size:16px;font-weight:600;">Anamnese e Perfil do Atleta — <span id="avNomeCliente"></span></h3>
       <form id="fAvaliacao" style="margin-top:14px;">
@@ -441,7 +477,6 @@
       </form>
       <button class="ghost" id="btnFecharAvaliacao" style="margin-top:12px;width:100%;">Fechar</button>
     </div>
-
     <div class="card hidden" id="cardPlano" style="margin-top:20px;max-width:560px;">
       <h3 style="font-size:16px;font-weight:600;">Plano gerado — <span id="planoNomeCliente"></span></h3>
       <p class="tiny" id="planoResumo" style="margin-top:6px;"></p>
@@ -451,7 +486,6 @@
       <p class="tiny" id="okPlano" style="margin-top:10px;color:var(--success);display:none;">Plano publicado — o atleta já o vê.</p>
       <button class="ghost" id="btnFecharPlano" style="margin-top:12px;width:100%;">Fechar</button>
     </div>
-
     <div class="card hidden" id="cardMedicoes" style="margin-top:20px;max-width:440px;">
       <h3 style="font-size:16px;font-weight:600;">Medições — <span id="medNomeCliente"></span></h3>
       <form id="fMedicoes" style="margin-top:14px;">
@@ -471,7 +505,6 @@
       </form>
       <button class="ghost" id="btnFecharMedicoes" style="margin-top:12px;width:100%;">Fechar</button>
     </div>
-
     <div class="card hidden" id="cardHistorico" style="margin-top:20px;max-width:560px;">
       <h3 style="font-size:16px;font-weight:800;">Histórico — <span id="histNomeCliente"></span></h3>
       <div id="histLista" class="pivot-scroll" style="margin-top:14px;display:flex;flex-direction:column;gap:14px;"></div>
@@ -481,6 +514,35 @@
       </div>
       <button class="ghost" id="btnFecharHistorico" style="margin-top:12px;width:100%;">Fechar</button>
     </div>
+    </div>
+
+    <div class="pt-page" id="pagFinanceiro">
+    <div class="card" style="max-width:440px;">
+      <p class="tiny">Os teus ganhos</p>
+      <h3 style="font-size:20px;font-weight:800;margin-top:4px;">Defines o preço. Nós ficamos com 15€.</h3>
+      <p class="muted" style="margin-top:6px;" id="ptPrecoResumo">A carregar…</p>
+
+      <div id="ptPrecoForm" class="hidden" style="margin-top:12px;display:flex;gap:8px;">
+        <input type="text" inputmode="decimal" id="ptPrecoInput" placeholder="ex: 39.90" style="flex:1;" />
+        <button class="ghost" id="btnGuardarPreco" style="flex-shrink:0;">Guardar</button>
+      </div>
+      <button class="ghost" id="btnEditarPreco" style="margin-top:10px;width:100%;">Mudar preço</button>
+      <p class="err hidden" id="errPreco" style="margin-top:8px;"></p>
+
+      <div style="display:flex;gap:10px;margin-top:18px;border-top:1px solid var(--border);padding-top:16px;">
+        <div style="text-align:center;flex:1;"><div class="stat-num" style="color:var(--warning);" id="ptGanhosPendente">—</div><div class="stat-label">Pendente</div></div>
+        <div style="text-align:center;flex:1;"><div class="stat-num" style="color:var(--success);" id="ptGanhosPago">—</div><div class="stat-label">Já pago</div></div>
+      </div>
+    </div>
+    </div>
+
+    <div class="pt-page" id="pagMais">
+      <div class="card">
+        <p class="tiny">A tua conta</p>
+        <p class="muted" style="margin-top:6px;">Definições adicionais (perfil profissional, notificações) chegam numa próxima fase.</p>
+      </div>
+    </div>
+
   </section>
 
   <!-- Área Cliente -->
@@ -663,12 +725,14 @@
     // Sou PT? (RLS de perfis_pt permite ver o próprio)
     const { data: perfilPT } = await sb.from('perfis_pt').select('pessoa_id, perfil_completo').eq('pessoa_id', pessoa.id).maybeSingle();
 
-    $('nomeSaudacao').textContent = pessoa.nome.split(' ')[0];
-    show('saudacaoTopo');
+    const primeiroNome = pessoa.nome.split(' ')[0];
+    $('nomeSaudacao').textContent = primeiroNome;
 
     if (perfilPT && !perfilPT.perfil_completo){
+      show('saudacaoTopo');
       show('perfilPTGate');
     } else if (perfilPT){
+      $('ptNomeHero').textContent = primeiroNome;
       show('areaPT');
       await carregarClientes();
       await carregarGanhosPT(pessoa.id);
@@ -676,6 +740,7 @@
       await carregarLinkCadastro();
       await carregarAtencao();
     } else if (pessoa.estado !== 'ativo') {
+      show('saudacaoTopo');
       show('areaCliente');
       show('cardBloqueado');
       const MSG_BLOQUEIO = {
@@ -697,6 +762,7 @@
         }
       }
     } else {
+      show('saudacaoTopo');
       show('areaCliente');
       show('cardClientePivot');
       await carregarAreaCliente(pessoa.id);
@@ -825,11 +891,21 @@
   async function carregarAtencao(){
     const { data } = await sb.rpc('bm_pt_atencao');
     if (!data || data.length === 0){ hide('cardAtencao'); return; }
-    $('listaAtencao').innerHTML = data.map(a => `
-      <div class="row">
-        <span>${a.nome}</span>
-        <span class="chip chip-warn">${a.motivo}${a.dias != null ? ' · ' + a.dias + 'd' : ''}</span>
-      </div>`).join('');
+    $('listaAtencao').innerHTML = data.map(a => {
+      const inicial = (a.nome ?? '?').trim().charAt(0).toUpperCase();
+      return `
+      <div class="atencao-row">
+        <div class="client-avatar">${inicial}</div>
+        <div class="atencao-info">
+          <div class="atencao-nome">${a.nome}</div>
+          <div class="atencao-motivo">${a.motivo}${a.dias != null ? ' · ' + a.dias + 'd' : ''}</div>
+        </div>
+        <button class="ghost" data-ver-atleta="1">Ver atleta</button>
+      </div>`;
+    }).join('');
+    $('listaAtencao').querySelectorAll('[data-ver-atleta]').forEach(btn => {
+      btn.addEventListener('click', () => mostrarPaginaPT('atletas'));
+    });
     show('cardAtencao');
   }
 
@@ -1398,6 +1474,16 @@
   let diaAtivo = null;
 
   // Pivot horizontal genérico — liga separadores, faixa com scroll-snap, e pontos.
+  // Navegação persistente do PT — 4 páginas, em vez de scroll de cartões soltos
+  function mostrarPaginaPT(nome){
+    document.querySelectorAll('#areaPT .pt-page').forEach(p => p.classList.toggle('active', p.id === 'pag' + nome.charAt(0).toUpperCase() + nome.slice(1)));
+    document.querySelectorAll('.pt-nav-btn').forEach(b => b.classList.toggle('active', b.dataset.pagina === nome));
+    window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
+  }
+  document.querySelectorAll('.pt-nav-btn').forEach(btn => {
+    btn.addEventListener('click', () => mostrarPaginaPT(btn.dataset.pagina));
+  });
+
   function initPivot(tabsId, trackId, dotsId){
     const tabsEl = $(tabsId), trackEl = $(trackId), dotsEl = $(dotsId);
     if (!tabsEl || !trackEl) return;
