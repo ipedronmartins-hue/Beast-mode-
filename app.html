@@ -280,8 +280,16 @@
 
     <div class="card" style="max-width:440px;">
       <p class="tiny">Os teus ganhos</p>
-      <h3 style="font-size:20px;font-weight:800;margin-top:4px;">14,90€ por atleta ativo, todos os meses</h3>
-      <p class="muted" style="margin-top:6px;">O atleta paga a subscrição, tu recebes uma parte fixa sem depender do que ele escolher.</p>
+      <h3 style="font-size:20px;font-weight:800;margin-top:4px;">Defines o preço. Nós ficamos com 15€.</h3>
+      <p class="muted" style="margin-top:6px;" id="ptPrecoResumo">A carregar…</p>
+
+      <div id="ptPrecoForm" class="hidden" style="margin-top:12px;display:flex;gap:8px;">
+        <input type="text" inputmode="decimal" id="ptPrecoInput" placeholder="ex: 39.90" style="flex:1;" />
+        <button class="ghost" id="btnGuardarPreco" style="flex-shrink:0;">Guardar</button>
+      </div>
+      <button class="ghost" id="btnEditarPreco" style="margin-top:10px;width:100%;">Mudar preço</button>
+      <p class="err hidden" id="errPreco" style="margin-top:8px;"></p>
+
       <div style="display:flex;gap:10px;margin-top:18px;border-top:1px solid var(--border);padding-top:16px;">
         <div style="text-align:center;flex:1;"><div class="stat-num" style="color:var(--warning);" id="ptGanhosPendente">—</div><div class="stat-label">Pendente</div></div>
         <div style="text-align:center;flex:1;"><div class="stat-num" style="color:var(--success);" id="ptGanhosPago">—</div><div class="stat-label">Já pago</div></div>
@@ -678,13 +686,13 @@
       $('bloqueadoTexto').textContent = MSG_BLOQUEIO[pessoa.estado] ?? 'Sem acesso de momento.';
 
       if (pessoa.estado === 'pendente'){
-        const { data: config } = await sb.from('configuracoes')
-          .select('chave, valor, valor_texto').in('chave', ['preco_atleta_mensal', 'mbway_contacto']);
-        const preco = config?.find(c => c.chave === 'preco_atleta_mensal')?.valor;
-        const contacto = config?.find(c => c.chave === 'mbway_contacto')?.valor_texto;
+        const [{ data: preco }, { data: contactoRows }] = await Promise.all([
+          sb.rpc('bm_meu_preco'),
+          sb.from('configuracoes').select('valor_texto').eq('chave', 'mbway_contacto').maybeSingle()
+        ]);
         if (preco){
           $('pagamentoValor').textContent = Number(preco).toFixed(2) + '€ / mês';
-          $('pagamentoContacto').textContent = contacto || '—';
+          $('pagamentoContacto').textContent = contactoRows?.valor_texto || '—';
           show('cardPagamentoInfo');
         }
       }
@@ -755,6 +763,8 @@
 
   let clienteEmAvaliacao = null;
 
+  const MARGEM_BEAST = 15.00;
+
   async function carregarResumoPT(){
     const { data } = await sb.rpc('bm_pt_resumo');
     const r = data?.[0];
@@ -762,7 +772,38 @@
     $('resAtivos').textContent = r.atletas_ativos;
     $('resInativos').textContent = r.atletas_inativos;
     $('resAdesao').textContent = r.adesao_pct + '%';
+    if (r.preco_atual != null){
+      const preco = Number(r.preco_atual);
+      $('ptPrecoResumo').innerHTML =
+        `O teu atleta paga <b>${preco.toFixed(2)}€</b>/mês. Tu ficas com <b style="color:var(--primary);">${(preco - MARGEM_BEAST).toFixed(2)}€</b>.`;
+      $('ptPrecoInput').value = preco.toFixed(2);
+    }
   }
+
+  $('btnEditarPreco')?.addEventListener('click', () => {
+    $('ptPrecoForm').classList.toggle('hidden');
+  });
+
+  $('btnGuardarPreco')?.addEventListener('click', async () => {
+    hide('errPreco');
+    const novoPreco = parseFloat($('ptPrecoInput').value);
+    if (!novoPreco || novoPreco < 29.90){
+      $('errPreco').textContent = 'O preço mínimo é 29,90€.';
+      show('errPreco');
+      return;
+    }
+    $('btnGuardarPreco').disabled = true;
+    const { error } = await sb.rpc('bm_definir_preco', { p_preco: novoPreco });
+    $('btnGuardarPreco').disabled = false;
+    if (error){
+      $('errPreco').textContent = 'Não foi possível guardar: ' + error.message;
+      show('errPreco');
+      return;
+    }
+    $('ptPrecoForm').classList.add('hidden');
+    mostrarToast('Preço atualizado');
+    await carregarResumoPT();
+  });
 
   async function carregarLinkCadastro(){
     const { data: codigo } = await sb.rpc('bm_meu_codigo_convite');
@@ -1659,6 +1700,7 @@
           <span class="chip ${ESTADO_CHIP[a.estado] ?? ''}">${a.estado === 'pendente' ? 'Por pagar' : a.estado}</span>
           <span class="chip ${a.conta_ativa ? 'chip-ok' : 'chip-warn'}">${a.conta_ativa ? 'Conta reclamada' : 'Convite pendente'}</span>
           <span class="chip ${a.tem_plano ? 'chip-ok' : 'chip-warn'}">${a.tem_plano ? 'Plano ativo' : 'Sem plano'}</span>
+          ${a.preco_pt != null ? `<span class="chip">${Number(a.preco_pt).toFixed(2)}€/mês</span>` : ''}
         </div>
         <div class="client-actions">${acoesAtleta(a.pessoa_id, a.estado)}</div>
       </div>`;
