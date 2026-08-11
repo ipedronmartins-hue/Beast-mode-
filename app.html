@@ -837,7 +837,7 @@
     if (!r) return;
     $('resAtivos').textContent = r.atletas_ativos;
     $('resInativos').textContent = r.atletas_inativos;
-    $('resAdesao').textContent = r.adesao_pct + '%';
+    $('resAdesao').textContent = r.adesao_pct == null ? '—' : r.adesao_pct + '%';
     if (r.preco_atual != null){
       const preco = Number(r.preco_atual);
       $('ptPrecoResumo').innerHTML =
@@ -1095,7 +1095,9 @@
         .order('criado_em', { ascending:false }).limit(1).maybeSingle();
       if ((medicoes && medicoes.length > 0) || aval?.peso_objetivo_kg){
         const pesoAtual = medicoes?.find(m => m.tipo === 'peso_kg');
-        let linhas = (medicoes || []).map(m => `<div class="ex-row"><b>${MEDICAO_LABEL[m.tipo] ?? m.tipo}</b><span>${m.valor}</span></div>`).join('');
+        let linhas = (medicoes || []).map(m =>
+          `<div class="ex-row"><b>${MEDICAO_LABEL[m.tipo] ?? m.tipo}</b><span>${m.valor}${m.autodeclarado ? ' <span class="tiny" style="color:var(--text-tertiary);">(autodeclarado)</span>' : ''}</span></div>`
+        ).join('');
         if (aval?.peso_objetivo_kg){
           linhas += `<div class="ex-row"><b>Peso objetivo</b><span>${aval.peso_objetivo_kg} kg</span></div>`;
           if (pesoAtual){
