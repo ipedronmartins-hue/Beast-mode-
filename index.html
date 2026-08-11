@@ -109,8 +109,9 @@
   .steps{max-width:1152px; margin:0 auto; padding:72px 24px; display:grid; grid-template-columns:repeat(3,1fr); gap:16px;}
   @media (max-width:800px){ .steps{grid-template-columns:1fr;} }
   .step{display:flex; flex-direction:column; gap:10px;}
-  .step-num{width:32px; height:32px; border-radius:999px; background:var(--bg-surface); border:1px solid var(--border);
-    display:flex; align-items:center; justify-content:center; font-weight:800; font-size:var(--fs-corpo); color:var(--primary);}
+  .step-num{width:40px; height:40px; border-radius:999px; background:var(--bg-surface); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; color:var(--primary);}
+  .step-num svg{width:19px; height:19px;}
   .step h3{font-size:24px; font-weight:700;}
   .step p{margin:0; font-size:var(--fs-corpo); line-height:1.55; color:var(--text-secondary); font-weight:400;}
 
@@ -125,21 +126,23 @@
 
   .spec-list{max-width:760px; margin:0 auto; padding:72px 24px;}
   .spec-list > .section-label{margin-bottom:8px;}
-  .spec-row{display:grid; grid-template-columns:96px 1fr; gap:20px; padding:24px 0; border-top:1px solid var(--border);
-    transition:padding-left .25s ease;}
+  .spec-row{display:grid; grid-template-columns:56px 1fr; gap:20px; padding:24px 0; border-top:1px solid var(--border);
+    transition:padding-left .25s ease; align-items:start;}
   .spec-row:hover{padding-left:8px;}
   .spec-row:last-child{border-bottom:1px solid var(--border);}
-  @media (max-width:560px){ .spec-row{grid-template-columns:1fr; gap:6px;} }
-  .spec-tag{font-size:var(--fs-legenda); font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--tertiary); padding-top:2px;}
+  @media (max-width:560px){ .spec-row{grid-template-columns:1fr; gap:10px;} .spec-icon{margin-bottom:2px;} }
+  .spec-icon{width:44px; height:44px; border-radius:999px; background:var(--bg-surface); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; color:var(--tertiary); flex-shrink:0;}
+  .spec-icon svg{width:20px; height:20px;}
   .spec-row h3{font-size:24px; font-weight:700; margin-bottom:6px;}
   .spec-row p{margin:0; font-size:var(--fs-corpo); line-height:1.6; color:var(--text-secondary); font-weight:400; max-width:480px;}
 
   .diff-list{max-width:640px; margin:0 auto; padding:0 24px 72px;}
-  .diff-row{display:flex; gap:14px; align-items:flex-start; padding:18px 0; border-top:1px solid var(--border);}
+  .diff-row{display:flex; gap:16px; align-items:center; padding:18px 0; border-top:1px solid var(--border);}
   .diff-row:last-child{border-bottom:1px solid var(--border);}
-  .diff-icon{font-size:16px; flex-shrink:0; width:20px; text-align:center; padding-top:1px;}
-  .diff-icon.plus{color:var(--primary);}
-  .diff-icon.minus{color:var(--text-tertiary);}
+  .diff-icon{width:38px; height:38px; border-radius:999px; background:var(--bg-surface); border:1px solid var(--border);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--primary);}
+  .diff-icon svg{width:18px; height:18px;}
   .diff-row p{margin:0; font-family:var(--font-display); font-size:22px; font-weight:700; color:var(--text-primary); line-height:1.15;}
 
   .site-footer{max-width:1152px; margin:0 auto; padding:0 24px 40px; text-align:center;}
@@ -249,17 +252,23 @@
 <p class="section-label reveal" id="como-funciona">Como funciona</p>
 <section class="steps">
   <div class="step reveal">
-    <div class="step-num">1</div>
+    <div class="step-num">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h6"/></svg>
+    </div>
     <h3>Avalias o atleta</h3>
     <p>Objetivo, nível, lesões, equipamento real, modalidades. Por seleção, sem texto livre a perder-se.</p>
   </div>
   <div class="step reveal" style="transition-delay:100ms;">
-    <div class="step-num">2</div>
+    <div class="step-num">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg>
+    </div>
     <h3>O motor sugere, tu decides</h3>
     <p>Cruza a avaliação com a biblioteca de exercícios e propõe um plano. Revês, editas, só publicas quando aprovares.</p>
   </div>
   <div class="step reveal" style="transition-delay:200ms;">
-    <div class="step-num">3</div>
+    <div class="step-num">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
+    </div>
     <h3>O atleta executa, tu acompanhas</h3>
     <p>Vê o treino do dia, regista carga, reps e RPE série a série, dá feedback. Tu vês tudo e ajustas quando fizer sentido.</p>
   </div>
@@ -280,15 +289,21 @@
 <p class="section-label reveal" style="margin-top:64px;">Porque é diferente</p>
 <section class="diff-list">
   <div class="diff-row reveal">
-    <span class="diff-icon plus">✦</span>
+    <div class="diff-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    </div>
     <p>Determinístico — mesma avaliação, mesmo plano. Nunca uma caixa preta.</p>
   </div>
   <div class="diff-row reveal" style="transition-delay:80ms;">
-    <span class="diff-icon minus">—</span>
+    <div class="diff-icon" style="color:var(--tertiary);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </div>
     <p>O histórico é do atleta. Muda de PT, o registo continua com ele.</p>
   </div>
   <div class="diff-row reveal" style="transition-delay:160ms;">
-    <span class="diff-icon minus">—</span>
+    <div class="diff-icon" style="color:var(--tertiary);">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    </div>
     <p>Segurança ao nível da base de dados (RLS), não só da interface.</p>
   </div>
 </section>
@@ -296,28 +311,36 @@
 <section class="spec-list">
   <p class="section-label reveal">O que o motor faz</p>
   <div class="spec-row reveal">
-    <span class="spec-tag">Avaliação</span>
+    <div class="spec-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h6"/></svg>
+    </div>
     <div>
       <h3>Anamnese completa</h3>
       <p>Objetivo, nível, lesões, equipamento, modalidades e contexto — tudo o que o motor precisa para decidir bem.</p>
     </div>
   </div>
   <div class="spec-row reveal" style="transition-delay:80ms;">
-    <span class="spec-tag">Motor</span>
+    <div class="spec-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg>
+    </div>
     <div>
       <h3>Prescrição determinística</h3>
       <p>Força, corrida, WODs em casa. Cruza objetivo, nível, dias e equipamento real disponível. Editável antes de publicar.</p>
     </div>
   </div>
   <div class="spec-row reveal" style="transition-delay:160ms;">
-    <span class="spec-tag">Atleta</span>
+    <div class="spec-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    </div>
     <div>
       <h3>Área do atleta</h3>
       <p>Entra por link mágico, vê o treino do dia, regista cargas, reps e feedback — mobile first, sem fricção.</p>
     </div>
   </div>
   <div class="spec-row reveal" style="transition-delay:240ms;">
-    <span class="spec-tag">Ciclo</span>
+    <div class="spec-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+    </div>
     <div>
       <h3>Periodização real</h3>
       <p>Mesociclos de 4 semanas com progressão automática, medidas corporais e reavaliação a cada 12 semanas.</p>
