@@ -69,7 +69,15 @@
   select{width:100%;border-radius:14px;border:1px solid var(--border);background:var(--bg-raised);
     color:var(--text-primary);padding:13px 16px;font-size:15px;outline:none;}
   select:focus{border-color:var(--primary);}
-  .dia-plano{border:1px solid var(--border);border-radius:16px;padding:16px;}
+  .dia-plano{border:1px solid var(--border);border-radius:16px;padding:18px;}
+  .dia-plano h4{font-family:var(--font-display);font-size:22px;font-weight:700;letter-spacing:0;margin-bottom:2px;}
+  .ex-item{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--border);}
+  .ex-item:first-of-type{border-top:none;margin-top:12px;padding-top:0;}
+  .ex-num{width:26px;height:26px;border-radius:999px;background:var(--bg-raised);color:var(--text-tertiary);
+    display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;flex-shrink:0;}
+  .ex-item-nome{flex:1;min-width:0;font-weight:600;font-size:14px;}
+  .ex-item-sets{font-size:12px;color:var(--primary);font-weight:700;flex-shrink:0;background:var(--primary-muted);
+    padding:5px 12px;border-radius:999px;}
   .dia-plano h4{font-size:14px;font-weight:700;margin-bottom:8px;}
   .ex-row{display:flex;justify-content:space-between;font-size:13px;color:var(--text-secondary);padding:5px 0;}
   .ex-row b{color:var(--text-primary);font-weight:500;}
@@ -95,7 +103,19 @@
   .client-chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px;}
   .client-actions{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px;}
   .client-actions .ghost{width:100%;padding:10px 10px;}
-  .client-actions .ghost:last-child:nth-child(odd){grid-column:1 / -1;}
+  .client-actions .btn{width:100%;padding:10px 10px;margin-top:0;}
+  .icon-actions{display:flex;gap:8px;margin-top:8px;}
+  .icon-btn{width:38px;height:38px;flex-shrink:0;border-radius:999px;border:1px solid var(--border);
+    background:var(--bg-surface);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;
+    cursor:pointer;transition:border-color .15s,color .15s,transform .1s;}
+  .icon-btn:active{transform:scale(0.92);}
+  .icon-btn:hover{border-color:var(--primary);color:var(--primary);}
+  .icon-btn svg{width:16px;height:16px;}
+
+  details.add-athlete summary{cursor:pointer;list-style:none;font-size:14px;font-weight:700;color:var(--primary);
+    padding:12px 0;-webkit-tap-highlight-color:transparent;}
+  details.add-athlete summary::-webkit-details-marker{display:none;}
+  details.add-athlete summary::marker{content:'';}
 
   .set-row{display:grid;grid-template-columns:22px 1fr 1fr 1fr;gap:8px;align-items:center;}
   .set-num{font-family:'Inter',sans-serif;font-weight:700;font-size:12px;color:var(--text-tertiary);text-align:center;}
@@ -370,31 +390,38 @@
     </div>
 
     <div class="pt-page" id="pagAtletas" data-pagina="atletas">
-    <div class="card" style="margin-top:18px;max-width:440px;">
-      <p class="tiny">Link de cadastro</p>
-      <p class="muted" style="margin-top:4px;">Partilha isto — quem entrar fica automaticamente ligado a ti, sem precisares de saber o email antes.</p>
-      <div style="display:flex;gap:8px;margin-top:12px;">
-        <input type="text" id="linkCadastro" readonly style="flex:1;font-size:12px;" />
-        <button class="ghost" id="btnCopiarLink" style="flex-shrink:0;">Copiar</button>
-      </div>
+    <div class="pt-hero" style="padding-bottom:0;">
+      <h1 style="font-size:26px;">Os teus atletas</h1>
     </div>
-    <div class="card" style="margin-top:18px;max-width:440px;">
-      <form id="fConvidar">
-        <label for="emailCliente">Convidar atleta (email)</label>
-        <input type="text" id="emailCliente" placeholder="cliente@exemplo.com" required />
-        <label for="nomeCliente" style="margin-top:12px;">Nome (opcional)</label>
-        <input type="text" id="nomeCliente" placeholder="Nome do atleta" />
-        <button class="btn" type="submit" id="btnConvidar">Convidar</button>
-        <p class="err hidden" id="errConvidar"></p>
-        <p class="tiny" id="okConvidar" style="margin-top:10px;color:var(--success);display:none;">Cliente associado. Já pode entrar com o email dele.</p>
-      </form>
-    </div>
-    <p class="section-title">Os teus atletas</p>
     <div id="listaClientes"></div>
     <div class="empty hidden" id="semClientes">
       <p style="margin:0;font-weight:500;">Ainda sem atletas</p>
-      <p class="muted" style="margin:8px 0 0;">Convida o primeiro atleta pelo email acima.</p>
+      <p class="muted" style="margin:8px 0 0;">Adiciona o primeiro logo abaixo.</p>
     </div>
+
+    <details class="add-athlete" style="margin-top:20px;max-width:440px;">
+      <summary>+ Adicionar atleta</summary>
+      <div class="card" style="margin-top:10px;">
+        <p class="tiny">Link de cadastro</p>
+        <p class="muted" style="margin-top:4px;">Partilha isto — quem entrar fica automaticamente ligado a ti.</p>
+        <div style="display:flex;gap:8px;margin-top:10px;">
+          <input type="text" id="linkCadastro" readonly style="flex:1;font-size:12px;" />
+          <button class="ghost" id="btnCopiarLink" style="flex-shrink:0;">Copiar</button>
+        </div>
+        <div style="border-top:1px solid var(--border);margin-top:16px;padding-top:16px;">
+          <form id="fConvidar">
+            <label for="emailCliente">Ou convida por email</label>
+            <input type="text" id="emailCliente" placeholder="cliente@exemplo.com" required />
+            <label for="nomeCliente" style="margin-top:12px;">Nome (opcional)</label>
+            <input type="text" id="nomeCliente" placeholder="Nome do atleta" />
+            <button class="btn" type="submit" id="btnConvidar">Convidar</button>
+            <p class="err hidden" id="errConvidar"></p>
+            <p class="tiny" id="okConvidar" style="margin-top:10px;color:var(--success);display:none;">Cliente associado. Já pode entrar com o email dele.</p>
+          </form>
+        </div>
+      </div>
+    </details>
+
     <div class="card hidden" id="cardAvaliacao" style="margin-top:20px;max-width:520px;">
       <h3 style="font-size:16px;font-weight:600;">Anamnese e Perfil do Atleta — <span id="avNomeCliente"></span></h3>
       <form id="fAvaliacao" style="margin-top:14px;">
@@ -535,6 +562,23 @@
         <p class="muted" style="margin:8px 0 0;">Assim que o atleta treinar, aparece aqui.</p>
       </div>
       <button class="ghost" id="btnFecharHistorico" style="margin-top:12px;width:100%;">Fechar</button>
+    </div>
+
+    <div class="card hidden" id="cardVerAtleta" style="margin-top:20px;max-width:560px;">
+      <span class="chip chip-warn">Pré-visualização · só leitura</span>
+      <h3 style="font-size:20px;font-weight:800;margin-top:10px;">A ver como — <span id="vaNomeCliente"></span></h3>
+      <p class="tiny" id="vaObjetivo" style="margin-top:4px;"></p>
+
+      <p class="tiny" style="margin-top:22px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-tertiary);">Plano ativo</p>
+      <div id="vaPlano" style="margin-top:10px;display:flex;flex-direction:column;gap:12px;"></div>
+
+      <p class="tiny" style="margin-top:22px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-tertiary);">Medidas</p>
+      <div id="vaMedicoes" style="margin-top:10px;"></div>
+
+      <p class="tiny" style="margin-top:22px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--text-tertiary);">Evolução recente</p>
+      <div id="vaEvolucao" style="margin-top:10px;display:flex;flex-direction:column;gap:12px;"></div>
+
+      <button class="ghost" id="btnFecharVerAtleta" style="margin-top:20px;width:100%;">Fechar</button>
     </div>
     </div>
 
@@ -983,14 +1027,29 @@
           <span class="chip ${planoAtivo ? 'chip-ok' : 'chip-warn'}">${planoAtivo ? 'Plano ativo' : 'Sem plano'}</span>
         </div>
         <div class="client-actions">
-          <button class="ghost" data-avaliar="${c?.id}" data-nome="${c?.nome ?? c?.email}">Avaliar</button>
-          <button class="ghost" data-medir="${c?.id}" data-nome="${c?.nome ?? c?.email}">Medições</button>
+          <button class="btn" data-avaliar="${c?.id}" data-nome="${c?.nome ?? c?.email}">Avaliar</button>
           <button class="ghost" data-gerar="${c?.id}" data-nome="${c?.nome ?? c?.email}">Gerar plano</button>
-          <button class="ghost" data-reenviar="${c?.email ?? ''}">Reenviar convite</button>
-          <button class="ghost" data-historico="${c?.id}" data-nome="${c?.nome ?? c?.email}">Histórico</button>
+        </div>
+        <div class="icon-actions">
+          <button class="icon-btn" title="Ver como atleta" data-vercomo="${c?.id}" data-nome="${c?.nome ?? c?.email}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+          <button class="icon-btn" title="Medições" data-medir="${c?.id}" data-nome="${c?.nome ?? c?.email}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>
+          </button>
+          <button class="icon-btn" title="Histórico" data-historico="${c?.id}" data-nome="${c?.nome ?? c?.email}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </button>
+          <button class="icon-btn" title="Reenviar convite" data-reenviar="${c?.email ?? ''}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2 11 13"/><path d="M22 2 15 22l-4-9-9-4 20-7z"/></svg>
+          </button>
         </div>
       </div>`;
     }).join('');
+
+    lista.querySelectorAll('[data-vercomo]').forEach(btn => {
+      btn.addEventListener('click', () => abrirVerComoAtleta(btn.dataset.vercomo, btn.dataset.nome));
+    });
 
     lista.querySelectorAll('[data-historico]').forEach(btn => {
       btn.addEventListener('click', () => abrirHistorico(btn.dataset.historico, btn.dataset.nome));
@@ -1268,6 +1327,53 @@
     gordura_pct:'Gordura (%)', massa_muscular_kg:'Massa muscular (kg)'
   };
 
+  // "Ver como atleta" — pré-visualização só de leitura para o PT/admin, reaproveita
+  // as mesmas consultas do lado do atleta (as RPCs já permitem o PT ler os seus próprios
+  // atletas). Sem formulários, sem "Iniciar treino" — não altera nada em nome do atleta.
+  async function abrirVerComoAtleta(atletaId, nome){
+    $('vaNomeCliente').textContent = nome;
+    $('vaObjetivo').textContent = 'A carregar…';
+    $('vaPlano').innerHTML = '';
+    $('vaMedicoes').innerHTML = '';
+    $('vaEvolucao').innerHTML = '';
+    show('cardVerAtleta');
+    $('cardVerAtleta').scrollIntoView({ behavior:'smooth', block:'start' });
+
+    const { data: obj } = await sb.from('objetivos_cliente')
+      .select('objetivo').eq('cliente_id', atletaId).is('ativo_ate', null)
+      .order('ativo_desde', { ascending:false }).limit(1).maybeSingle();
+    $('vaObjetivo').textContent = obj ? 'Objetivo: ' + (OBJETIVO_LABEL[obj.objetivo] ?? obj.objetivo) : 'Sem objetivo definido ainda.';
+
+    const { data: plano } = await sb.from('planos')
+      .select('*').eq('cliente_id', atletaId).eq('estado', 'publicado')
+      .order('publicado_em', { ascending:false }).limit(1).maybeSingle();
+    if (plano){
+      const meso = calcularMesociclo(plano.publicado_em);
+      $('vaPlano').innerHTML =
+        `<p class="tiny">Semana ${meso.semanaTotal} · ${meso.label}</p>` +
+        plano.conteudo.dias.map(dia => renderDia(dia, meso)).join('');
+    } else {
+      $('vaPlano').innerHTML = '<p class="tiny">Sem plano publicado.</p>';
+    }
+
+    const { data: medicoes } = await sb.rpc('bm_ultimas_medicoes', { p_cliente_id: atletaId });
+    $('vaMedicoes').innerHTML = (medicoes && medicoes.length > 0)
+      ? medicoes.map(m => `<div class="ex-row"><b>${MEDICAO_LABEL[m.tipo] ?? m.tipo}</b><span>${m.valor}${m.autodeclarado ? ' <span class="tiny" style="color:var(--text-tertiary);">(autodeclarado)</span>' : ''}</span></div>`).join('')
+      : '<p class="tiny">Sem medições registadas.</p>';
+
+    const { data: sessoes } = await sb.rpc('bm_sessoes_cliente', { p_cliente_id: atletaId, p_limite: 5 });
+    if (sessoes && sessoes.length > 0){
+      $('vaEvolucao').innerHTML = sessoes.map(s => `
+        <div class="sess-row">
+          <h4>${s.dia_plano}</h4>
+          <p class="sess-meta">${new Date(s.iniciada_em).toLocaleDateString('pt-PT')} · ${s.concluida_em ? 'concluída' : 'em curso'} · ${s.num_series} séries</p>
+        </div>`).join('');
+    } else {
+      $('vaEvolucao').innerHTML = '<p class="tiny">Ainda sem sessões.</p>';
+    }
+  }
+  $('btnFecharVerAtleta')?.addEventListener('click', () => hide('cardVerAtleta'));
+
   $('btnConsentir')?.addEventListener('click', async () => {
     $('btnConsentir').disabled = true;
     const { error } = await sb.rpc('bm_registar_consentimento', { p_tipo: 'dados_saude', p_concedido: true });
@@ -1327,8 +1433,12 @@
     const exercicios = meso ? dia.exercicios.map(ex => aplicarMesociclo(ex, meso)) : dia.exercicios;
     return `<div class="dia-plano">
       <h4>${dia.nome}</h4>
-      ${exercicios.map(ex => `
-        <div class="ex-row"><b>${ex.nome}</b><span>${ex.series}x${ex.reps_min}-${ex.reps_max}</span></div>
+      ${exercicios.map((ex, i) => `
+        <div class="ex-item">
+          <div class="ex-num">${i + 1}</div>
+          <div class="ex-item-nome">${ex.nome}</div>
+          <div class="ex-item-sets">${ex.series}×${ex.reps_min}-${ex.reps_max}</div>
+        </div>
       `).join('') || '<p class="tiny">Sem exercícios elegíveis (equipamento/limitações demasiado restritivos).</p>'}
     </div>`;
   }
