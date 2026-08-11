@@ -940,16 +940,32 @@
   $('fAvaliacao')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!clienteEmAvaliacao) return;
-    $('btnAvaliacao').disabled = true;
     hide('errAvaliacao');
+
+    const equipamento = lerPills('avEquipamento');
+    const limitacoes = lerPills('avLimitacoes');
+    if (equipamento.length === 0){
+      $('errAvaliacao').textContent = 'Falta selecionar equipamento — usa "Sem equipamento" se não houver nenhum.';
+      show('errAvaliacao');
+      $('avPivotTabs')?.querySelector('[data-panel="2"]')?.click();
+      return;
+    }
+    if (limitacoes.length === 0){
+      $('errAvaliacao').textContent = 'Falta selecionar lesões/limitações — usa "Nenhuma" se não houver.';
+      show('errAvaliacao');
+      $('avPivotTabs')?.querySelector('[data-panel="3"]')?.click();
+      return;
+    }
+
+    $('btnAvaliacao').disabled = true;
     const { error } = await sb.rpc('bm_criar_avaliacao', {
       p_cliente_id: clienteEmAvaliacao,
       p_objetivo: $('avObjetivo').value,
       p_nivel: $('avNivel').value,
       p_dias_disponiveis: parseInt($('avDias').value, 10),
       p_minutos_por_sessao: parseInt($('avMinutos').value, 10),
-      p_equipamento: lerPills('avEquipamento'),
-      p_limitacoes: lerPills('avLimitacoes'),
+      p_equipamento: equipamento,
+      p_limitacoes: limitacoes,
       p_notas_pt: $('avNotas').value.trim() || null,
       p_peso_objetivo_kg: $('avPesoObjetivo').value ? parseFloat($('avPesoObjetivo').value) : null,
       p_pratica_desporto: $('avPraticaDesporto').checked,
