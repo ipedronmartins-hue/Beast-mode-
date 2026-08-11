@@ -116,6 +116,10 @@
     padding:12px 0;-webkit-tap-highlight-color:transparent;}
   details.add-athlete summary::-webkit-details-marker{display:none;}
   details.add-athlete summary::marker{content:'';}
+  .serie-detalhe summary{cursor:pointer;list-style:none;font-size:12px;font-weight:700;color:var(--primary);
+    -webkit-tap-highlight-color:transparent;}
+  .serie-detalhe summary::-webkit-details-marker{display:none;}
+  .serie-detalhe summary::marker{content:'';}
 
   .set-row{display:grid;grid-template-columns:22px 1fr 1fr 1fr;gap:8px;align-items:center;}
   .set-num{font-family:'Inter',sans-serif;font-weight:700;font-size:12px;color:var(--text-tertiary);text-align:center;}
@@ -1367,7 +1371,12 @@
         <div class="sess-row">
           <h4>${s.dia_plano}</h4>
           <p class="sess-meta">${new Date(s.iniciada_em).toLocaleDateString('pt-PT')} · ${s.concluida_em ? 'concluída' : 'em curso'} · ${s.num_series} séries</p>
+          <details class="serie-detalhe" data-sessao="${s.sessao_id}" style="margin-top:10px;">
+            <summary>Ver séries registadas (carga, reps, RPE)</summary>
+            <div class="serie-conteudo" style="margin-top:8px;"><p class="tiny">A carregar…</p></div>
+          </details>
         </div>`).join('');
+      wireSerieDetalhes($('vaEvolucao'));
     } else {
       $('vaEvolucao').innerHTML = '<p class="tiny">Ainda sem sessões.</p>';
     }
@@ -1507,6 +1516,29 @@
 
   $('btnFecharMedicoes')?.addEventListener('click', () => hide('cardMedicoes'));
 
+  // Séries registadas (carga/reps/RPE) — carregadas só quando o <details> abre,
+  // não à cabeça, para não pedir dados a mais para sessões que ninguém vai ver.
+  function wireSerieDetalhes(container){
+    container.querySelectorAll('.serie-detalhe').forEach(det => {
+      det.addEventListener('toggle', async () => {
+        if (!det.open || det.dataset.loaded) return;
+        det.dataset.loaded = '1';
+        const conteudo = det.querySelector('.serie-conteudo');
+        const { data: regs } = await sb.rpc('bm_registos_sessao', { p_sessao_id: det.dataset.sessao });
+        if (!regs || regs.length === 0){
+          conteudo.innerHTML = '<p class="tiny">Sem séries registadas.</p>';
+          return;
+        }
+        const porExercicio = {};
+        regs.forEach(r => { (porExercicio[r.exercicio] = porExercicio[r.exercicio] || []).push(r); });
+        conteudo.innerHTML = Object.entries(porExercicio).map(([ex, sets]) => `
+          <p class="tiny" style="font-weight:700;color:var(--text-primary);margin-top:10px;">${ex}</p>
+          ${sets.map(s => `<div class="ex-row"><b>Série ${s.numero_serie}</b><span>${s.carga_kg ?? '—'}kg × ${s.repeticoes ?? '—'} reps · RPE ${s.rpe ?? '—'}</span></div>`).join('')}
+        `).join('');
+      });
+    });
+  }
+
   async function abrirHistorico(clienteId, nome){
     $('histNomeCliente').textContent = nome;
     $('histLista').innerHTML = '<p class="tiny">A carregar…</p>';
@@ -1545,6 +1577,10 @@
         <p class="sess-meta">${new Date(s.iniciada_em).toLocaleDateString('pt-PT')} · ${s.concluida_em ? 'concluída' : 'em curso'} · ${s.num_series} séries registadas</p>
         <div class="sess-feedback">${chips.join('') || '<span class="tiny">Sem feedback registado</span>'}</div>
         ${fb.observacoes ? `<p class="tiny" style="margin-top:8px;">"${fb.observacoes}"</p>` : ''}
+        <details class="serie-detalhe" data-sessao="${s.sessao_id}" style="margin-top:10px;">
+          <summary>Ver séries registadas (carga, reps, RPE)</summary>
+          <div class="serie-conteudo" style="margin-top:8px;"><p class="tiny">A carregar…</p></div>
+        </details>
         <div id="comentarios-${s.sessao_id}">
           ${meusComentarios.map(c => `<div class="comment-item"><b>Tu:</b> ${c.texto}</div>`).join('')}
         </div>
@@ -1554,6 +1590,8 @@
         </div>
       </div>`;
     }).join('');
+
+    wireSerieDetalhes($('histLista'));
 
     $('histLista').querySelectorAll('[data-comentar]').forEach(btn => {
       btn.addEventListener('click', async () => {
