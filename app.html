@@ -289,6 +289,28 @@
     </div>
 
     <div class="card" style="margin-top:18px;max-width:440px;">
+      <div style="display:flex;gap:10px;">
+        <div style="text-align:center;flex:1;"><div class="stat-num" style="color:var(--success);" id="resAtivos">—</div><div class="stat-label">Ativos</div></div>
+        <div style="text-align:center;flex:1;"><div class="stat-num" style="color:var(--text-tertiary);" id="resInativos">—</div><div class="stat-label">Inativos</div></div>
+        <div style="text-align:center;flex:1;"><div class="stat-num" style="color:var(--tertiary);" id="resAdesao">—</div><div class="stat-label">Treinaram (7d)</div></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:18px;max-width:440px;">
+      <p class="tiny">Link de cadastro</p>
+      <p class="muted" style="margin-top:4px;">Partilha isto — quem entrar fica automaticamente ligado a ti, sem precisares de saber o email antes.</p>
+      <div style="display:flex;gap:8px;margin-top:12px;">
+        <input type="text" id="linkCadastro" readonly style="flex:1;font-size:12px;" />
+        <button class="ghost" id="btnCopiarLink" style="flex-shrink:0;">Copiar</button>
+      </div>
+    </div>
+
+    <div class="card hidden" id="cardAtencao" style="margin-top:18px;max-width:440px;">
+      <p class="tiny">Precisam de atenção</p>
+      <div id="listaAtencao" style="margin-top:10px;display:flex;flex-direction:column;gap:8px;"></div>
+    </div>
+
+    <div class="card" style="margin-top:18px;max-width:440px;">
       <form id="fConvidar">
         <label for="emailCliente">Convidar atleta (email)</label>
         <input type="text" id="emailCliente" placeholder="cliente@exemplo.com" required />
@@ -615,7 +637,17 @@
     hide('loading');
 
     if (error){ alert('Erro a carregar o perfil.'); return; }
-    if (!pessoa){ show('onboarding'); return; }
+
+    const codigoConvite = new URLSearchParams(location.search).get('pt');
+    if (!pessoa){
+      if (codigoConvite) $('souPT').checked = false;
+      show('onboarding');
+      return;
+    }
+    if (codigoConvite){
+      await sb.rpc('bm_juntar_por_codigo', { p_codigo: codigoConvite });
+      history.replaceState({}, '', location.pathname);
+    }
 
     const { data: ehAdmin } = await sb.rpc('sou_admin');
     if (ehAdmin) await carregarAdmin();
@@ -632,6 +664,9 @@
       show('areaPT');
       await carregarClientes();
       await carregarGanhosPT(pessoa.id);
+      await carregarResumoPT();
+      await carregarLinkCadastro();
+      await carregarAtencao();
     } else if (pessoa.estado !== 'ativo') {
       show('areaCliente');
       show('cardBloqueado');
@@ -719,6 +754,43 @@
   }
 
   let clienteEmAvaliacao = null;
+
+  async function carregarResumoPT(){
+    const { data } = await sb.rpc('bm_pt_resumo');
+    const r = data?.[0];
+    if (!r) return;
+    $('resAtivos').textContent = r.atletas_ativos;
+    $('resInativos').textContent = r.atletas_inativos;
+    $('resAdesao').textContent = r.adesao_pct + '%';
+  }
+
+  async function carregarLinkCadastro(){
+    const { data: codigo } = await sb.rpc('bm_meu_codigo_convite');
+    if (!codigo) return;
+    $('linkCadastro').value = location.origin + '/juntar.html?pt=' + codigo;
+  }
+
+  $('btnCopiarLink')?.addEventListener('click', async () => {
+    $('linkCadastro').select();
+    try {
+      await navigator.clipboard.writeText($('linkCadastro').value);
+      mostrarToast('Link copiado');
+    } catch(e) {
+      document.execCommand('copy');
+      mostrarToast('Link copiado');
+    }
+  });
+
+  async function carregarAtencao(){
+    const { data } = await sb.rpc('bm_pt_atencao');
+    if (!data || data.length === 0){ hide('cardAtencao'); return; }
+    $('listaAtencao').innerHTML = data.map(a => `
+      <div class="row">
+        <span>${a.nome}</span>
+        <span class="chip chip-warn">${a.motivo}${a.dias != null ? ' · ' + a.dias + 'd' : ''}</span>
+      </div>`).join('');
+    show('cardAtencao');
+  }
 
   async function carregarGanhosPT(pessoaId){
     const { data: comissoes } = await sb.from('comissoes_pt').select('valor, estado').eq('pt_id', pessoaId);

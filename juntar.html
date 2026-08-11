@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<title>Juntar-te — Beast Mode</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    color-scheme: dark;
+    --bg:#000000; --bg-surface:#121212; --bg-raised:#1C1C1E;
+    --border:rgba(255,255,255,0.08);
+    --primary:#E8A93D; --primary-hover:#D6941F; --on-primary:#241300;
+    --tertiary:#6E9BFF;
+    --text-primary:#E2E2E6; --text-secondary:#90909A; --text-tertiary:#6B6B75;
+    --success:#66BB6A; --danger:#F2B8B5;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--bg);color:var(--text-primary);
+    font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased;}
+  h1{font-family:'Barlow Condensed',system-ui,sans-serif;font-weight:800;letter-spacing:0;margin:0;}
+  main{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:48px 24px;}
+  .wrap{width:100%;max-width:384px;}
+  .hero{display:flex;flex-direction:column;align-items:center;gap:20px;text-align:center;}
+  .barload{display:flex;align-items:center;gap:0;width:110px;}
+  .plates{display:flex;align-items:center;gap:3px;}
+  .plates.right{flex-direction:row-reverse;}
+  .plate{border-radius:2px;background:var(--primary);}
+  .plate.tertiary{background:var(--tertiary);}
+  .bar-line{flex:1;height:3px;background:var(--primary);margin:0 2px;min-width:14px;}
+  .card{margin-top:40px;border-radius:20px;background:var(--bg-surface);padding:24px;}
+  label{font-size:14px;font-weight:500;color:var(--text-secondary);display:block;margin-bottom:6px;}
+  input{width:100%;border-radius:14px;border:1px solid var(--border);background:var(--bg-raised);
+    color:var(--text-primary);padding:13px 16px;font-size:15px;outline:none;transition:border-color .15s;}
+  input::placeholder{color:var(--text-tertiary);}
+  input:focus{border-color:var(--primary);box-shadow:0 0 0 3px color-mix(in srgb, var(--primary) 20%, transparent);}
+  button{margin-top:16px;width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    border-radius:999px;border:none;background:var(--primary);color:var(--on-primary);
+    font-family:'Inter',sans-serif;font-weight:700;font-size:15px;padding:15px 24px;cursor:pointer;
+    transition:background-color .15s;}
+  button:hover{background:var(--primary-hover);}
+  button:disabled{opacity:.4;pointer-events:none;}
+  .msg{margin-top:14px;font-size:14px;display:none;}
+  .msg.ok{color:var(--success);display:block;}
+  .msg.err{color:var(--danger);display:block;}
+  .footnote{margin-top:24px;text-align:center;font-size:12px;color:var(--text-tertiary);}
+  .back{margin-top:18px;text-align:center;}
+  .back a{color:var(--text-tertiary);font-size:12px;}
+  .badge{border-radius:999px;border:1px solid var(--border);background:var(--bg-surface);
+    padding:6px 14px;font-size:12px;color:var(--text-secondary);}
+</style>
+</head>
+<body>
+<main>
+  <div class="wrap">
+    <div class="hero">
+      <div class="barload" aria-hidden="true">
+        <div class="plates">
+          <div class="plate tertiary" style="width:4px;height:14px;"></div>
+          <div class="plate" style="width:5px;height:22px;"></div>
+        </div>
+        <div class="bar-line"></div>
+        <div class="plates right">
+          <div class="plate tertiary" style="width:4px;height:14px;"></div>
+          <div class="plate" style="width:5px;height:22px;"></div>
+        </div>
+      </div>
+      <div>
+        <span class="badge">Convite de treinador</span>
+        <h1 style="font-size:34px;margin-top:14px;">Junta-te ao Beast Mode</h1>
+        <p style="margin:6px 0 0;font-size:14px;color:var(--text-secondary);">Entra com o teu email — ficas ligado ao teu treinador automaticamente.</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <form id="f">
+        <label for="email">Email</label>
+        <input id="email" type="email" placeholder="o-teu-email@exemplo.com" autocomplete="email" required />
+        <button type="submit" id="btn">Enviar link mágico</button>
+        <p class="msg" id="msg"></p>
+      </form>
+    </div>
+
+    <p class="footnote" id="semCodigo" style="display:none;color:var(--danger);">Este link parece incompleto — pede ao teu treinador para reenviar.</p>
+    <p class="footnote">Recebes um link por email. Ao clicares, entras diretamente.</p>
+    <div class="back"><a href="index.html">← Voltar</a></div>
+  </div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="config.js"></script>
+<script>
+  const sb = window.supabase.createClient(BM_CONFIG.SUPABASE_URL, BM_CONFIG.SUPABASE_ANON_KEY);
+  const f = document.getElementById('f'), btn = document.getElementById('btn'), msg = document.getElementById('msg');
+  const codigo = new URLSearchParams(location.search).get('pt');
+  if (!codigo) document.getElementById('semCodigo').style.display = 'block';
+
+  sb.auth.getSession().then(({data:{session}}) => {
+    if (session) location.href = 'app.html' + (codigo ? '?pt=' + encodeURIComponent(codigo) : '');
+  });
+
+  f.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!codigo){ return; }
+    btn.disabled = true; btn.textContent = 'A enviar…';
+    msg.className = 'msg';
+    const email = document.getElementById('email').value.trim();
+    const { error } = await sb.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: location.origin + '/app.html?pt=' + encodeURIComponent(codigo) }
+    });
+    if (error) {
+      msg.textContent = 'Não foi possível enviar o link. Tenta novamente.';
+      msg.className = 'msg err';
+      btn.disabled = false; btn.textContent = 'Enviar link mágico';
+    } else {
+      msg.textContent = 'Link enviado. Verifica o teu email.';
+      msg.className = 'msg ok';
+      btn.textContent = 'Enviado ✓';
+    }
+  });
+</script>
+</body>
+</html>
