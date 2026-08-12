@@ -883,7 +883,6 @@
     } else {
       show('saudacaoTopo');
       show('areaCliente');
-      show('cardClientePivot');
       await carregarAreaCliente(pessoa.id);
     }
 
@@ -1248,7 +1247,10 @@
     const { data: consentidoSaude } = await sb.rpc('tem_consentimento', { p_pessoa: pessoaId, p_tipo: 'dados_saude' });
     if (!consentidoSaude){
       show('cardConsentimento');
-    } else {
+      return;
+    }
+    show('cardClientePivot');
+    {
       const { data: obj } = await sb.from('objetivos_cliente')
         .select('objetivo').eq('cliente_id', pessoaId).is('ativo_ate', null)
         .order('ativo_desde', { ascending:false }).limit(1).maybeSingle();
@@ -1468,6 +1470,8 @@
     const { error } = await sb.rpc('bm_registar_consentimento', { p_tipo: 'dados_saude', p_concedido: true });
     if (error){ alert('Não foi possível registar o consentimento: ' + error.message); $('btnConsentir').disabled = false; return; }
     hide('cardConsentimento');
+    $('btnConsentir').disabled = false;
+    if (pessoaIdAtual) await carregarAreaCliente(pessoaIdAtual);
   });
 
   function formatarData(iso){
