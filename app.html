@@ -1447,9 +1447,12 @@
   }
 
   function renderDia(dia, meso){
+    const titulo = dia.nome_exibicao || dia.nome;
+    const subtitulo = dia.subtitulo ? `<p class="tiny" style="margin-top:-2px;margin-bottom:2px;">${dia.subtitulo}</p>` : '';
     if (dia.tipo === 'corrida'){
       return `<div class="dia-plano">
-        <h4>${dia.nome} <span class="badge">${dia.formato}</span></h4>
+        <h4>${titulo} <span class="badge">${dia.formato}</span></h4>
+        ${subtitulo}
         <div class="ex-row"><b>Duração</b><span>${dia.duracao_min} min</span></div>
         <div class="ex-row"><b>Local</b><span>${dia.local}</span></div>
         ${dia.descricao ? `<p class="tiny" style="margin-top:8px;">${dia.descricao}</p>` : ''}
@@ -1457,14 +1460,16 @@
     }
     if (dia.tipo === 'estimulo'){
       return `<div class="dia-plano">
-        <h4>${dia.nome} <span class="badge">${dia.wod_formato}</span></h4>
+        <h4>${titulo} <span class="badge">${dia.wod_formato}</span></h4>
+        ${subtitulo}
         <p style="font-weight:700;font-size:13px;color:var(--text-primary);">${dia.wod_nome}</p>
         <p class="tiny" style="margin-top:4px;">${dia.wod_descricao}</p>
       </div>`;
     }
     const exercicios = meso ? dia.exercicios.map(ex => aplicarMesociclo(ex, meso)) : dia.exercicios;
     return `<div class="dia-plano">
-      <h4>${dia.nome}</h4>
+      <h4>${titulo}</h4>
+      ${subtitulo}
       ${exercicios.map((ex, i) => `
         <div class="ex-item">
           <div class="ex-num">${i + 1}</div>
@@ -1810,7 +1815,7 @@
     if (error){ alert('Não foi possível iniciar o treino: ' + error.message); return; }
     sessaoAtiva = sessaoId;
 
-    $('sessaoDiaNome').textContent = 'Sessão: ' + dia.nome;
+    $('sessaoDiaNome').textContent = dia.nome_exibicao || dia.nome;
     $('sessaoMesoLabel').textContent = `Semana ${meso.semanaTotal} · ${meso.label}`;
     if (dia.tipo === 'forca'){
       $('sessaoExercicios').innerHTML = dia.exercicios.map((ex, ei) => `
