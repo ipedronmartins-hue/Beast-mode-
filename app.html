@@ -78,7 +78,12 @@
   .ex-item-nome{flex:1;min-width:0;font-weight:600;font-size:14px;}
   .ex-item-sets{font-size:12px;color:var(--primary);font-weight:700;flex-shrink:0;background:var(--primary-muted);
     padding:5px 12px;border-radius:999px;}
-  .dia-plano h4{font-size:14px;font-weight:700;margin-bottom:8px;}
+  .fase-bloco{margin-top:14px;}
+  .fase-bloco:first-of-type{margin-top:12px;}
+  .fase-titulo{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;
+    color:var(--text-tertiary);margin-bottom:2px;}
+  .fase-bloco-leve{opacity:.75;}
+  .fase-bloco-leve .fase-titulo{color:var(--tertiary);}
   .ex-row{display:flex;justify-content:space-between;font-size:13px;color:var(--text-secondary);padding:5px 0;}
   .ex-row b{color:var(--text-primary);font-weight:500;}
   #loading{display:flex;min-height:60dvh;align-items:center;justify-content:center;color:var(--text-tertiary);}
@@ -1507,6 +1512,21 @@
     };
   }
 
+  const FASE_LABEL = { principal: 'Trabalho principal', acessorio: 'Acessório', core: 'Core' };
+
+  function blocoAquecimento(texto){
+    return `<div class="fase-bloco fase-bloco-leve">
+      <p class="fase-titulo">Aquecimento</p>
+      <p class="tiny">${texto}</p>
+    </div>`;
+  }
+  function blocoArrefecimento(texto){
+    return `<div class="fase-bloco fase-bloco-leve">
+      <p class="fase-titulo">Arrefecimento</p>
+      <p class="tiny">${texto}</p>
+    </div>`;
+  }
+
   function renderDia(dia, meso){
     const titulo = dia.nome_exibicao || dia.nome;
     const subtitulo = dia.subtitulo ? `<p class="tiny" style="margin-top:-2px;margin-bottom:2px;">${dia.subtitulo}</p>` : '';
@@ -1514,30 +1534,62 @@
       return `<div class="dia-plano">
         <h4>${titulo} <span class="badge">${dia.formato}</span></h4>
         ${subtitulo}
-        <div class="ex-row"><b>Duração</b><span>${dia.duracao_min} min</span></div>
-        <div class="ex-row"><b>Local</b><span>${dia.local}</span></div>
-        ${dia.descricao ? `<p class="tiny" style="margin-top:8px;">${dia.descricao}</p>` : ''}
+        ${dia.aquecimento ? blocoAquecimento(dia.aquecimento) : ''}
+        <div class="fase-bloco">
+          <p class="fase-titulo">Treino</p>
+          <div class="ex-row"><b>Duração</b><span>${dia.duracao_min} min</span></div>
+          <div class="ex-row"><b>Local</b><span>${dia.local}</span></div>
+          ${dia.descricao ? `<p class="tiny" style="margin-top:8px;">${dia.descricao}</p>` : ''}
+        </div>
+        ${dia.arrefecimento ? blocoArrefecimento(dia.arrefecimento) : ''}
       </div>`;
     }
     if (dia.tipo === 'estimulo'){
       return `<div class="dia-plano">
         <h4>${titulo} <span class="badge">${dia.wod_formato}</span></h4>
         ${subtitulo}
-        <p style="font-weight:700;font-size:13px;color:var(--text-primary);">${dia.wod_nome}</p>
-        <p class="tiny" style="margin-top:4px;">${dia.wod_descricao}</p>
+        ${dia.aquecimento ? blocoAquecimento(dia.aquecimento) : ''}
+        <div class="fase-bloco">
+          <p class="fase-titulo">WOD</p>
+          <p style="font-weight:700;font-size:13px;color:var(--text-primary);">${dia.wod_nome}</p>
+          <p class="tiny" style="margin-top:4px;">${dia.wod_descricao}</p>
+        </div>
+        ${dia.arrefecimento ? blocoArrefecimento(dia.arrefecimento) : ''}
       </div>`;
     }
+
     const exercicios = meso ? dia.exercicios.map(ex => aplicarMesociclo(ex, meso)) : dia.exercicios;
-    return `<div class="dia-plano">
-      <h4>${titulo}</h4>
-      ${subtitulo}
-      ${exercicios.map((ex, i) => `
+    if (exercicios.length === 0){
+      return `<div class="dia-plano"><h4>${titulo}</h4>${subtitulo}
+        <p class="tiny">Sem exercícios elegíveis (equipamento/limitações demasiado restritivos).</p></div>`;
+    }
+
+    // Planos antigos não têm 'fase' — cai no formato plano de sempre, nada parte.
+    const temFases = exercicios.every(ex => ex.fase);
+    const listaEx = (lista) => lista.map((ex, i) => `
         <div class="ex-item">
           <div class="ex-num">${i + 1}</div>
           <div class="ex-item-nome">${ex.nome}</div>
           <div class="ex-item-sets">${ex.series}×${ex.reps_min}-${ex.reps_max}</div>
-        </div>
-      `).join('') || '<p class="tiny">Sem exercícios elegíveis (equipamento/limitações demasiado restritivos).</p>'}
+        </div>`).join('');
+
+    if (!temFases){
+      return `<div class="dia-plano"><h4>${titulo}</h4>${subtitulo}${listaEx(exercicios)}</div>`;
+    }
+
+    const porFase = { principal: [], acessorio: [], core: [] };
+    exercicios.forEach(ex => (porFase[ex.fase] ?? porFase.acessorio).push(ex));
+
+    return `<div class="dia-plano">
+      <h4>${titulo}</h4>
+      ${subtitulo}
+      ${dia.aquecimento ? blocoAquecimento(dia.aquecimento) : ''}
+      ${['principal','acessorio','core'].map(fase => porFase[fase].length ? `
+        <div class="fase-bloco">
+          <p class="fase-titulo">${FASE_LABEL[fase]}</p>
+          ${listaEx(porFase[fase])}
+        </div>` : '').join('')}
+      ${dia.arrefecimento ? blocoArrefecimento(dia.arrefecimento) : ''}
     </div>`;
   }
 
