@@ -502,6 +502,32 @@
             <label style="margin-top:12px;">Modalidades</label>
             <div id="avModalidades" class="pill-group"></div>
 
+            <div id="avCorridaExtra" class="hidden" style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+              <label for="avDistanciaAlvo">Distância-alvo (km)</label>
+              <input type="text" inputmode="decimal" id="avDistanciaAlvo" placeholder="ex: 12" />
+              <p class="tiny" id="avCategoriaCorrida" style="margin-top:4px;color:var(--primary);"></p>
+
+              <label for="avSuperficie" style="margin-top:12px;">Superfície</label>
+              <select id="avSuperficie">
+                <option value="">—</option>
+                <option value="estrada">Estrada</option>
+                <option value="trail">Trail</option>
+                <option value="pista">Pista</option>
+                <option value="mista">Mista</option>
+              </select>
+
+              <label for="avDesnivel" style="margin-top:12px;">Desnível</label>
+              <select id="avDesnivel">
+                <option value="">—</option>
+                <option value="baixo">Baixo</option>
+                <option value="medio">Médio</option>
+                <option value="alto">Alto</option>
+              </select>
+
+              <label for="avDataProva" style="margin-top:12px;">Data da prova (opcional)</label>
+              <input type="date" id="avDataProva" />
+            </div>
+
             <label style="margin-top:12px;">Local de treino</label>
             <div id="avLocal" class="pill-group"></div>
           </div>
@@ -924,6 +950,32 @@
   montarPills('avModalidades', MODALIDADES, m => MODALIDADE_LABEL[m]);
   montarPills('avLocal', LOCAIS, l => LOCAL_LABEL[l]);
 
+  // Campos de corrida só aparecem quando a modalidade está selecionada — e a
+  // categoria (5K/10K/Meia/etc.) é sempre calculada a partir da distância, nunca
+  // uma escolha à parte.
+  function classificarCorridaLocal(km){
+    if (!km || km <= 0) return '';
+    if (km <= 0.4) return 'Sprint / Velocidade';
+    if (km <= 3) return 'Média distância';
+    if (km <= 5) return '5K';
+    if (km <= 10) return '10K';
+    if (km < 21.1) return 'Distância longa';
+    if (km === 21.1) return 'Meia-maratona';
+    if (km < 42.2) return 'Meia-maratona +';
+    if (km === 42.2) return 'Maratona';
+    return 'Ultra';
+  }
+  function atualizarCorridaExtra(){
+    const ativo = lerPills('avModalidades').includes('corrida');
+    $('avCorridaExtra').classList.toggle('hidden', !ativo);
+  }
+  $('avModalidades').addEventListener('change', atualizarCorridaExtra);
+  $('avDistanciaAlvo').addEventListener('input', () => {
+    const km = parseFloat($('avDistanciaAlvo').value);
+    const cat = classificarCorridaLocal(km);
+    $('avCategoriaCorrida').textContent = cat ? 'Perfil: ' + cat : '';
+  });
+
   function lerPills(containerId){
     return Array.from($(containerId).querySelectorAll('input:checked')).map(i => i.value);
   }
@@ -1123,6 +1175,7 @@
     $('avNomeCliente').textContent = nome;
     hide('errAvaliacao');
     $('okAvaliacao').style.display = 'none';
+    atualizarCorridaExtra();
     show('cardAvaliacao');
     $('cardAvaliacao').scrollIntoView({ behavior:'smooth', block:'start' });
   }
@@ -1165,7 +1218,11 @@
       p_modalidades: lerPills('avModalidades'),
       p_local_treino: lerPills('avLocal'),
       p_frequencia_atual_semana: parseInt($('avFrequenciaAtual').value, 10),
-      p_capacidade_carga: $('avCapacidadeCarga').value
+      p_capacidade_carga: $('avCapacidadeCarga').value,
+      p_distancia_alvo_km: $('avDistanciaAlvo').value ? parseFloat($('avDistanciaAlvo').value) : null,
+      p_superficie_corrida: $('avSuperficie').value || null,
+      p_desnivel_corrida: $('avDesnivel').value || null,
+      p_data_prova: $('avDataProva').value || null
     });
     $('btnAvaliacao').disabled = false;
     if (error){
