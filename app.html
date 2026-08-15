@@ -850,14 +850,20 @@
       $('bloqueadoTexto').textContent = MSG_BLOQUEIO[pessoa.estado] ?? 'Sem acesso de momento.';
 
       if (pessoa.estado === 'pendente'){
-        const [{ data: preco }, { data: contactoRows }] = await Promise.all([
+        const [{ data: preco }, { data: contactoRows }, { data: consentidoSaude }] = await Promise.all([
           sb.rpc('bm_meu_preco'),
-          sb.from('configuracoes').select('valor_texto').eq('chave', 'mbway_contacto').maybeSingle()
+          sb.from('configuracoes').select('valor_texto').eq('chave', 'mbway_contacto').maybeSingle(),
+          sb.rpc('tem_consentimento', { p_pessoa: pessoa.id, p_tipo: 'dados_saude' })
         ]);
         if (preco){
           $('pagamentoValor').textContent = Number(preco).toFixed(2) + '€ / mês';
           $('pagamentoContacto').textContent = contactoRows?.valor_texto || '—';
           show('cardPagamentoInfo');
+        }
+        pessoaIdAtual = pessoa.id;
+        pessoaEstadoAtual = pessoa.estado;
+        if (!consentidoSaude){
+          show('cardConsentimento');
         }
       }
     } else {
@@ -1221,9 +1227,11 @@
 
   // --- Área Cliente: consentimento + objetivo atual ---
   let pessoaIdAtual = null;
+  let pessoaEstadoAtual = null;
 
   async function carregarAreaCliente(pessoaId){
     pessoaIdAtual = pessoaId;
+    pessoaEstadoAtual = 'ativo';
     const { data: consentidoSaude } = await sb.rpc('tem_consentimento', { p_pessoa: pessoaId, p_tipo: 'dados_saude' });
     if (!consentidoSaude){
       show('cardConsentimento');
@@ -1451,7 +1459,8 @@
     if (error){ alert('Não foi possível registar o consentimento: ' + error.message); $('btnConsentir').disabled = false; return; }
     hide('cardConsentimento');
     $('btnConsentir').disabled = false;
-    if (pessoaIdAtual) await carregarAreaCliente(pessoaIdAtual);
+    mostrarToast('Consentimento registado.');
+    if (pessoaIdAtual && pessoaEstadoAtual === 'ativo') await carregarAreaCliente(pessoaIdAtual);
   });
 
   function formatarData(iso){
