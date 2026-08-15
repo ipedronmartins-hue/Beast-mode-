@@ -704,6 +704,8 @@
         <div class="empty" id="clienteEmpty" style="margin-top:16px;">
           <p style="margin:0;font-weight:500;">Sem treino atribuído</p>
           <p class="muted" style="margin:8px 0 0;">Quando o teu PT publicar um plano, o treino do dia aparece aqui.</p>
+          <button class="btn" id="btnIrRegistarPeso" style="margin-top:14px;">Registar o teu peso atual</button>
+          <p class="tiny" style="margin-top:8px;">Ajuda o teu PT a preparar o plano com dados reais, não precisas de esperar por ele.</p>
         </div>
       </div>
 
@@ -1302,6 +1304,11 @@
     await carregarCalendario(pessoaId);
   }
 
+  $('btnIrRegistarPeso')?.addEventListener('click', () => {
+    mostrarPaginaCliente('medidas');
+    $('pesoClienteInput')?.focus();
+  });
+
   $('fPesoCliente')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const valor = $('pesoClienteInput').value.trim();
@@ -1796,7 +1803,7 @@
   }
   const mostrarPaginaPT = criarNavegador('areaPT');
   const mostrarPaginaAdmin = criarNavegador('cardAdmin');
-  criarNavegador('cardClientePivot');
+  const mostrarPaginaCliente = criarNavegador('cardClientePivot');
 
   // Interruptor Admin/Treinador — só aparece quando a conta acumula os dois papéis,
   // para nunca haver duas barras de navegação fixas ao mesmo tempo no ecrã.
