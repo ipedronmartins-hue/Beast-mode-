@@ -307,14 +307,16 @@
 
   <!-- Onboarding: primeira entrada, sem registo de pessoa ainda -->
   <section id="onboarding" class="hidden">
-    <h1 style="font-size:26px;">Bem-vindo 👊</h1>
-    <p class="muted" style="margin-top:8px;">Só precisamos do teu nome para começar.</p>
+    <h1 style="font-size:26px;" id="onboardTitulo">Bem-vindo 👊</h1>
+    <p class="muted" style="margin-top:8px;" id="onboardSub">Só precisamos do teu nome para começar.</p>
     <div class="card" style="margin-top:20px;max-width:440px;">
       <form id="fOnboard">
         <label for="nome">O teu nome</label>
         <input type="text" id="nome" placeholder="Nome e apelido" required minlength="2" />
-        <label class="check"><input type="checkbox" id="souPT" checked /> Sou Personal Trainer</label>
-        <p class="tiny" style="margin-top:10px;">Se entraste por convite de um PT, desmarca a opção.</p>
+        <div id="onboardSouPTWrap">
+          <label class="check"><input type="checkbox" id="souPT" checked /> Sou Personal Trainer</label>
+          <p class="tiny" style="margin-top:10px;">Se entraste por convite de um PT, desmarca a opção.</p>
+        </div>
         <button class="btn" type="submit" id="btnOnboard">Criar conta</button>
         <p class="err hidden" id="errOnboard"></p>
       </form>
@@ -784,8 +786,14 @@
     if (error){ alert('Erro a carregar o perfil.'); return; }
 
     const codigoConvite = new URLSearchParams(location.search).get('pt');
+    const inscricaoDireta = new URLSearchParams(location.search).get('inscricao') === '1';
     if (!pessoa){
       if (codigoConvite) $('souPT').checked = false;
+      if (inscricaoDireta){
+        $('onboardTitulo').textContent = 'Vamos começar 💪';
+        $('onboardSub').textContent = 'Só o teu nome — o resto tratamos nós.';
+        hide('onboardSouPTWrap');
+      }
       show('onboarding');
       return;
     }
@@ -2087,10 +2095,10 @@
     e.preventDefault();
     $('btnOnboard').disabled = true;
     hide('errOnboard');
-    const { error } = await sb.rpc('bm_criar_pessoa', {
-      p_nome: $('nome').value.trim(),
-      p_como_pt: $('souPT').checked
-    });
+    const inscricaoDireta = new URLSearchParams(location.search).get('inscricao') === '1';
+    const { error } = inscricaoDireta
+      ? await sb.rpc('bm_inscrever_atleta', { p_nome: $('nome').value.trim() })
+      : await sb.rpc('bm_criar_pessoa', { p_nome: $('nome').value.trim(), p_como_pt: $('souPT').checked });
     if (error){
       $('errOnboard').textContent = 'Não foi possível criar a conta: ' + error.message;
       show('errOnboard');

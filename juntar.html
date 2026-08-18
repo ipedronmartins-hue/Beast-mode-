@@ -69,9 +69,9 @@
         </div>
       </div>
       <div>
-        <span class="badge">Convite de treinador</span>
+        <span class="badge">Inscrição de atleta</span>
         <h1 style="font-size:34px;margin-top:14px;">Junta-te ao Beast Mode</h1>
-        <p style="margin:6px 0 0;font-size:14px;color:var(--text-secondary);">Entra com o teu email — ficas ligado ao teu treinador automaticamente.</p>
+        <p style="margin:6px 0 0;font-size:14px;color:var(--text-secondary);">Entra com o teu email — sem convite, sem PT a marcar horário.</p>
       </div>
     </div>
 
@@ -84,8 +84,7 @@
       </form>
     </div>
 
-    <p class="footnote" id="semCodigo" style="display:none;color:var(--danger);">Este link parece incompleto — pede ao teu treinador para reenviar.</p>
-    <p class="footnote">Recebes um link por email. Ao clicares, entras diretamente.</p>
+    <p class="footnote">Recebes um link por email. Ao clicares, entras diretamente — depois confirmamos o pagamento e a tua conta de atleta abre.</p>
     <div class="back"><a href="index.html">← Voltar</a></div>
   </div>
 </main>
@@ -95,22 +94,24 @@
 <script>
   const sb = window.supabase.createClient(BM_CONFIG.SUPABASE_URL, BM_CONFIG.SUPABASE_ANON_KEY);
   const f = document.getElementById('f'), btn = document.getElementById('btn'), msg = document.getElementById('msg');
+  // Link de partilha pessoal de um PT (?pt=CODIGO) continua a ligar diretamente a
+  // esse treinador; sem código, é inscrição direta — liga automaticamente ao único
+  // treinador ativo da plataforma, mediante aprovação de pagamento.
   const codigo = new URLSearchParams(location.search).get('pt');
-  if (!codigo) document.getElementById('semCodigo').style.display = 'block';
+  const destino = 'app.html' + (codigo ? '?pt=' + encodeURIComponent(codigo) : '?inscricao=1');
 
   sb.auth.getSession().then(({data:{session}}) => {
-    if (session) location.href = 'app.html' + (codigo ? '?pt=' + encodeURIComponent(codigo) : '');
+    if (session) location.href = destino;
   });
 
   f.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (!codigo){ return; }
     btn.disabled = true; btn.textContent = 'A enviar…';
     msg.className = 'msg';
     const email = document.getElementById('email').value.trim();
     const { error } = await sb.auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: location.origin + '/app.html?pt=' + encodeURIComponent(codigo) }
+      options: { emailRedirectTo: location.origin + '/' + destino }
     });
     if (error) {
       msg.textContent = 'Não foi possível enviar o link. Tenta novamente.';
