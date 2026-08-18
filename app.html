@@ -904,8 +904,8 @@
 
   const EQUIPAMENTO = ['Sem equipamento','Barra de porta','Mesa ou cadeira','Halteres','Barra e discos','Máquinas','Elásticos','Kettlebell'];
   const LIMITACOES = ['Nenhuma','Lombar','Joelho','Ombro','Cervical','Anca','Outra'];
-  const MODALIDADES = ['corrida'];
-  const MODALIDADE_LABEL = { corrida: 'Corrida' };
+  const MODALIDADES = ['corrida', 'ciclismo'];
+  const MODALIDADE_LABEL = { corrida: 'Corrida', ciclismo: 'Ciclismo' };
   const LOCAIS = ['ginasio','casa','rua'];
   const LOCAL_LABEL = { ginasio: 'Ginásio', casa: 'Casa', rua: 'Rua' };
 
@@ -933,14 +933,26 @@
     if (km === 42.2) return 'Maratona';
     return 'Ultra';
   }
+  function classificarCiclismoLocal(km){
+    if (!km || km <= 0) return '';
+    if (km <= 20) return 'Iniciação';
+    if (km <= 50) return 'Curta';
+    if (km <= 100) return 'Média distância';
+    if (km <= 160) return 'Longa';
+    return 'Ultra / Gran Fondo';
+  }
   function atualizarCorridaExtra(){
-    const ativo = lerPills('avModalidades').includes('corrida');
+    const modalidades = lerPills('avModalidades');
+    const ativo = modalidades.includes('corrida') || modalidades.includes('ciclismo');
     $('avCorridaExtra').classList.toggle('hidden', !ativo);
   }
   $('avModalidades').addEventListener('change', atualizarCorridaExtra);
   $('avDistanciaAlvo').addEventListener('input', () => {
     const km = parseFloat($('avDistanciaAlvo').value);
-    const cat = classificarCorridaLocal(km);
+    const modalidades = lerPills('avModalidades');
+    // Corrida e ciclismo em simultâneo: a corrida ganha a classificação mostrada
+    // aqui, mesma prioridade que bm_gerar_plano usa para a semana "pura".
+    const cat = modalidades.includes('corrida') ? classificarCorridaLocal(km) : classificarCiclismoLocal(km);
     $('avCategoriaCorrida').textContent = cat ? 'Perfil: ' + cat : '';
   });
 
@@ -1264,15 +1276,14 @@
       planoClienteAtual = plano;
       const p = plano.parametros;
       const meso = calcularMesociclo(plano.publicado_em);
+      const resumoTipo = p.so_corrida ? 'plano de corrida' : p.so_ciclismo ? 'plano de ciclismo' : 'descanso ' + p.descanso_seg + 's';
       $('planoClienteResumo').innerHTML =
         `<span class="chip chip-ok" style="margin-right:6px;">Semana ${meso.semanaTotal} · ${meso.label}</span>
-         ${p.so_corrida ? 'plano de corrida' : 'descanso ' + p.descanso_seg + 's'} · próxima reavaliação: ${formatarData(p.reavaliar_em)}`;
+         ${resumoTipo} · próxima reavaliação: ${formatarData(p.reavaliar_em)}`;
       $('planoClienteDias').innerHTML = plano.conteudo.dias.map((dia, i) => `
         <div>
           ${renderDia(dia, meso)}
-          <button class="btn" data-iniciar-dia="${i}" style="width:100%;margin-top:8px;">
-            ${dia.tipo === 'forca' ? 'Iniciar treino' : 'Marcar como feito'}
-          </button>
+          <button class="btn" data-iniciar-dia="${i}" style="width:100%;margin-top:8px;">Iniciar treino</button>
         </div>`).join('');
       $('planoClienteDias').querySelectorAll('[data-iniciar-dia]').forEach(btn => {
         btn.addEventListener('click', () => iniciarTreino(parseInt(btn.dataset.iniciarDia, 10)));
@@ -1627,8 +1638,8 @@
     planoEmRevisao = plano.id;
     $('planoNomeCliente').textContent = nome;
     const p = plano.parametros;
-    $('planoResumo').innerHTML = p.so_corrida
-      ? `Plano de corrida · reavaliar em ${formatarData(p.reavaliar_em)}<br>
+    $('planoResumo').innerHTML = (p.so_corrida || p.so_ciclismo)
+      ? `Plano de ${p.so_corrida ? 'corrida' : 'ciclismo'} · reavaliar em ${formatarData(p.reavaliar_em)}<br>
          <span style="color:var(--tertiary);">Sem exercícios de ginásio — o atleta não tem local para isso na avaliação.</span>`
       : `${p.series}x${p.reps_min}-${p.reps_max} reps · descanso ${p.descanso_seg}s · RPE alvo ${p.rpe_alvo} · reavaliar em ${formatarData(p.reavaliar_em)}<br>
          <span style="color:var(--tertiary);">Semana 1 (Introdução) — a progressão sobe sozinha a cada semana depois de publicares (mesociclo de 4 semanas).</span>`;
