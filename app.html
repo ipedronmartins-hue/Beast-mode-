@@ -1283,10 +1283,16 @@
       $('planoClienteDias').innerHTML = plano.conteudo.dias.map((dia, i) => `
         <div>
           ${renderDia(dia, meso)}
-          <button class="btn" data-iniciar-dia="${i}" style="width:100%;margin-top:8px;">Iniciar treino</button>
+          ${dia.tipo === 'cardio_escolha'
+            ? `<div style="display:flex;gap:8px;margin-top:8px;">
+                 ${(dia.opcoes || []).map(o => `
+                   <button class="btn" data-iniciar-dia="${i}" data-tipo-escolhido="${o.tipo}" style="flex:1;">Hoje faço: ${o.tipo === 'corrida' ? 'Corrida' : 'Ciclismo'}</button>
+                 `).join('')}
+               </div>`
+            : `<button class="btn" data-iniciar-dia="${i}" style="width:100%;margin-top:8px;">Iniciar treino</button>`}
         </div>`).join('');
       $('planoClienteDias').querySelectorAll('[data-iniciar-dia]').forEach(btn => {
-        btn.addEventListener('click', () => iniciarTreino(parseInt(btn.dataset.iniciarDia, 10)));
+        btn.addEventListener('click', () => iniciarTreino(parseInt(btn.dataset.iniciarDia, 10), btn.dataset.tipoEscolhido || null));
       });
       show('cardPlanoCliente');
       hide('clienteEmpty');
@@ -1529,6 +1535,19 @@
         ${dia.arrefecimento ? blocoArrefecimento(dia.arrefecimento) : ''}
       </div>`;
     }
+    if (dia.tipo === 'cardio_escolha'){
+      return `<div class="dia-plano">
+        <h4>${titulo}</h4>
+        ${subtitulo}
+        ${(dia.opcoes || []).map(o => `
+          <div class="fase-bloco">
+            <p class="fase-titulo">${o.nome_exibicao}</p>
+            <div class="ex-row"><b>Duração</b><span>${o.duracao_min} min</span></div>
+            <div class="ex-row"><b>Local</b><span>${o.local}</span></div>
+            <p class="tiny" style="margin-top:8px;">${o.descricao}</p>
+          </div>`).join('')}
+      </div>`;
+    }
     if (dia.tipo === 'estimulo'){
       return `<div class="dia-plano">
         <h4>${titulo} <span class="badge">${dia.wod_formato}</span></h4>
@@ -1579,6 +1598,12 @@
   }
 
   function exemploRegisto(tipo){
+    if (tipo === 'cardio_escolha'){
+      return `<div class="ex-card" style="opacity:.85;">
+        <p class="ex-card-title">Escolhe ao vivo: Corrida ou Ciclismo</p>
+        <p class="tiny">Toca num dos dois botões no dia — o registo que aparece a seguir (distância, duração, vel. média/máxima, desnível, watts) é o mesmo em ambos.</p>
+      </div>`;
+    }
     if (tipo === 'corrida' || tipo === 'ciclismo'){
       return `<div class="ex-card" style="opacity:.85;">
         <p class="ex-card-title">O que fizeste</p>
@@ -1910,15 +1935,20 @@
     }, 1000);
   }
 
-  async function iniciarTreino(indiceDia){
+  async function iniciarTreino(indiceDia, tipoEscolhido){
     let dia = planoClienteAtual.conteudo.dias[indiceDia];
+    const nomeDiaOriginal = dia.nome;
     const meso = calcularMesociclo(planoClienteAtual.publicado_em);
     if (dia.tipo === 'forca'){
       dia = { ...dia, exercicios: dia.exercicios.map(ex => aplicarMesociclo(ex, meso)) };
+    } else if (dia.tipo === 'cardio_escolha'){
+      const opcao = (dia.opcoes || []).find(o => o.tipo === tipoEscolhido);
+      if (!opcao){ alert('Escolhe corrida ou ciclismo primeiro.'); return; }
+      dia = { ...opcao, nome: nomeDiaOriginal };
     }
     diaAtivo = dia;
     const { data: sessaoId, error } = await sb.rpc('bm_iniciar_sessao', {
-      p_plano_id: planoClienteAtual.id, p_dia_plano: dia.nome
+      p_plano_id: planoClienteAtual.id, p_dia_plano: nomeDiaOriginal, p_tipo_escolhido: tipoEscolhido || null
     });
     if (error){ alert('Não foi possível iniciar o treino: ' + error.message); return; }
     sessaoAtiva = sessaoId;
