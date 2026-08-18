@@ -11,9 +11,9 @@
 <style>
   :root{
     color-scheme: dark;
-    --bg:#000000; --bg-surface:#121212; --bg-raised:#1C1C1E; --bg-band:#0A0A0B;
+    --bg:#000000; --bg-surface:#0A0A0A; --bg-raised:#141414; --bg-band:#050505;
     --border:rgba(255,255,255,0.09);
-    --primary:#E8A93D; --primary-hover:#D6941F; --primary-muted:rgba(232,169,61,0.14); --on-primary:#241300;
+    --primary:#FFFFFF; --primary-hover:#D9D9D9; --primary-muted:rgba(255,255,255,0.10); --on-primary:#0A0A0A;
     --tertiary:#6E9BFF;
     --text-primary:#E2E2E6; --text-secondary:#90909A; --text-tertiary:#6B6B75;
     /* Tipografia — display condensada para títulos, Inter para corpo */
@@ -49,7 +49,7 @@
 
   .hero-wrap{position:relative;}
   .glow{position:absolute; top:-120px; left:50%; transform:translateX(-50%); width:900px; height:600px;
-    background:radial-gradient(ellipse at center, rgba(232,169,61,0.16) 0%, rgba(232,169,61,0) 65%);
+    background:radial-gradient(ellipse at center, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0) 65%);
     pointer-events:none; z-index:0; animation:pulse 7s ease-in-out infinite;}
   @keyframes pulse{0%,100%{opacity:1; transform:translateX(-50%) scale(1);} 50%{opacity:.65; transform:translateX(-50%) scale(1.1);}}
   .hero{position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; text-align:center; padding:64px 24px 8px;}
@@ -168,15 +168,15 @@
   <nav class="wrap">
     <span class="logo" style="display:flex;align-items:center;gap:8px;">
     <svg width="22" height="22" viewBox="0 0 48 48" aria-hidden="true">
-      <line x1="14" y1="24" x2="34" y2="24" stroke="#E8A93D" stroke-width="3" stroke-linecap="round"/>
-      <rect x="10" y="16" width="4" height="16" rx="2" fill="#E8A93D"/>
-      <rect x="5" y="18" width="3" height="12" rx="1.5" fill="#E8A93D"/>
+      <line x1="14" y1="24" x2="34" y2="24" stroke="#FFFFFF" stroke-width="3" stroke-linecap="round"/>
+      <rect x="10" y="16" width="4" height="16" rx="2" fill="#FFFFFF"/>
+      <rect x="5" y="18" width="3" height="12" rx="1.5" fill="#FFFFFF"/>
       <rect x="1" y="20" width="3" height="8" rx="1.5" fill="#6E9BFF"/>
-      <rect x="34" y="16" width="4" height="16" rx="2" fill="#E8A93D"/>
-      <rect x="40" y="18" width="3" height="12" rx="1.5" fill="#E8A93D"/>
+      <rect x="34" y="16" width="4" height="16" rx="2" fill="#FFFFFF"/>
+      <rect x="40" y="18" width="3" height="12" rx="1.5" fill="#FFFFFF"/>
       <rect x="44" y="20" width="3" height="8" rx="1.5" fill="#6E9BFF"/>
     </svg>
-    Beast Mode<span class="logo-tag">PRESCRIÇÃO PARA PTs</span>
+    Beast Mode<span class="logo-tag">O TEU TREINADOR, TODOS OS DIAS</span>
   </span>
     <div class="nav-links">
       <a href="#como-funciona" class="btn-secondary">Como funciona</a>
@@ -185,14 +185,14 @@
   </nav>
 
   <section class="hero">
-    <span class="badge">Plataforma de Prescrição para Personal Trainers</span>
-    <h1 class="headline">O treino de cada atleta,<br><span>prescrito, executado e medido.</span></h1>
-    <p class="sub">Do ginásio à corrida, do treino em casa à alta performance. Motor de prescrição determinístico, periodização real e uma app que os teus atletas realmente usam.</p>
+    <span class="badge">Treino a sério, sem intermediário</span>
+    <h1 class="headline">Tratamos-te como um profissional.<br><span>Porque é isso que és a tentar tornar-te.</span></h1>
+    <p class="sub">Ginásio, corrida ou ciclismo — dizes-nos o teu objetivo, nós montamos o plano, tu treinas. Sem PT a marcar horário, sem mensalidade de PT particular. Rumo ao teu objetivo, a sério.</p>
     <div class="cta-row">
-      <a href="login.html" class="btn-primary">Entrar
+      <a href="login.html" class="btn-primary">Começar agora
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
       </a>
-      <a href="login.html" class="btn-secondary" style="padding:15px 28px; font-size:var(--fs-sub);">Pedir acesso</a>
+      <a href="login.html" class="btn-secondary" style="padding:15px 28px; font-size:var(--fs-sub);">Já tenho conta</a>
     </div>
   </section>
 
@@ -219,31 +219,31 @@
 <div class="section-band">
   <section class="numstage reveal">
     <p class="section-label">O problema</p>
-    <div class="big" style="margin-top:16px;">0<span>%</span></div>
-    <p>É quanto histórico sobrevive a um Excel apagado por engano, ou a um WhatsApp onde já ninguém encontra a mensagem de há 3 semanas.</p>
+    <div class="big" style="margin-top:16px;">90<span>%</span></div>
+    <p>É quanta gente treina sem plano nenhum — corre, pedala ou levanta ferro "a monte", sem saber se está mesmo a evoluir rumo a alguma coisa.</p>
   </section>
 </div>
 
 <section class="problem reveal">
   <p class="section-label">Antes / depois</p>
-  <h2>Sabes prescrever. O que falta é o sistema à volta disso.</h2>
+  <h2>Não precisas de um PT particular para treinar a sério.</h2>
   <div class="compare">
     <div class="compare-col bad reveal">
-      <p class="eyebrow">Hoje</p>
+      <p class="eyebrow">Sozinho, sem estrutura</p>
       <ul>
-        <li>— Planos em PDF que ninguém abre depois da 1ª semana</li>
-        <li>— WhatsApp a explodir com "que carga fiz na 3ª série?"</li>
-        <li>— Reavaliar de cabeça, sem histórico real</li>
-        <li>— Cada atleta novo, uma folha de Excel nova</li>
+        <li>— Corres ou pedalas por instinto, sem saber se estás a construir para alguma coisa</li>
+        <li>— O treino de ginásio é sempre igual, porque ninguém o ajusta</li>
+        <li>— Sem registo, cada treino esquece o anterior</li>
+        <li>— Um PT particular custa caro, ou nunca tens horário que encaixe</li>
       </ul>
     </div>
     <div class="compare-col good reveal" style="transition-delay:120ms;">
       <p class="eyebrow">Com o Beast Mode</p>
       <ul>
-        <li>— O atleta abre a app, o treino de hoje está lá</li>
-        <li>— Carga, reps e RPE ficam registados série a série</li>
-        <li>— Progressão automática, mesociclo a mesociclo</li>
-        <li>— Um motor, a mesma qualidade para todos os atletas</li>
+        <li>— Ginásio, corrida e ciclismo na mesma conta — escolhes o que fazes hoje</li>
+        <li>— O plano ajusta-se sozinho semana a semana, sem esperares por ninguém</li>
+        <li>— Cada treino fica registado — carga, tempo, distância, o que fizeres</li>
+        <li>— Sem intermediário a marcar preço nem horário</li>
       </ul>
     </div>
   </div>
@@ -255,22 +255,22 @@
     <div class="step-num">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h6"/></svg>
     </div>
-    <h3>Avalias o atleta</h3>
-    <p>Objetivo, nível, lesões, equipamento real, modalidades. Por seleção, sem texto livre a perder-se.</p>
+    <h3>Contas-nos o teu objetivo</h3>
+    <p>Ginásio, corrida, ciclismo, ou tudo junto. Objetivo, nível, lesões, equipamento real que tens. Por seleção, sem escrever um texto que ninguém lê.</p>
   </div>
   <div class="step reveal" style="transition-delay:100ms;">
     <div class="step-num">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg>
     </div>
-    <h3>O motor sugere, tu decides</h3>
-    <p>Cruza a avaliação com a biblioteca de exercícios e propõe um plano. Revês, editas, só publicas quando aprovares.</p>
+    <h3>A app monta o teu plano</h3>
+    <p>Cruza a tua avaliação com a biblioteca de exercícios e a distância/prova-alvo. Um plano a sério, não uma tabela genérica copiada da internet.</p>
   </div>
   <div class="step reveal" style="transition-delay:200ms;">
     <div class="step-num">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
     </div>
-    <h3>O atleta executa, tu acompanhas</h3>
-    <p>Vê o treino do dia, regista carga, reps e RPE série a série, dá feedback. Tu vês tudo e ajustas quando fizer sentido.</p>
+    <h3>Treinas, registas, evoluis</h3>
+    <p>Abres a app, o treino de hoje está lá. Regista o que fizeste, a app ajusta o resto — sem teres de pensar nisso.</p>
   </div>
 </section>
 
@@ -278,10 +278,10 @@
   <section class="proof reveal">
     <p class="section-label">Não é promessa, é o que está construído</p>
     <div class="proof-pill reveal">
-      <div class="proof-stat"><div class="proof-num" data-count="60">0</div><div class="proof-label">exercícios cobrindo os 6 padrões de movimento sem equipamento</div></div>
-      <div class="proof-stat"><div class="proof-num" data-count="8">0</div><div class="proof-label">objetivos, cada um com séries/reps/RPE próprios</div></div>
+      <div class="proof-stat"><div class="proof-num" data-count="130">0</div><div class="proof-label">exercícios de ginásio cobrindo os 6 padrões de movimento</div></div>
+      <div class="proof-stat"><div class="proof-num" data-count="3">0</div><div class="proof-label">desportos numa conta só — ginásio, corrida, ciclismo</div></div>
       <div class="proof-stat"><div class="proof-num" data-count="4">0</div><div class="proof-label">semanas por mesociclo, progressão automática</div></div>
-      <div class="proof-stat"><div class="proof-num" data-count="12">0</div><div class="proof-label">semanas até à reavaliação seguinte</div></div>
+      <div class="proof-stat"><div class="proof-num" data-count="12">0</div><div class="proof-label">semanas até à reavaliação de ginásio (corrida/ciclismo: 4)</div></div>
     </div>
   </section>
 </div>
@@ -298,7 +298,7 @@
     <div class="diff-icon" style="color:var(--tertiary);">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
     </div>
-    <p>O histórico é do atleta. Muda de PT, o registo continua com ele.</p>
+    <p>O histórico é teu, para sempre — nunca de um PT que hoje cá está, amanhã pode não estar.</p>
   </div>
   <div class="diff-row reveal" style="transition-delay:160ms;">
     <div class="diff-icon" style="color:var(--tertiary);">
@@ -315,8 +315,8 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="M9 12h6M9 16h6"/></svg>
     </div>
     <div>
-      <h3>Anamnese completa</h3>
-      <p>Objetivo, nível, lesões, equipamento, modalidades e contexto — tudo o que o motor precisa para decidir bem.</p>
+      <h3>Avaliação completa</h3>
+      <p>Objetivo, nível, lesões, equipamento, os desportos que praticas e o contexto todo — tudo o que a app precisa para decidir bem por ti.</p>
     </div>
   </div>
   <div class="spec-row reveal" style="transition-delay:80ms;">
@@ -324,8 +324,8 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M9 1v3M15 1v3M9 20v3M15 20v3M20 9h3M20 14h3M1 9h3M1 14h3"/></svg>
     </div>
     <div>
-      <h3>Prescrição determinística</h3>
-      <p>Força, corrida, WODs em casa. Cruza objetivo, nível, dias e equipamento real disponível. Editável antes de publicar.</p>
+      <h3>Ginásio, corrida e ciclismo</h3>
+      <p>Um motor por desporto, todos na mesma conta. Se tens ginásio e corrida ao mesmo tempo, escolhes ao vivo o que fazes hoje.</p>
     </div>
   </div>
   <div class="spec-row reveal" style="transition-delay:160ms;">
@@ -333,8 +333,8 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
     </div>
     <div>
-      <h3>Área do atleta</h3>
-      <p>Entra por link mágico, vê o treino do dia, regista cargas, reps e feedback — mobile first, sem fricção.</p>
+      <h3>A tua área, só tua</h3>
+      <p>Entra por link mágico, vê o treino do dia, regista carga, reps, km, tempo, velocidade — o que fizer sentido para o que estiveres a fazer.</p>
     </div>
   </div>
   <div class="spec-row reveal" style="transition-delay:240ms;">
@@ -343,23 +343,23 @@
     </div>
     <div>
       <h3>Periodização real</h3>
-      <p>Mesociclos de 4 semanas com progressão automática, medidas corporais e reavaliação a cada 12 semanas.</p>
+      <p>Mesociclos de 4 semanas no ginásio com progressão automática. Corrida e ciclismo reavaliam a cada 4 semanas — mudam de fase mais depressa.</p>
     </div>
   </div>
 </section>
 
 <section class="closing reveal">
   <div class="closing-card">
-    <h2>Plataforma privada. Sem marketplace, sem ruído.</h2>
-    <p>O acesso é feito por convite do treinador. Se giras atletas a sério, fala connosco.</p>
-    <a href="login.html" class="btn-primary">Pedir acesso</a>
+    <h2>O teu objetivo não vai esperar por horário de PT.</h2>
+    <p>Inscreve-te, confirmamos o pagamento, a tua conta de atleta abre. Rumo ao teu objetivo começa hoje.</p>
+    <a href="login.html" class="btn-primary">Começar agora</a>
   </div>
 </section>
 
 <p class="whisper">Beast Mode</p>
 <footer class="site-footer">
   <p class="foot-brand">Beast Mode</p>
-  <p class="foot-tagline">Prescrição determinística para Personal Trainers · Motor de treino, não só um diário</p>
+  <p class="foot-tagline">O teu treinador, todos os dias · Ginásio, corrida e ciclismo numa conta só</p>
   <p class="foot-contact">contacto@beastmode.pt</p>
 </footer>
 
