@@ -241,29 +241,41 @@
 
   <h1 id="saudacaoTopo" class="hidden" style="margin-bottom:20px;">Olá, <span id="nomeSaudacao"></span></h1>
 
-  <div class="hidden" id="vistaSwitch" style="display:flex;gap:8px;margin-bottom:20px;">
-    <button class="ghost vista-btn active" data-vista="admin" style="flex:1;">Admin</button>
-    <button class="ghost vista-btn" data-vista="pt" style="flex:1;">Treinador</button>
-  </div>
-
-  <!-- Admin: só visível se sou_admin() -->
+  <!-- Admin + Treinador: uma navegação única, sem interruptor entre as duas — se a
+       conta acumula os dois papéis, tudo vive no mesmo sítio. -->
   <div class="hidden" id="cardAdmin">
     <nav class="pt-nav" id="adminNav">
       <button class="pt-nav-btn active" data-pagina="resumo">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>
         Resumo
       </button>
+      <button class="pt-nav-btn" data-pagina="hoje">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
+        Hoje
+      </button>
+      <button class="pt-nav-btn" data-pagina="atletas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Atletas
+      </button>
+      <button class="pt-nav-btn" data-pagina="financeiro">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6.5a6.5 6.5 0 1 0 0 11"/><path d="M4 10h9M4 14h7"/></svg>
+        Financeiro
+      </button>
+      <button class="pt-nav-btn" data-pagina="todos-atletas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Todos os Atletas
+      </button>
       <button class="pt-nav-btn" data-pagina="treinadores">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         Treinadores
       </button>
-      <button class="pt-nav-btn" data-pagina="atletas">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        Atletas
-      </button>
       <button class="pt-nav-btn" data-pagina="comissoes">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6.5a6.5 6.5 0 1 0 0 11"/><path d="M4 10h9M4 14h7"/></svg>
         Comissões
+      </button>
+      <button class="pt-nav-btn" data-pagina="mais">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
+        Mais
       </button>
     </nav>
 
@@ -282,8 +294,8 @@
       <div id="adminPts" class="pivot-scroll" style="max-height:none;"></div>
     </div>
 
-    <div class="pt-page" data-pagina="atletas">
-      <div class="pt-hero"><h1>Atletas</h1></div>
+    <div class="pt-page" data-pagina="todos-atletas">
+      <div class="pt-hero"><h1>Todos os Atletas</h1></div>
       <div id="adminAtletas" class="pivot-scroll" style="max-height:none;"></div>
     </div>
 
@@ -346,26 +358,7 @@
   <!-- Área PT -->
   <section id="areaPT" class="hidden">
 
-    <nav class="pt-nav" id="ptNav">
-      <button class="pt-nav-btn active" data-pagina="hoje">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><path d="M9 22V12h6v10"/></svg>
-        Hoje
-      </button>
-      <button class="pt-nav-btn" data-pagina="atletas">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        Atletas
-      </button>
-      <button class="pt-nav-btn" data-pagina="financeiro">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6.5a6.5 6.5 0 1 0 0 11"/><path d="M4 10h9M4 14h7"/></svg>
-        Financeiro
-      </button>
-      <button class="pt-nav-btn" data-pagina="mais">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/></svg>
-        Mais
-      </button>
-    </nav>
-
-    <div class="pt-page active" id="pagHoje" data-pagina="hoje">
+    <div class="pt-page" id="pagHoje" data-pagina="hoje">
       <div class="pt-hero">
         <h1>Bom dia, <span id="ptNomeHero"></span> 👋</h1>
         <p>Foca-te. Lidera. Transforma.</p>
@@ -815,6 +808,9 @@
       show('perfilPTGate');
     } else if (perfilPT){
       $('ptNomeHero').textContent = primeiroNome;
+      // cardAdmin é o dono da navegação partilhada — mostra-se sempre que há perfil de
+      // PT, mesmo sem ser admin (as páginas exclusivas de admin ficam só sem dados).
+      show('cardAdmin');
       show('areaPT');
       await carregarClientes();
       await carregarGanhosPT(pessoa.id);
@@ -855,13 +851,6 @@
       await carregarAreaCliente(pessoa.id);
     }
 
-    // Admin + PT ao mesmo tempo: nunca as duas barras fixas juntas — mostra o
-    // interruptor e arranca na vista de Admin (a área do PT já carregou os
-    // dados atrás, fica só escondida até se trocar de vista).
-    if (ehAdmin && perfilPT && perfilPT.perfil_completo){
-      show('vistaSwitch');
-      hide('areaPT');
-    }
   }
 
   $('fConvidar')?.addEventListener('submit', async (e) => {
@@ -1037,7 +1026,7 @@
       </div>`;
     }).join('');
     $('listaAtencao').querySelectorAll('[data-ver-atleta]').forEach(btn => {
-      btn.addEventListener('click', () => mostrarPaginaPT('atletas'));
+      btn.addEventListener('click', () => mostrarPaginaAdmin('atletas'));
     });
     show('cardAtencao');
   }
@@ -1089,10 +1078,11 @@
           <button class="btn" data-avaliar="${c?.id}" data-nome="${c?.nome ?? c?.email}">Avaliar</button>
           <button class="ghost" data-gerar="${c?.id}" data-nome="${c?.nome ?? c?.email}">Gerar plano</button>
         </div>
+        <button class="ghost" data-vercomo="${c?.id}" data-nome="${c?.nome ?? c?.email}" style="width:100%;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          Ver como atleta
+        </button>
         <div class="icon-actions">
-          <button class="icon-btn" title="Ver como atleta" data-vercomo="${c?.id}" data-nome="${c?.nome ?? c?.email}">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-          </button>
           <button class="icon-btn" title="Medições" data-medir="${c?.id}" data-nome="${c?.nome ?? c?.email}">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M18 17V9M13 17V5M8 17v-3"/></svg>
           </button>
@@ -1845,32 +1835,25 @@
   // Navegação persistente, genérica — usada tanto na área do PT como no admin.
   // Cada instância fica isolada ao seu contentor (evita que os botões de um
   // interfiram com as páginas do outro, já que os dois podem coexistir no ecrã).
-  function criarNavegador(containerId){
-    const container = document.getElementById(containerId);
-    if (!container) return () => {};
+  function criarNavegador(containerIds){
+    const ids = Array.isArray(containerIds) ? containerIds : [containerIds];
+    const containers = ids.map(id => document.getElementById(id)).filter(Boolean);
+    if (!containers.length) return () => {};
     function mostrar(nome){
-      container.querySelectorAll(':scope > .pt-page').forEach(p => p.classList.toggle('active', p.dataset.pagina === nome));
-      container.querySelectorAll('.pt-nav-btn').forEach(b => b.classList.toggle('active', b.dataset.pagina === nome));
+      containers.forEach(c => c.querySelectorAll(':scope > .pt-page').forEach(p => p.classList.toggle('active', p.dataset.pagina === nome)));
+      containers.forEach(c => c.querySelectorAll('.pt-nav-btn').forEach(b => b.classList.toggle('active', b.dataset.pagina === nome)));
       window.scrollTo({ top: 0, behavior: 'instant' in window ? 'instant' : 'auto' });
     }
-    container.querySelectorAll('.pt-nav-btn').forEach(btn => {
+    containers.forEach(c => c.querySelectorAll('.pt-nav-btn').forEach(btn => {
       btn.addEventListener('click', () => mostrar(btn.dataset.pagina));
-    });
+    }));
     return mostrar;
   }
-  const mostrarPaginaPT = criarNavegador('areaPT');
-  const mostrarPaginaAdmin = criarNavegador('cardAdmin');
+  // Admin + Treinador partilham uma única navegação (#adminNav), mas as páginas do
+  // Treinador continuam fisicamente dentro de #areaPT — o navegador cobre os dois
+  // contentores, sem interruptor nenhum entre "vistas".
+  const mostrarPaginaAdmin = criarNavegador(['cardAdmin', 'areaPT']);
   const mostrarPaginaCliente = criarNavegador('cardClientePivot');
-
-  // Interruptor Admin/Treinador — só aparece quando a conta acumula os dois papéis,
-  // para nunca haver duas barras de navegação fixas ao mesmo tempo no ecrã.
-  document.querySelectorAll('.vista-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.vista-btn').forEach(b => b.classList.toggle('active', b === btn));
-      if (btn.dataset.vista === 'admin'){ show('cardAdmin'); hide('areaPT'); }
-      else { hide('cardAdmin'); show('areaPT'); }
-    });
-  });
 
   function abrirSheet(){
     $('sheetScrim').classList.add('active');
