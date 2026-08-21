@@ -1994,16 +1994,34 @@
           <input type="text" inputmode="decimal" id="metKm" class="input" placeholder="ex: 8.4" />
           <label for="metDuracao" style="margin-top:12px;">Duração (min)</label>
           <input type="text" inputmode="numeric" id="metDuracao" class="input" placeholder="ex: 45" />
-          <label for="metVelMedia" style="margin-top:12px;">Velocidade média (km/h) — opcional</label>
+          <label for="metVelMedia" style="margin-top:12px;">Velocidade média (km/h) — opcional, calculamos sozinhos se deixares em branco</label>
           <input type="text" inputmode="decimal" id="metVelMedia" class="input" placeholder="ex: 11.2" />
+          <p class="tiny" id="metVelCalculada" style="margin-top:4px;color:var(--tertiary);"></p>
           <label for="metVelMaxima" style="margin-top:12px;">Velocidade máxima (km/h) — opcional</label>
           <input type="text" inputmode="decimal" id="metVelMaxima" class="input" placeholder="ex: 18.5" />
           <label for="metDesnivel" style="margin-top:12px;">Desnível acumulado (m) — opcional</label>
           <input type="text" inputmode="numeric" id="metDesnivel" class="input" placeholder="ex: 320" />
+          <label for="metFc" style="margin-top:12px;">FC média (bpm) — opcional, só se souberes</label>
+          <input type="text" inputmode="numeric" id="metFc" class="input" placeholder="ex: 148" />
+          <label for="metCalorias" style="margin-top:12px;">Calorias — opcional</label>
+          <input type="text" inputmode="numeric" id="metCalorias" class="input" placeholder="ex: 420" />
           ${dia.tipo === 'ciclismo' ? `
           <label for="metWatts" style="margin-top:12px;">Watts médios — opcional, só se tiveres medidor de potência</label>
-          <input type="text" inputmode="decimal" id="metWatts" class="input" placeholder="ex: 185" />` : ''}
+          <input type="text" inputmode="decimal" id="metWatts" class="input" placeholder="ex: 185" />
+          <label for="metCadencia" style="margin-top:12px;">Cadência média (rpm) — opcional</label>
+          <input type="text" inputmode="numeric" id="metCadencia" class="input" placeholder="ex: 82" />` : ''}
         </div>`;
+      const atualizarVelCalculada = () => {
+        const km = parseFloat($('metKm')?.value);
+        const min = parseFloat($('metDuracao')?.value);
+        if (km > 0 && min > 0){
+          $('metVelCalculada').textContent = `≈ ${(km / (min / 60)).toFixed(1)} km/h calculado a partir da distância e duração`;
+        } else {
+          $('metVelCalculada').textContent = '';
+        }
+      };
+      $('metKm')?.addEventListener('input', atualizarVelCalculada);
+      $('metDuracao')?.addEventListener('input', atualizarVelCalculada);
     } else {
       $('sessaoHint').textContent = 'Regista o resultado do dia — tempo, rondas, ou o que fizer sentido para o formato.';
       $('sessaoExercicios').innerHTML = renderDia(dia) +
@@ -2071,7 +2089,10 @@
       p_vel_media_kmh: numOrNull('metVelMedia'),
       p_vel_maxima_kmh: numOrNull('metVelMaxima'),
       p_desnivel_acumulado_m: numOrNull('metDesnivel'),
-      p_watts_medio: numOrNull('metWatts')
+      p_watts_medio: numOrNull('metWatts'),
+      p_cadencia_media_rpm: numOrNull('metCadencia'),
+      p_fc_media_bpm: numOrNull('metFc'),
+      p_calorias: numOrNull('metCalorias')
     });
     $('btnConcluirSessao').disabled = false;
     if (errConcluir){
