@@ -184,7 +184,7 @@
   /* Redesign do PT: navegação persistente + páginas, em vez de scroll de cartões soltos */
   .pt-page{display:none;}
   .pt-page.active{display:block;}
-  #areaPT, #cardAdmin{padding-bottom:88px;}
+  #cardAdmin{padding-bottom:88px;}
   .pt-hero h1{font-family:var(--font-display);font-size:32px;font-weight:800;}
   .pt-hero p{margin:4px 0 20px;color:var(--text-secondary);font-size:14px;}
   .pt-nav{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;justify-content:space-around;
@@ -199,7 +199,7 @@
   @media (min-width:860px){
     .pt-nav{left:0;right:auto;top:0;bottom:0;width:92px;flex-direction:column;justify-content:flex-start;
       padding:36px 0 0;gap:26px;border-top:none;border-right:1px solid var(--border);}
-    #areaPT, #cardAdmin{padding-bottom:0;padding-left:112px;max-width:1100px;}
+    #cardAdmin{padding-bottom:0;padding-left:112px;max-width:1100px;}
     .pt-hero h1{font-size:38px;}
     #pagAtletas .client-card, #pagHoje .card{max-width:100%;}
   }
@@ -317,62 +317,6 @@
       <div class="pt-hero"><h1>Comissões</h1></div>
       <div id="adminComissoes" class="pivot-scroll" style="max-height:none;"></div>
     </div>
-  </div>
-
-  <!-- Onboarding: primeira entrada, sem registo de pessoa ainda -->
-  <section id="onboarding" class="hidden">
-    <h1 style="font-size:26px;" id="onboardTitulo">Bem-vindo 👊</h1>
-    <p class="muted" style="margin-top:8px;" id="onboardSub">Só precisamos do teu nome para começar.</p>
-    <div class="card" style="margin-top:20px;max-width:440px;">
-      <form id="fOnboard">
-        <label for="nome">O teu nome</label>
-        <input type="text" id="nome" placeholder="Nome e apelido" required minlength="2" />
-        <div id="onboardSouPTWrap">
-          <label class="check"><input type="checkbox" id="souPT" checked /> Sou Personal Trainer</label>
-          <p class="tiny" style="margin-top:10px;">Se entraste por convite de um PT, desmarca a opção.</p>
-        </div>
-        <button class="btn" type="submit" id="btnOnboard">Criar conta</button>
-        <p class="err hidden" id="errOnboard"></p>
-      </form>
-    </div>
-  </section>
-
-  <!-- Perfil profissional do PT: obrigatório antes de usar a app -->
-  <section id="perfilPTGate" class="hidden">
-    <h1 style="font-size:26px;">Quase lá 🎓</h1>
-    <p class="muted" style="margin-top:8px;">Precisamos de saber quem és antes de aprovarmos a tua conta.</p>
-    <div class="card" style="margin-top:20px;max-width:440px;">
-      <form id="fPerfilPT">
-        <label for="ptTelefone">Telefone</label>
-        <input type="text" id="ptTelefone" placeholder="9xx xxx xxx" inputmode="tel" required />
-
-        <label for="ptProfissao" style="margin-top:12px;">Profissão (se PT não é a única)</label>
-        <input type="text" id="ptProfissao" placeholder="ex: Personal Trainer, Fisioterapeuta" />
-
-        <label for="ptAnos" style="margin-top:12px;">Anos de experiência como PT</label>
-        <select id="ptAnos" required>
-          <option value="0">Menos de 1</option>
-          <option value="1">1</option><option value="2">2</option><option value="3">3</option>
-          <option value="5">4-5</option><option value="8">6-10</option><option value="15">Mais de 10</option>
-        </select>
-
-        <label for="ptFormacaoNome" style="margin-top:12px;">Formação (curso/certificação)</label>
-        <input type="text" id="ptFormacaoNome" placeholder="ex: Licenciatura em Ciências do Desporto" required />
-
-        <label for="ptFormacaoInstituicao" style="margin-top:12px;">Instituição</label>
-        <input type="text" id="ptFormacaoInstituicao" placeholder="ex: FADEUP" required />
-
-        <label for="ptFormacaoAno" style="margin-top:12px;">Ano de conclusão</label>
-        <input type="text" id="ptFormacaoAno" inputmode="numeric" placeholder="ex: 2019" required />
-
-        <button class="btn" type="submit" id="btnPerfilPT">Enviar para aprovação</button>
-        <p class="err hidden" id="errPerfilPT"></p>
-      </form>
-    </div>
-  </section>
-
-  <!-- Área PT -->
-  <section id="areaPT" class="hidden">
 
     <div class="pt-page" id="pagHoje" data-pagina="hoje">
       <div class="pt-hero">
@@ -627,7 +571,61 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- Onboarding: primeira entrada, sem registo de pessoa ainda -->
+  <section id="onboarding" class="hidden">
+    <h1 style="font-size:26px;" id="onboardTitulo">Bem-vindo 👊</h1>
+    <p class="muted" style="margin-top:8px;" id="onboardSub">Só precisamos do teu nome para começar.</p>
+    <div class="card" style="margin-top:20px;max-width:440px;">
+      <form id="fOnboard">
+        <label for="nome">O teu nome</label>
+        <input type="text" id="nome" placeholder="Nome e apelido" required minlength="2" />
+        <div id="onboardSouPTWrap">
+          <label class="check"><input type="checkbox" id="souPT" checked /> Sou Personal Trainer</label>
+          <p class="tiny" style="margin-top:10px;">Se entraste por convite de um PT, desmarca a opção.</p>
+        </div>
+        <button class="btn" type="submit" id="btnOnboard">Criar conta</button>
+        <p class="err hidden" id="errOnboard"></p>
+      </form>
+    </div>
   </section>
+
+  <!-- Perfil profissional do PT: obrigatório antes de usar a app -->
+  <section id="perfilPTGate" class="hidden">
+    <h1 style="font-size:26px;">Quase lá 🎓</h1>
+    <p class="muted" style="margin-top:8px;">Precisamos de saber quem és antes de aprovarmos a tua conta.</p>
+    <div class="card" style="margin-top:20px;max-width:440px;">
+      <form id="fPerfilPT">
+        <label for="ptTelefone">Telefone</label>
+        <input type="text" id="ptTelefone" placeholder="9xx xxx xxx" inputmode="tel" required />
+
+        <label for="ptProfissao" style="margin-top:12px;">Profissão (se PT não é a única)</label>
+        <input type="text" id="ptProfissao" placeholder="ex: Personal Trainer, Fisioterapeuta" />
+
+        <label for="ptAnos" style="margin-top:12px;">Anos de experiência como PT</label>
+        <select id="ptAnos" required>
+          <option value="0">Menos de 1</option>
+          <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+          <option value="5">4-5</option><option value="8">6-10</option><option value="15">Mais de 10</option>
+        </select>
+
+        <label for="ptFormacaoNome" style="margin-top:12px;">Formação (curso/certificação)</label>
+        <input type="text" id="ptFormacaoNome" placeholder="ex: Licenciatura em Ciências do Desporto" required />
+
+        <label for="ptFormacaoInstituicao" style="margin-top:12px;">Instituição</label>
+        <input type="text" id="ptFormacaoInstituicao" placeholder="ex: FADEUP" required />
+
+        <label for="ptFormacaoAno" style="margin-top:12px;">Ano de conclusão</label>
+        <input type="text" id="ptFormacaoAno" inputmode="numeric" placeholder="ex: 2019" required />
+
+        <button class="btn" type="submit" id="btnPerfilPT">Enviar para aprovação</button>
+        <p class="err hidden" id="errPerfilPT"></p>
+      </form>
+    </div>
+  </section>
+
+  <!-- Área PT -->
 
   <!-- Área Cliente -->
   <section id="areaCliente" class="hidden">
@@ -825,10 +823,9 @@
       show('perfilPTGate');
     } else if (perfilPT){
       $('ptNomeHero').textContent = primeiroNome;
-      // cardAdmin é o dono da navegação partilhada — mostra-se sempre que há perfil de
-      // PT, mesmo sem ser admin (as páginas exclusivas de admin ficam só sem dados).
+      // cardAdmin é a app — mostra-se sempre que há perfil de PT, mesmo sem ser
+      // admin (as páginas exclusivas de admin ficam só sem dados).
       show('cardAdmin');
-      show('areaPT');
       await carregarClientes();
       await carregarGanhosPT(pessoa.id);
       await carregarResumoPT();
@@ -1878,10 +1875,9 @@
     }));
     return mostrar;
   }
-  // Admin + Treinador partilham uma única navegação (#adminNav), mas as páginas do
-  // Treinador continuam fisicamente dentro de #areaPT — o navegador cobre os dois
-  // contentores, sem interruptor nenhum entre "vistas".
-  const mostrarPaginaAdmin = criarNavegador(['cardAdmin', 'areaPT']);
+  // O PT é a app — uma navegação única, um contentor único, sem "área" separada
+  // nem interruptor nenhum entre vistas.
+  const mostrarPaginaAdmin = criarNavegador('cardAdmin');
   const mostrarPaginaCliente = criarNavegador('cardClientePivot');
 
   function abrirSheet(){
