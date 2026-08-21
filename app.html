@@ -577,7 +577,7 @@
   <section id="onboarding" class="hidden">
     <h1 style="font-size:26px;" id="onboardTitulo">Bem-vindo 👊</h1>
     <p class="muted" style="margin-top:8px;" id="onboardSub">Só precisamos do teu nome para começar.</p>
-    <div class="card" style="margin-top:20px;max-width:440px;">
+    <div class="card" style="margin-top:20px;max-width:520px;">
       <form id="fOnboard">
         <label for="nome">O teu nome</label>
         <input type="text" id="nome" placeholder="Nome e apelido" required minlength="2" />
@@ -585,6 +585,93 @@
           <label class="check"><input type="checkbox" id="souPT" checked /> Sou Personal Trainer</label>
           <p class="tiny" style="margin-top:10px;">Se entraste por convite de um PT, desmarca a opção.</p>
         </div>
+
+        <div id="onboardInscricaoWrap" class="hidden">
+          <p class="secao-form" style="margin-top:20px;">Sobre ti</p>
+          <label for="inscIdade">Idade</label>
+          <input type="text" inputmode="numeric" id="inscIdade" placeholder="ex: 34" required />
+          <label for="inscAltura" style="margin-top:12px;">Altura (cm)</label>
+          <input type="text" inputmode="numeric" id="inscAltura" placeholder="ex: 175" required />
+          <label for="inscPeso" style="margin-top:12px;">Peso atual (kg)</label>
+          <input type="text" inputmode="decimal" id="inscPeso" placeholder="ex: 78.5" required />
+
+          <p class="secao-form">Objetivo</p>
+          <label for="inscObjetivo">Objetivo</label>
+          <select id="inscObjetivo" required>
+            <option value="hipertrofia">Hipertrofia</option>
+            <option value="forca">Força</option>
+            <option value="perda_peso">Perda de peso</option>
+            <option value="definicao">Definição</option>
+            <option value="saude_geral">Saúde geral</option>
+            <option value="manutencao">Manutenção</option>
+            <option value="reabilitacao">Reabilitação</option>
+            <option value="performance">Performance</option>
+          </select>
+          <label for="inscPesoObjetivo" style="margin-top:12px;">Peso objetivo (kg) — opcional</label>
+          <input type="text" inputmode="decimal" id="inscPesoObjetivo" placeholder="ex: 72" />
+
+          <label for="inscNivel" style="margin-top:12px;">Nível</label>
+          <select id="inscNivel" required>
+            <option value="iniciante">Iniciante</option>
+            <option value="intermedio">Intermédio</option>
+            <option value="avancado">Avançado</option>
+          </select>
+
+          <label for="inscDias" style="margin-top:12px;">Dias disponíveis / semana</label>
+          <select id="inscDias" required>
+            <option value="1">1</option><option value="2">2</option><option value="3" selected>3</option>
+            <option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option>
+          </select>
+
+          <label for="inscMinutos" style="margin-top:12px;">Minutos por sessão</label>
+          <select id="inscMinutos" required>
+            <option value="30">30</option><option value="45">45</option>
+            <option value="60" selected>60</option><option value="90">90</option><option value="120">120</option>
+          </select>
+
+          <p class="secao-form">Tipo de treino</p>
+          <label>Modalidades</label>
+          <div id="inscModalidades" class="pill-group"></div>
+
+          <div id="inscCorridaExtra" class="hidden" style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);">
+            <label for="inscDistanciaAlvo">Distância-alvo (km) — corrida ou ciclismo</label>
+            <input type="text" inputmode="decimal" id="inscDistanciaAlvo" placeholder="ex: 12" />
+            <label for="inscSuperficie" style="margin-top:12px;">Superfície</label>
+            <select id="inscSuperficie">
+              <option value="">—</option>
+              <option value="estrada">Estrada</option>
+              <option value="trail">Trail</option>
+              <option value="pista">Pista</option>
+              <option value="mista">Mista</option>
+            </select>
+            <label for="inscDesnivel" style="margin-top:12px;">Desnível</label>
+            <select id="inscDesnivel">
+              <option value="">—</option>
+              <option value="baixo">Baixo</option>
+              <option value="medio">Médio</option>
+              <option value="alto">Alto</option>
+            </select>
+            <label for="inscDataProva" style="margin-top:12px;">Data da prova (opcional)</label>
+            <input type="date" id="inscDataProva" />
+          </div>
+
+          <label style="margin-top:12px;">Local de treino</label>
+          <div id="inscLocal" class="pill-group"></div>
+
+          <p class="secao-form">Equipamento</p>
+          <label>Equipamento disponível</label>
+          <div id="inscEquipamento" class="pill-group"></div>
+
+          <p class="secao-form">Lesões / limitações</p>
+          <label>Lesões / limitações</label>
+          <div id="inscLimitacoes" class="pill-group"></div>
+
+          <label class="check" style="margin-top:20px;">
+            <input type="checkbox" id="inscConsentimento" required />
+            Autorizo a partilha destes dados de saúde com o meu treinador, para fins de treino.
+          </label>
+        </div>
+
         <button class="btn" type="submit" id="btnOnboard">Criar conta</button>
         <p class="err hidden" id="errOnboard"></p>
       </form>
@@ -630,14 +717,18 @@
   <!-- Área Cliente -->
   <section id="areaCliente" class="hidden">
     <div class="card hidden" id="cardBloqueado" style="text-align:center;">
-      <h3 style="font-size:20px;">Acesso pendente</h3>
+      <h3 style="font-size:24px;" id="bloqueadoTitulo">Quase a começar 💪</h3>
       <p class="muted" id="bloqueadoTexto" style="margin-top:10px;"></p>
-      <div class="card hidden" id="cardPagamentoInfo" style="margin-top:20px;background:var(--bg-raised);">
-        <p class="tiny">Valor a pagar</p>
-        <h3 id="pagamentoValor" style="font-size:32px;font-weight:800;color:var(--primary);margin-top:4px;"></h3>
-        <p class="tiny" style="margin-top:14px;">Por MBWay para</p>
-        <h3 id="pagamentoContacto" style="font-size:22px;font-weight:700;margin-top:4px;"></h3>
-        <p class="tiny" style="margin-top:14px;">Depois de enviares, avisa o teu treinador — é ele que confirma o acesso.</p>
+      <div class="card hidden" id="cardPagamentoInfo" style="margin-top:20px;background:var(--bg-raised);text-align:left;">
+        <p style="font-weight:700;font-size:15px;">O teu perfil já está pronto.</p>
+        <p class="muted" style="margin-top:6px;">Objetivo, nível, equipamento — o teu treinador já tem tudo para desenhar o teu plano. Falta só um passo: confirmar a subscrição.</p>
+        <div style="margin-top:18px;padding-top:16px;border-top:1px solid var(--border);text-align:center;">
+          <p class="tiny">Valor a pagar</p>
+          <h3 id="pagamentoValor" style="font-size:32px;font-weight:800;color:var(--primary);margin-top:4px;"></h3>
+          <p class="tiny" style="margin-top:14px;">Por MBWay para</p>
+          <h3 id="pagamentoContacto" style="font-size:22px;font-weight:700;margin-top:4px;"></h3>
+        </div>
+        <p class="tiny" style="margin-top:16px;">Depois de enviares, avisa o teu treinador — assim que ele confirmar, o teu treino fica disponível aqui mesmo. Costuma ser rápido.</p>
       </div>
     </div>
 
@@ -797,8 +888,18 @@
       if (codigoConvite) $('souPT').checked = false;
       if (inscricaoDireta){
         $('onboardTitulo').textContent = 'Vamos começar 💪';
-        $('onboardSub').textContent = 'Só o teu nome — o resto tratamos nós.';
+        $('onboardSub').textContent = 'O teu perfil todo, num único passo — depois é só treinar.';
         hide('onboardSouPTWrap');
+        show('onboardInscricaoWrap');
+        montarPills('inscModalidades', MODALIDADES, m => MODALIDADE_LABEL[m]);
+        montarPills('inscLocal', LOCAIS, l => LOCAL_LABEL[l]);
+        montarPills('inscEquipamento', EQUIPAMENTO);
+        montarPills('inscLimitacoes', LIMITACOES);
+        const atualizarInscCorridaExtra = () => {
+          const ativo = lerPills('inscModalidades').some(m => m === 'corrida' || m === 'ciclismo');
+          $('inscCorridaExtra').classList.toggle('hidden', !ativo);
+        };
+        $('inscModalidades').addEventListener('change', atualizarInscCorridaExtra);
       }
       show('onboarding');
       return;
@@ -836,10 +937,11 @@
       show('areaCliente');
       show('cardBloqueado');
       const MSG_BLOQUEIO = {
-        pendente: 'Ainda não tens acesso — falta o pagamento da subscrição.',
+        pendente: `Olá, ${primeiroNome}! Ficamos contentes por te teres inscrito. Falta só confirmar o pagamento para começares a treinar a sério.`,
         suspenso: 'A tua conta está suspensa. Fala com o teu treinador.',
         arquivado: 'A tua conta está arquivada.'
       };
+      $('bloqueadoTitulo').textContent = pessoa.estado === 'pendente' ? 'Quase a começar 💪' : 'Acesso pendente';
       $('bloqueadoTexto').textContent = MSG_BLOQUEIO[pessoa.estado] ?? 'Sem acesso de momento.';
 
       if (pessoa.estado === 'pendente'){
@@ -2134,9 +2236,54 @@
     $('btnOnboard').disabled = true;
     hide('errOnboard');
     const inscricaoDireta = new URLSearchParams(location.search).get('inscricao') === '1';
-    const { error } = inscricaoDireta
-      ? await sb.rpc('bm_inscrever_atleta', { p_nome: $('nome').value.trim() })
-      : await sb.rpc('bm_criar_pessoa', { p_nome: $('nome').value.trim(), p_como_pt: $('souPT').checked });
+
+    let error;
+    if (inscricaoDireta){
+      const equipamento = lerPills('inscEquipamento');
+      const limitacoes = lerPills('inscLimitacoes');
+      if (equipamento.length === 0){
+        $('errOnboard').textContent = 'Falta selecionar equipamento — usa "Sem equipamento" se não houver nenhum.';
+        show('errOnboard');
+        $('inscEquipamento').scrollIntoView({ behavior:'smooth', block:'center' });
+        $('btnOnboard').disabled = false;
+        return;
+      }
+      if (limitacoes.length === 0){
+        $('errOnboard').textContent = 'Falta selecionar lesões/limitações — usa "Nenhuma" se não houver.';
+        show('errOnboard');
+        $('inscLimitacoes').scrollIntoView({ behavior:'smooth', block:'center' });
+        $('btnOnboard').disabled = false;
+        return;
+      }
+      if (!$('inscConsentimento').checked){
+        $('errOnboard').textContent = 'Precisas de autorizar a partilha dos dados de saúde com o teu treinador para continuar.';
+        show('errOnboard');
+        $('btnOnboard').disabled = false;
+        return;
+      }
+      ({ error } = await sb.rpc('bm_inscrever_atleta', {
+        p_nome: $('nome').value.trim(),
+        p_idade: parseInt($('inscIdade').value, 10),
+        p_altura_cm: parseFloat($('inscAltura').value),
+        p_peso_kg: parseFloat($('inscPeso').value),
+        p_objetivo: $('inscObjetivo').value,
+        p_nivel: $('inscNivel').value,
+        p_dias_disponiveis: parseInt($('inscDias').value, 10),
+        p_minutos_por_sessao: parseInt($('inscMinutos').value, 10),
+        p_equipamento: equipamento,
+        p_limitacoes: limitacoes,
+        p_peso_objetivo_kg: $('inscPesoObjetivo').value ? parseFloat($('inscPesoObjetivo').value) : null,
+        p_modalidades: lerPills('inscModalidades'),
+        p_local_treino: lerPills('inscLocal'),
+        p_distancia_alvo_km: $('inscDistanciaAlvo').value ? parseFloat($('inscDistanciaAlvo').value) : null,
+        p_superficie_corrida: $('inscSuperficie').value || null,
+        p_desnivel_corrida: $('inscDesnivel').value || null,
+        p_data_prova: $('inscDataProva').value || null
+      }));
+    } else {
+      ({ error } = await sb.rpc('bm_criar_pessoa', { p_nome: $('nome').value.trim(), p_como_pt: $('souPT').checked }));
+    }
+
     if (error){
       $('errOnboard').textContent = 'Não foi possível criar a conta: ' + error.message;
       show('errOnboard');
