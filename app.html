@@ -764,7 +764,15 @@
       </nav>
 
       <div class="pt-page active" data-pagina="treino">
-        <div class="card hidden" id="cardObjetivo" style="padding:0;border:none;background:none;">
+        <div id="faixaSemanal" style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:16px;max-width:440px;"></div>
+        <div class="card hidden" id="cardResumoAtleta" style="max-width:440px;">
+          <div style="display:flex;gap:10px;">
+            <div style="text-align:center;flex:1;"><div class="stat-num" style="color:var(--primary);" id="resumoSessoesSemana">—</div><div class="stat-label">Esta semana</div></div>
+            <div style="text-align:center;flex:1;"><div class="stat-num" style="color:var(--tertiary);" id="resumoUltimoTreino">—</div><div class="stat-label">Último treino</div></div>
+          </div>
+          <p class="tiny" id="resumoMensagem" style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);"></p>
+        </div>
+        <div class="card hidden" id="cardObjetivo" style="padding:0;border:none;background:none;margin-top:16px;">
           <p class="tiny">Objetivo atual</p>
           <h3 id="objetivoAtual" style="font-size:20px;font-weight:600;margin-top:4px;"></h3>
         </div>
@@ -1342,6 +1350,29 @@
     show('cardClientePivot');
     hide('saudacaoTopo'); // a receção fica só na saudação própria do atleta, não duplicada
     if (pessoaNomeAtual) $('saudacaoAtleta').textContent = `Olá, ${pessoaNomeAtual}. O que vamos fazer hoje?`;
+
+    await carregarFaixaSemanal(pessoaId);
+
+    {
+      const { data: resumo } = await sb.rpc('bm_meu_resumo');
+      const r = resumo?.[0];
+      if (r){
+        const sessoes = r.sessoes_esta_semana ?? 0;
+        $('resumoSessoesSemana').textContent = r.dias_planeados ? `${sessoes}/${r.dias_planeados}` : sessoes;
+        if (r.ultima_sessao_em){
+          const dias = Math.floor((Date.now() - new Date(r.ultima_sessao_em)) / 86400000);
+          $('resumoUltimoTreino').textContent = dias === 0 ? 'Hoje' : dias === 1 ? 'Ontem' : `Há ${dias}d`;
+        } else {
+          $('resumoUltimoTreino').textContent = '—';
+        }
+        $('resumoMensagem').textContent =
+          !r.ultima_sessao_em ? 'Ainda sem treinos registados — o primeiro é sempre o mais importante.'
+          : sessoes === 0 ? 'Ainda sem treino esta semana. Vamos a isto?'
+          : r.dias_planeados && sessoes >= r.dias_planeados ? 'Semana cumprida — força total. 💪'
+          : 'Continua assim, cada sessão conta.';
+        show('cardResumoAtleta');
+      }
+    }
     {
       const { data: obj } = await sb.from('objetivos_cliente')
         .select('objetivo').eq('cliente_id', pessoaId).is('ativo_ate', null)
@@ -1448,6 +1479,36 @@
     $('pesoClienteInput').value = '';
     await carregarAreaCliente(pessoaIdAtual);
   });
+
+  const NOMES_DIA_CURTO = ['DOM','SEG','TER','QUA','QUI','SEX','SÁB'];
+
+  async function carregarFaixaSemanal(pessoaId){
+    const hoje = new Date();
+    const domingo = new Date(hoje);
+    domingo.setDate(hoje.getDate() - hoje.getDay());
+
+    const { data: sessoes } = await sb.rpc('bm_sessoes_cliente', { p_cliente_id: pessoaId, p_limite: 20 });
+    const diasTreinados = new Set(
+      (sessoes || []).filter(s => s.concluida_em).map(s => new Date(s.concluida_em).toDateString())
+    );
+
+    $('faixaSemanal').innerHTML = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(domingo);
+      d.setDate(domingo.getDate() + i);
+      const treinou = diasTreinados.has(d.toDateString());
+      const ehHoje = d.toDateString() === hoje.toDateString();
+      const futuro = d > hoje && !ehHoje;
+      return `<div style="text-align:center;">
+        <p class="tiny" style="color:var(--text-tertiary);margin-bottom:4px;">${NOMES_DIA_CURTO[i]}</p>
+        <div style="width:32px;height:32px;margin:0 auto;border-radius:999px;display:flex;align-items:center;justify-content:center;
+          font-size:13px;font-weight:700;
+          ${ehHoje ? 'border:2px solid var(--primary);color:var(--primary);' : ''}
+          ${treinou ? 'background:var(--primary);color:var(--on-primary);' : futuro ? 'color:var(--text-tertiary);' : 'color:var(--text-secondary);'}">
+          ${d.getDate()}
+        </div>
+      </div>`;
+    }).join('');
+  }
 
   async function carregarCalendario(pessoaId){
     const hoje = new Date();
